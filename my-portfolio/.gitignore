@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+portfolio-backend/.env
+# Atau kalau mau sekalian block node_modules backend:
+portfolio-backend/node_modules/
