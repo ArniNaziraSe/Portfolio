@@ -1,0 +1,73 @@
+[
+  {
+    "id": 1,
+    "slug": "careerlog",
+    "title": "CareerLog",
+    "type": "Coding Project",
+    "category": "Web Development",
+    "shortDescription": "A web application for tracking job applications, company data, interview schedules, and job search progress.",
+    "description": "CareerLog is a web-based application designed to help users manage their job search process. The system allows users to record company information, track application status, manage interview schedules, and monitor job search progress through dashboard metrics.",
+    "image": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80",
+    "tech": ["Laravel", "PostgreSQL", "Tailwind CSS", "Livewire"],
+    "features": [
+      "Job application tracking",
+      "Company data management",
+      "Application status filter",
+      "Dashboard metrics",
+      "Upcoming interview overview",
+      "Responsive layout"
+    ],
+    "role": "Full-stack Developer",
+    "year": "2026",
+    "status": "Completed",
+    "demoUrl": "#",
+    "githubUrl": "#"
+  },
+  {
+    "id": 2,
+    "slug": "portfolio-website",
+    "title": "Portfolio Website",
+    "type": "Coding Project",
+    "category": "Web Development",
+    "shortDescription": "A responsive personal portfolio website built with React to showcase projects, skills, and CV.",
+    "description": "This portfolio website was built to present personal profile, selected projects, technical skills, CV, and contact information. It uses React components, route-based pages, and responsive CSS styling.",
+    "image": "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80",
+    "tech": ["React", "CSS", "React Router", "Vite"],
+    "features": [
+      "Responsive design",
+      "Project listing page",
+      "Project detail page",
+      "About me page",
+      "Reusable components"
+    ],
+    "role": "Frontend Developer",
+    "year": "2026",
+    "status": "In Progress",
+    "demoUrl": "#",
+    "githubUrl": "#"
+  },
+  {
+    "id": 3,
+    "slug": "excel-sales-dashboard",
+    "title": "Excel Sales Dashboard",
+    "type": "Excel Project",
+    "category": "Data Analysis",
+    "shortDescription": "An interactive Excel dashboard for analyzing sales performance, revenue trends, and product categories.",
+    "description": "This Excel dashboard was created to analyze sales data using formulas, Pivot Tables, charts, slicers, and a clean visual layout. The dashboard helps users understand revenue trends, best-selling products, and category performance in a simple and readable format.",
+    "image": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80",
+    "tech": ["Microsoft Excel", "Pivot Table", "Charts", "Slicers", "Formulas"],
+    "features": [
+      "Sales performance summary",
+      "Revenue trend visualization",
+      "Product category analysis",
+      "Interactive slicers",
+      "Clean dashboard layout",
+      "Automatic summary calculation"
+    ],
+    "role": "Data Dashboard Creator",
+    "year": "2026",
+    "status": "Sample Project",
+    "demoUrl": "#",
+    "githubUrl": ""
+  }
+]

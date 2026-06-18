@@ -1,0 +1,29 @@
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import { BrowserRouter, Routes, Route } from "react-router-dom"
+import './index.css'
+import { ContactProvider } from "./context/ContactContext.jsx";
+import ContactDetail from "./components/ContactDetail.jsx";
+import Home from './pages/Home.jsx'
+import Projects from "./pages/Projects.jsx";
+import ProjectDetail from "./pages/ProjectDetail.jsx";
+import About from "./pages/About.jsx";
+import AdminDashboard from './pages/AdminDashboard.jsx';
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <BrowserRouter>
+      <ContactProvider>
+        <ContactDetail />
+
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/projects" element={<Projects />} />
+          <Route path="/projects/:slug" element={<ProjectDetail />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+        </Routes>
+      </ContactProvider>
+    </BrowserRouter>
+  </StrictMode>,
+)

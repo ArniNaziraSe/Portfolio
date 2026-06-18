@@ -1,0 +1,862 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+
+/* ============================================================
+   RESET & BASE LAYOUT
+   ============================================================ */
+
+.admin-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  text-align: left !important;
+  background-color: #f7f9fb;
+  color: #191c1e;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  z-index: 999999;
+}
+
+.admin-container * {
+  box-sizing: border-box;
+}
+
+/* ============================================================
+   SIDEBAR NAVIGASI KIRI
+   ============================================================ */
+
+.admin-sidebar-nav {
+  width: 280px;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255, 255, 255, 0.4);
+  display: flex;
+  flex-direction: column;
+  padding: 32px 24px;
+  height: 100%;
+  flex-shrink: 0;
+}
+
+.sidebar-brand h2 { font-size: 20px; font-weight: 800; color: #765469; margin: 0; text-align: left; }
+.sidebar-brand span { font-size: 11px; font-weight: 700; color: #807479; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-top: 2px; }
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 32px;
+  flex: 1;
+  justify-content: flex-start;
+}
+
+.sidebar-menu button {
+  background: transparent;
+  border: none;
+  outline: none;
+  text-align: left !important;
+  padding: 14px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 16px;
+  color: #4e4449;
+  cursor: pointer;
+  width: 100%;
+  display: block;
+  font-family: inherit;
+  transition: all 0.25s ease;
+}
+
+.sidebar-menu button:hover,
+.sidebar-menu button.active {
+  background: #fbcfe8;
+  color: #765469;
+  transform: translateX(6px);
+}
+
+.sidebar-logout-wrapper { width: 100%; margin-top: auto; }
+
+.admin-logout-btn {
+  width: 100%;
+  background: rgba(186, 26, 26, 0.08);
+  border: 1px solid rgba(186, 26, 26, 0.15);
+  color: #ba1a1a;
+  padding: 12px 16px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 16px;
+  cursor: pointer;
+  text-align: center !important;
+}
+
+.admin-logout-btn:hover { background: #ba1a1a; color: white; }
+
+/* ============================================================
+   MAIN WORKSPACE & TOPBAR
+   ============================================================ */
+
+.admin-main-workspace {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background-color: #f7f9fb;
+}
+
+.workspace-topbar {
+  height: 75px;
+  padding: 0 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.4);
+  border-bottom: 1px solid rgba(118, 84, 105, 0.05);
+}
+
+.topbar-left-spacer {
+  display: flex;
+  align-items: center;
+}
+
+.system-status-indicator {
+  font-size: 12px;
+  font-weight: 700;
+  color: #45607e;
+  background: rgba(69, 96, 126, 0.1);
+  padding: 6px 14px;
+  border-radius: 999px;
+}
+
+.topbar-actions { position: relative; }
+
+.bell-trigger-wrapper {
+  background: white;
+  border: 1px solid rgba(0,0,0,0.05);
+  padding: 10px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notification-badge-counter {
+  background: #ba1a1a;
+  color: white;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 999px;
+}
+
+/* Pop-up notifikasi */
+.notification-glass-popup {
+  position: absolute;
+  top: 55px;
+  right: 0;
+  width: 320px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 24px;
+  padding: 20px;
+  box-shadow: 0 12px 40px rgba(118, 84, 105, 0.15);
+  z-index: 99999999;
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  padding-bottom: 8px;
+}
+
+.popup-header h4 { margin: 0; font-size: 15px; font-weight: 800; color: #765469; }
+.popup-header button { background: transparent; border: none; cursor: pointer; color: #807479; }
+
+.popup-notification-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.notification-track-item { display: flex; gap: 12px; align-items: flex-start; font-size: 12px; }
+.notification-track-item p { margin: 0; color: #191c1e; }
+.notification-track-item span { color: #807479; font-size: 11px; }
+
+.track-indicator-dot {
+  width: 8px;
+  height: 8px;
+  background: #45607e;
+  border-radius: 50%;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.empty-notif-text {
+  color: #807479;
+  font-size: 12px;
+  text-align: center;
+  padding: 12px 0;
+}
+
+/* ============================================================
+   KONTEN UTAMA (SHARED ANTAR TAB)
+   ============================================================ */
+
+.workspace-scroll-content { flex: 1; padding: 40px; overflow-y: auto; }
+.tab-view { max-width: 1200px; margin: 0 auto; text-align: left; }
+
+.view-header h1,
+.view-header-with-action h1 { font-size: 32px; font-weight: 800; color: #191c1e; margin: 0 0 6px 0; }
+
+.view-header p,
+.view-header-with-action p { color: #635c61; margin: 0 0 32px 0; font-size: 14px; }
+
+.view-header-with-action { display: flex; justify-content: space-between; align-items: flex-start; }
+
+.loading-core-hub { text-align: center !important; margin-top: 5rem; color: #765469; font-weight: 700; }
+
+.animate-fade { animation: adminDashboardFadeIn 0.35s ease-in-out; }
+@keyframes adminDashboardFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ============================================================
+   TAB 1 — DASHBOARD OVERVIEW
+   ============================================================ */
+
+.metrics-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.metric-glass-card {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  padding: 24px;
+  border-radius: 32px;
+}
+
+.metric-glass-card span { font-size: 12px; font-weight: 700; color: #807479; }
+.metric-glass-card.active-now { background: linear-gradient(135deg, rgba(251, 207, 232, 0.3) 0%, rgba(193, 220, 255, 0.3) 100%); }
+.metric-glass-card h3 { font-size: 34px; font-weight: 800; margin: 6px 0; color: #191c1e; }
+.metric-glass-card p { font-size: 12px; color: #635c61; margin: 0; }
+.trend-up { color: #ba1a1a !important; font-weight: 700; }
+
+.chart-analytics-card {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  padding: 32px;
+  border-radius: 32px;
+  margin-bottom: 32px;
+}
+
+.chart-analytics-card h4 { margin: 0 0 4px 0; font-size: 16px; font-weight: 700; color: #191c1e; }
+
+.chart-subtitle {
+  margin: 0 0 20px 0;
+  font-size: 12px;
+  color: #807479;
+}
+
+.visitor-chart-wrapper {
+  width: 100%;
+  overflow: hidden;
+}
+
+.visitor-chart-svg {
+  width: 100%;
+  height: 220px;
+  display: block;
+}
+
+.chart-axis-label {
+  font-size: 11px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  fill: #807479;
+}
+
+.chart-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #807479;
+  font-size: 13px;
+}
+
+.empty-state-text {
+  text-align: center;
+  padding: 32px 20px;
+  color: #807479;
+  font-size: 13px;
+  margin: 0;
+}
+
+.empty-state-text.small {
+  padding: 12px 4px;
+  font-size: 12px;
+}
+
+/* ============================================================
+   TAB 2 — PROJECTS MANAGEMENT
+   ============================================================ */
+
+.add-project-btn {
+  background: #765469;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(118, 84, 105, 0.2);
+  flex-shrink: 0;
+}
+
+.add-project-btn:hover { background: #5e4254; }
+
+.projects-table-card {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  padding: 32px;
+  border-radius: 32px;
+  margin-bottom: 32px;
+}
+
+.ethereal-data-table { width: 100%; border-collapse: collapse; text-align: left; }
+.ethereal-data-table th { padding: 16px; font-size: 11px; font-weight: 700; color: #807479; border-bottom: 1px solid rgba(118, 84, 105, 0.08); }
+.ethereal-data-table td { padding: 16px; border-bottom: 1px solid rgba(118, 84, 105, 0.04); font-size: 13px; color: #191c1e; }
+
+.td-project-info { display: flex; align-items: center; gap: 16px; }
+.td-project-info img { width: 44px; height: 44px; object-fit: cover; border-radius: 12px; flex-shrink: 0; }
+.td-project-info div { display: flex; flex-direction: column; }
+.td-project-info span { color: #807479; font-size: 12px; }
+
+.table-tech-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+.pill-tag { background: #eae0e6; color: #4b454a; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+
+.badge-status.pub { background: rgba(173, 201, 235, 0.25); color: #2d4965; font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 6px; }
+
+.td-actions { display: flex; gap: 6px; }
+.action-icon-btn { background: white; border: 1px solid rgba(0,0,0,0.06); padding: 8px; border-radius: 10px; cursor: pointer; }
+.action-icon-btn.del:hover { background: #ffdad6; }
+
+/* ============================================================
+   TAB 3 — ABOUT ME EDITOR
+   ============================================================ */
+
+.top-mini-tag {
+  font-size: 11px;
+  font-weight: 700;
+  color: #807479;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: block;
+}
+
+.header-action-buttons { display: flex; gap: 12px; }
+
+.btn-preview-changes {
+  background: transparent;
+  border: 1px solid #765469;
+  color: #765469;
+  padding: 12px 22px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.btn-save-changes {
+  background: #45607e;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(69, 96, 126, 0.2);
+}
+
+/* Layout 2 kolom: panel kiri (profile + education + experience), panel kanan (skills + certs) */
+.about-editor-split-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.editor-left-pane,
+.editor-right-pane {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Kartu kaca (glassmorphism) dasar dipakai di semua card About Me */
+.glass-morph {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.pane-inner-card {
+  padding: 32px;
+  border-radius: 32px;
+}
+
+.height-fill-panel {
+  min-height: 560px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Header di dalam tiap card (ikon + judul) */
+.card-inner-title,
+.card-inner-title-with-action {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid rgba(118, 84, 105, 0.05);
+  padding-bottom: 12px;
+}
+
+.card-inner-title h4,
+.title-left-side h4 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #191c1e;
+}
+
+.card-inner-title-with-action { justify-content: space-between; }
+
+.title-left-side { display: flex; align-items: center; gap: 12px; }
+
+.card-icon-avatar {
+  background: #ffd8ed;
+  padding: 6px 10px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.add-item-circle-btn {
+  background: white;
+  border: 1px solid #d1c3c9;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: #4e4449;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Form Profile Information */
+.form-row-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.form-group label { font-size: 12px; font-weight: 700; color: #807479; margin-bottom: 8px; }
+
+.form-group input,
+.form-group textarea {
+  padding: 12px 16px;
+  border-radius: 16px;
+  border: 1px solid #e0e3e5;
+  background: rgba(255, 255, 255, 0.5);
+  color: #191c1e;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #aaa5a8;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #45607e;
+  background: white;
+}
+
+.form-group input[type="file"] {
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+.image-preview {
+  margin-top: 10px;
+  max-width: 220px;
+  max-height: 140px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid #e0e3e5;
+  display: block;
+}
+
+.avatar-preview {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Education / Experience / Certifications — list timeline node */
+.education-records-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.education-timeline-node {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.5);
+  padding: 14px 76px 14px 20px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  position: relative;
+}
+
+.node-icon-cap {
+  background: #d0e4ff;
+  padding: 10px;
+  border-radius: 50%;
+  font-size: 16px;
+}
+
+.node-body-content h5 { margin: 0 0 4px 0; font-size: 14px; font-weight: 700; color: #191c1e; }
+.node-body-content p { margin: 0; font-size: 12px; color: #635c61; }
+
+/* Wrapper tombol edit + delete di tiap timeline node / certification node */
+.timeline-node-actions {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-edit-node {
+  background: transparent;
+  border: none;
+  color: #807479;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.btn-edit-node:hover { color: #45607e; }
+
+.btn-delete-node {
+  background: transparent;
+  border: none;
+  color: #ba1a1a;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+/* Technical Arsenal — daftar skill per kategori */
+.arsenal-dynamic-list-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  flex: 1;
+}
+
+.arsenal-tag-section { display: flex; flex-direction: column; }
+
+.section-tag-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.section-tag-header h5 { margin: 0; font-size: 11px; font-weight: 800; color: #807479; letter-spacing: 0.05em; }
+
+.section-tag-header-actions { display: flex; gap: 12px; }
+
+.add-tag-inline-btn {
+  background: transparent;
+  border: none;
+  color: #765469;
+  font-weight: 700;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.add-tag-inline-btn.danger { color: #ba1a1a; }
+
+.interactive-tags-box { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.tech-pill-interactive {
+  background: #ffd8ed;
+  color: #2c1325;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+}
+
+.tech-pill-interactive:nth-child(even) {
+  background: #d0e4ff;
+  color: #001d35;
+}
+
+.pill-close-cross { font-size: 10px; color: inherit; opacity: 0.6; cursor: pointer; }
+.pill-close-cross:hover { opacity: 1; }
+
+/* ============================================================
+   MODAL POP-UP (FORM EDUCATION/EXPERIENCE/CERT/SKILL/PROJECT)
+   ============================================================ */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(25, 28, 30, 0.2);
+  backdrop-filter: blur(10px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999999;
+}
+
+.modal-glass-container {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(40px);
+  border: 1px solid white;
+  padding: 40px;
+  border-radius: 32px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 88vh;
+  overflow-y: auto;
+}
+
+.modal-glass-container h3 { margin: 0 0 20px 0; font-size: 18px; font-weight: 700; color: #191c1e; }
+
+.modal-buttons { display: flex; gap: 12px; margin-top: 24px; }
+
+.modal-submit-btn {
+  background: #765469;
+  color: white;
+  border: none;
+  padding: 12px 22px;
+  border-radius: 16px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.modal-cancel-btn {
+  background: transparent;
+  border: 1px solid #807479;
+  color: #4e4449;
+  padding: 12px 24px;
+  border-radius: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.checkbox-inline-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4e4449;
+  cursor: pointer;
+}
+
+.checkbox-inline-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #765469;
+  cursor: pointer;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+/* ===== TABLET (1024px ke bawah) ===== */
+@media (max-width: 1024px) {
+  .metrics-summary-grid { grid-template-columns: repeat(2, 1fr); }
+  .workspace-scroll-content { padding: 32px 28px; }
+  .pane-inner-card { padding: 24px; }
+  .modal-glass-container { max-width: 440px; }
+  .about-editor-split-grid { grid-template-columns: 1fr; }
+  .height-fill-panel { min-height: unset; }
+}
+
+/* ===== HP / SMALL TABLET (768px ke bawah) =====
+   Sidebar pindah ke atas jadi bar horizontal */
+@media (max-width: 768px) {
+  /* Layout utama: sidebar di atas (column), bukan di samping (row) */
+  .admin-container { flex-direction: column; }
+
+  .admin-sidebar-nav {
+    width: 100%;
+    height: auto;
+    padding: 16px 20px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-right: none;
+    border-bottom: 1px solid rgba(118, 84, 105, 0.08);
+    flex-shrink: 0;
+  }
+
+  /* Brand dihilangkan di mobile biar sidebar horizontal lebih ringkas */
+  .sidebar-brand { display: none; }
+
+  /* Menu jadi baris horizontal di tengah */
+  .sidebar-menu {
+    flex-direction: row;
+    gap: 4px;
+    margin-top: 0;
+    flex: 1;
+    justify-content: center;
+    overflow-x: auto;
+  }
+
+  .sidebar-menu button {
+    width: auto;
+    padding: 8px 14px;
+    font-size: 12px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .sidebar-menu button:hover,
+  .sidebar-menu button.active {
+    transform: none; /* matiin slide effect di mobile */
+  }
+
+  /* Logout jadi compact icon-only di kanan */
+  .sidebar-logout-wrapper { width: auto; flex-shrink: 0; }
+  .admin-logout-btn { padding: 8px 12px; font-size: 11px; }
+
+  /* Topbar di bawah sidebar */
+  .workspace-topbar { padding: 0 20px; height: 60px; }
+  .system-status-indicator { font-size: 11px; padding: 5px 10px; }
+
+  .workspace-scroll-content { padding: 24px 20px; }
+
+  /* Heading lebih kecil */
+  .view-header h1,
+  .view-header-with-action h1 { font-size: 24px; }
+
+  /* Tombol & action di header berkali jadi full width supaya nggak kepotong */
+  .view-header-with-action {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+  .add-project-btn { width: 100%; }
+  .header-action-buttons {
+    width: 100%;
+    flex-direction: column;
+  }
+  .btn-preview-changes,
+  .btn-save-changes { width: 100%; }
+
+  /* Dashboard metrics: 1 kolom */
+  .metrics-summary-grid { grid-template-columns: 1fr; gap: 16px; }
+  .metric-glass-card { padding: 20px; }
+  .metric-glass-card h3 { font-size: 28px; }
+
+  .chart-analytics-card { padding: 20px; border-radius: 24px; }
+  .visitor-chart-svg { height: 180px; }
+
+  /* Card di About Me: padding & radius lebih kecil */
+  .pane-inner-card { padding: 20px; border-radius: 24px; }
+  .card-icon-avatar { padding: 4px 8px; font-size: 12px; }
+  .card-inner-title h4,
+  .title-left-side h4 { font-size: 16px; }
+
+  /* Form: 2 kolom jadi 1 */
+  .form-row-two { grid-template-columns: 1fr; gap: 0; }
+
+  /* Tabel Projects: bikin scroll horizontal supaya semua kolom kebaca */
+  .projects-table-card { padding: 16px; overflow-x: auto; }
+  .ethereal-data-table { min-width: 560px; }
+
+  /* Timeline node: padding kanan dikecilin biar tombol edit/delete pas */
+  .education-timeline-node {
+    padding: 12px 64px 12px 16px;
+    gap: 12px;
+  }
+  .node-icon-cap { padding: 8px; font-size: 14px; }
+  .node-body-content h5 { font-size: 13px; }
+  .node-body-content p { font-size: 11px; }
+
+  /* Modal: hampir full screen di HP */
+  .modal-overlay { padding: 16px; }
+  .modal-glass-container {
+    padding: 24px 20px;
+    border-radius: 24px;
+    max-height: 92vh;
+  }
+  .modal-glass-container h3 { font-size: 16px; }
+  .modal-buttons { flex-direction: column-reverse; gap: 8px; }
+  .modal-submit-btn,
+  .modal-cancel-btn { width: 100%; }
+
+  /* Pop-up notifikasi: kepotong di kanan kalau full width, jadi disesuaikan */
+  .notification-glass-popup { width: calc(100vw - 40px); right: -10px; }
+}
+
+/* ===== HP KECIL (480px ke bawah) ===== */
+@media (max-width: 480px) {
+  .workspace-scroll-content { padding: 16px; }
+  .view-header h1,
+  .view-header-with-action h1 { font-size: 22px; }
+
+  .sidebar-menu button { padding: 7px 10px; font-size: 11px; }
+
+  /* Skill pill di Technical Arsenal: lebih kecil biar muat */
+  .tech-pill-interactive { padding: 5px 12px; font-size: 11px; }
+}
