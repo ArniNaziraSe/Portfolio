@@ -218,6 +218,30 @@ body {
   object-fit: cover;
 }
 
+.hero-cta {
+  margin-top: 24px;
+}
+
+.hero-cv-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 28px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: white;
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 8px 18px rgba(59, 130, 246, 0.22);
+  transition: 0.2s ease;
+}
+
+.hero-cv-button:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+}
+
 /* Latest Projects */
 
 .latest-projects {

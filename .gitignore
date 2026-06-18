@@ -1,0 +1,8 @@
+# Backend
+portfolio-backend/node_modules/
+portfolio-backend/.env
+portfolio-backend/uploads/
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -1,34 +1,44 @@
-import { useState, useEffect } from "react"; // 1. Import useState & useEffect
+import { useState, useEffect } from "react";
 import "../pages/Home.css";
 
+const API_BASE = "http://localhost:5000";
+
+// Gabungin path gambar dari backend (cth: /uploads/projects/abc.jpg) jadi URL
+// lengkap. Tetap dukung URL eksternal lama (yang udah berupa http://...).
+function getImageUrl(path) {
+  if (!path) return null;
+  if (path.startsWith("http")) return path;
+  return `${API_BASE}${path}`;
+}
+
 function MainContent() {
-  // 2. Siapkan state untuk menampung data projects dari database & status loading
   const [latestProjects, setLatestProjects] = useState([]);
+  const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // 3. Ambil data dari backend pas halaman pertama kali di-load
   useEffect(() => {
-    fetch("http://localhost:5000/api/projects") // Jalur API Backend kita
-      .then((res) => res.json())
-      .then((data) => {
-        /* 
-          KARENA data dari database kolomnya adalah 'image_url' dan 'tech_stack' (string),
-          kita sesuaikan (transform) bentuknya biar pas sama codingan JSX kamu yang lama.
-        */
-        const transformedData = data.slice(0, 2).map((project) => ({
+    // Ambil 2 hal paralel: profile (buat link CV) & projects (buat Latest Projects).
+    // Pakai .catch per-fetch biar 1 endpoint error gak ngeblok yang lain.
+    Promise.all([
+      fetch(`${API_BASE}/api/projects`).then((res) => res.json()).catch(() => []),
+      fetch(`${API_BASE}/api/profile`).then((res) => res.json()).catch(() => null),
+    ])
+      .then(([projectsData, profileData]) => {
+        const transformedData = projectsData.slice(0, 2).map((project) => ({
           id: project.id,
+          slug: project.slug,
           title: project.title,
           description: project.description,
-          image: project.image_url, // Mengubah image_url jadi 'image'
-          // Mengubah string "React, Tailwind" jadi array ["React", "Tailwind"]
-          tech: project.tech_stack ? project.tech_stack.split(",").map(t => t.trim()) : [], 
+          image: project.image_url,
+          tech: project.tech_stack ? project.tech_stack.split(",").map((t) => t.trim()) : [],
         }));
 
-        setLatestProjects(transformedData); // Masukin data yang udah rapi ke state
-        setLoading(false); // Matikan loading
+        setLatestProjects(transformedData);
+        setProfile(profileData);
+        setLoading(false);
       })
       .catch((err) => {
-        console.error("Waduh gagal fetch data proyek, gwenchana:", err);
+        console.error("Waduh gagal fetch data, gwenchana:", err);
         setLoading(false);
       });
   }, []);
@@ -42,18 +52,26 @@ function MainContent() {
           </h1>
 
           <p className="hero-description">
-            {/* Ssst, jangan lupa ganti nama ini jadi namamu sendiri ya, Serena Aerin! 😉 */}
-            <strong>Serena Aerin</strong>, Informatics Engineering Graduate
-            &amp; Junior Web Developer. Building clean, efficient, and
-            user-centric digital solutions.
+            <strong>{profile?.full_name || "Arni Nazira"}</strong>,{" "}
+            {profile?.current_role ||
+              "Informatics Engineering Graduate & Junior Web Developer. Building clean, efficient, and user-centric digital solutions."}
           </p>
+
+          {/* Tombol Download CV — cuma muncul kalau profile.cv_url udah diisi via dashboard */}
+          {profile?.cv_url && (
+            <div className="hero-cta">
+              <a className="hero-cv-button" href={profile.cv_url} download>
+                Download CV
+              </a>
+            </div>
+          )}
         </div>
 
         <div className="hero-image-wrapper">
           <img
             className="hero-image"
             src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=900&q=80"
-            alt="Serena Aerin portfolio visual"
+            alt="Arni Nazira portfolio visual"
           />
         </div>
       </section>
@@ -63,9 +81,11 @@ function MainContent() {
           <h2>Latest Projects</h2>
         </div>
 
-        {/* 4. Tampilkan efek loading kalau datanya masih otw ditarik dari database */}
         {loading ? (
-          <p className="text-loading" style={{ textAlign: "center", color: "#007acc", margin: "2rem 0" }}>
+          <p
+            className="text-loading"
+            style={{ textAlign: "center", color: "#007acc", margin: "2rem 0" }}
+          >
             Loading projects dari database... ⏳
           </p>
         ) : (
@@ -75,7 +95,7 @@ function MainContent() {
                 <div className="project-image-wrapper">
                   <img
                     className="project-image"
-                    src={project.image}
+                    src={getImageUrl(project.image)}
                     alt={project.title}
                   />
                 </div>
@@ -90,7 +110,7 @@ function MainContent() {
                   <h3>{project.title}</h3>
                   <p>{project.description}</p>
 
-                  <a className="project-link" href="/projects">
+                  <a className="project-link" href={`/projects/${project.slug}`}>
                     View Details →
                   </a>
                 </div>

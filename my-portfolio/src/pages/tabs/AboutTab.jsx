@@ -355,7 +355,7 @@ function AboutTab({ onSkillsCountChange }) {
                   <label>CV File URL</label>
                   <input
                     type="text"
-                    placeholder="/cv-serena.pdf"
+                    placeholder="upload url file"
                     value={profile.cv_url || ""}
                     onChange={(e) => setProfile({ ...profile, cv_url: e.target.value })}
                   />
