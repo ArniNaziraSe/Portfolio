@@ -1,5 +1,27 @@
 import { useEffect, useState } from "react";
 import { API_BASE, getImageUrl, safeFetch } from "./apiClient";
+import RichTextEditor from "../../components/RichTextEditor";
+
+const EMPTY_FORM = {
+  title: "",
+  short_description: "",
+  description: "",
+  github_link: "",
+  demo_link: "",
+  tech_stack: "",
+  category: "Web Development",
+  role: "",
+  year: new Date().getFullYear().toString(),
+  status: "Completed",
+  features: "",
+};
+
+// Class CSS badge berdasarkan status (warna beda biar gampang dibedain mata)
+function getStatusClass(status) {
+  if (status === "In Progress") return "progress";
+  if (status === "Archived") return "archived";
+  return "pub"; // default = Completed → ijo
+}
 
 function ProjectsTab({ onCountChange }) {
   const [projects, setProjects] = useState([]);
@@ -8,7 +30,7 @@ function ProjectsTab({ onCountChange }) {
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentId, setCurrentId] = useState(null);
-  const [form, setForm] = useState({ title: "", description: "", github_link: "", tech_stack: "" });
+  const [form, setForm] = useState(EMPTY_FORM);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
 
@@ -32,15 +54,22 @@ function ProjectsTab({ onCountChange }) {
       setCurrentId(project.id);
       setForm({
         title: project.title || "",
+        short_description: project.short_description || "",
         description: project.description || "",
         github_link: project.github_link || "",
+        demo_link: project.demo_link || "",
         tech_stack: project.tech_stack || "",
+        category: project.category || "Web Development",
+        role: project.role || "",
+        year: project.year || new Date().getFullYear().toString(),
+        status: project.status || "Completed",
+        features: project.features || "",
       });
       setImagePreview(getImageUrl(project.image_url));
     } else {
       setIsEditing(false);
       setCurrentId(null);
-      setForm({ title: "", description: "", github_link: "", tech_stack: "" });
+      setForm(EMPTY_FORM);
       setImagePreview(null);
     }
     setShowModal(true);
@@ -59,10 +88,9 @@ function ProjectsTab({ onCountChange }) {
     const url = isEditing ? `${API_BASE}/api/projects/${currentId}` : `${API_BASE}/api/projects`;
 
     const formData = new FormData();
-    formData.append("title", form.title);
-    formData.append("description", form.description);
-    formData.append("github_link", form.github_link);
-    formData.append("tech_stack", form.tech_stack);
+    Object.entries(form).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
     if (imageFile) formData.append("image", imageFile);
 
     fetch(url, {
@@ -105,6 +133,9 @@ function ProjectsTab({ onCountChange }) {
             <thead>
               <tr>
                 <th>PROJECT INFO</th>
+                <th>CATEGORY</th>
+                <th>ROLE</th>
+                <th>YEAR</th>
                 <th>TECH STACK</th>
                 <th>STATUS</th>
                 <th>ACTIONS</th>
@@ -120,9 +151,12 @@ function ProjectsTab({ onCountChange }) {
                     />
                     <div>
                       <strong>{p.title}</strong>
-                      <span>{p.description?.substring(0, 50)}...</span>
+                      <span>{p.short_description?.substring(0, 50) || "No description"}...</span>
                     </div>
                   </td>
+                  <td className="td-text-cell">{p.category || "—"}</td>
+                  <td className="td-text-cell">{p.role || "—"}</td>
+                  <td className="td-text-cell">{p.year || "—"}</td>
                   <td>
                     <div className="table-tech-tags">
                       {p.tech_stack?.split(",").map((t) => (
@@ -133,7 +167,9 @@ function ProjectsTab({ onCountChange }) {
                     </div>
                   </td>
                   <td>
-                    <span className="badge-status pub">PUBLISHED</span>
+                    <span className={`badge-status ${getStatusClass(p.status)}`}>
+                      {p.status || "Completed"}
+                    </span>
                   </td>
                   <td className="td-actions">
                     <button onClick={() => openModal(p)} className="action-icon-btn">
@@ -152,7 +188,7 @@ function ProjectsTab({ onCountChange }) {
 
       {showModal && (
         <div className="modal-overlay">
-          <div className="modal-glass-container">
+          <div className="modal-glass-container modal-wide">
             <h3>{isEditing ? "✨ Modify Project" : "➕ New Project Record"}</h3>
             <form onSubmit={handleSubmit}>
               <div className="form-group">
@@ -164,36 +200,122 @@ function ProjectsTab({ onCountChange }) {
                   onChange={(e) => setForm({ ...form, title: e.target.value })}
                 />
               </div>
+
               <div className="form-group">
-                <label>Description</label>
+                <label>Short Description (1-2 kalimat, buat preview di card)</label>
                 <textarea
-                  required
-                  rows="3"
-                  value={form.description}
-                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  rows="2"
+                  placeholder="Brief tagline buat tampilan card di halaman Projects"
+                  value={form.short_description}
+                  onChange={(e) => setForm({ ...form, short_description: e.target.value })}
                 ></textarea>
               </div>
+
+              <div className="form-group">
+                <label>Full Description (rich text — tampil di halaman detail)</label>
+                <RichTextEditor
+                  value={form.description}
+                  onChange={(html) => setForm({ ...form, description: html })}
+                  placeholder="Jelasin project kamu lebih lengkap..."
+                />
+              </div>
+
               <div className="form-group">
                 <label>Project Image</label>
                 <input type="file" accept="image/*" onChange={handleImageChange} />
                 {imagePreview && <img src={imagePreview} alt="Preview" className="image-preview" />}
               </div>
-              <div className="form-group">
-                <label>GitHub Link</label>
-                <input
-                  type="text"
-                  value={form.github_link}
-                  onChange={(e) => setForm({ ...form, github_link: e.target.value })}
-                />
+
+              <div className="form-row-two">
+                <div className="form-group">
+                  <label>Category</label>
+                  <select
+                    value={form.category}
+                    onChange={(e) => setForm({ ...form, category: e.target.value })}
+                  >
+                    <option>Web Development</option>
+                    <option>Mobile Development</option>
+                    <option>Data Analysis</option>
+                    <option>UI/UX Design</option>
+                    <option>Excel Project</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Role</label>
+                  <input
+                    type="text"
+                    placeholder="e.g., Fullstack Developer"
+                    value={form.role}
+                    onChange={(e) => setForm({ ...form, role: e.target.value })}
+                  />
+                </div>
               </div>
+
+              <div className="form-row-two">
+                <div className="form-group">
+                  <label>Year</label>
+                  <input
+                    type="text"
+                    placeholder="2025"
+                    value={form.year}
+                    onChange={(e) => setForm({ ...form, year: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Status</label>
+                  <select
+                    value={form.status}
+                    onChange={(e) => setForm({ ...form, status: e.target.value })}
+                  >
+                    <option>Completed</option>
+                    <option>In Progress</option>
+                    <option>Archived</option>
+                  </select>
+                </div>
+              </div>
+
               <div className="form-group">
-                <label>Tech Stack</label>
+                <label>Tech Stack (pisahkan dengan koma)</label>
                 <input
                   type="text"
+                  placeholder="e.g., React, Node.js, PostgreSQL"
                   value={form.tech_stack}
                   onChange={(e) => setForm({ ...form, tech_stack: e.target.value })}
                 />
               </div>
+
+              <div className="form-group">
+                <label>Key Features (satu fitur per baris)</label>
+                <textarea
+                  rows="4"
+                  placeholder={`User authentication\nDashboard admin\nReal-time analytics`}
+                  value={form.features}
+                  onChange={(e) => setForm({ ...form, features: e.target.value })}
+                ></textarea>
+              </div>
+
+              <div className="form-row-two">
+                <div className="form-group">
+                  <label>GitHub Link</label>
+                  <input
+                    type="text"
+                    placeholder="https://github.com/..."
+                    value={form.github_link}
+                    onChange={(e) => setForm({ ...form, github_link: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Demo Link</label>
+                  <input
+                    type="text"
+                    placeholder="https://..."
+                    value={form.demo_link}
+                    onChange={(e) => setForm({ ...form, demo_link: e.target.value })}
+                  />
+                </div>
+              </div>
+
               <div className="modal-buttons">
                 <button type="submit" className="modal-submit-btn">
                   Save

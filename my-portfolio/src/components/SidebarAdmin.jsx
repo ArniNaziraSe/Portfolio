@@ -1,6 +1,6 @@
 import React from "react";
 
-function SidebarAdmin({ activeTab, setActiveTab }) {
+function SidebarAdmin({ activeTab, setActiveTab, onLogout }) {
   return (
     <aside className="admin-sidebar-nav">
       <div className="sidebar-brand">
@@ -30,11 +30,11 @@ function SidebarAdmin({ activeTab, setActiveTab }) {
       </nav>
 
       <div className="sidebar-logout-wrapper">
-        <button onClick={() => window.location.href = "/"} className="admin-logout-btn">
+        <button onClick={onLogout} className="admin-logout-btn">
           🚪 Exit
         </button>
       </div>
-   </aside>
+    </aside>
   );
 }
 

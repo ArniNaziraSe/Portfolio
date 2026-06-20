@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { API_BASE, PUBLIC_ABOUT_URL, getImageUrl, safeFetch } from "./apiClient";
+import RichTextEditor from "../../components/RichTextEditor";
 
 function AboutTab({ onSkillsCountChange }) {
   const [profile, setProfile] = useState({ full_name: "", current_role: "", bio: "", avatar_url: "", cv_url: "" });
@@ -333,11 +334,11 @@ function AboutTab({ onSkillsCountChange }) {
               </div>
               <div className="form-group">
                 <label>Professional Bio</label>
-                <textarea
-                  rows="4"
-                  value={profile.bio}
-                  onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
-                ></textarea>
+                <RichTextEditor
+                    value={profile.bio}
+                    onChange={(html) => setProfile({ ...profile, bio: html })}
+                    placeholder="Ceritain dirimu di sini..."
+                  />
               </div>
               <div className="form-row-two">
                 <div className="form-group">
@@ -597,11 +598,11 @@ function AboutTab({ onSkillsCountChange }) {
               </div>
               <div className="form-group">
                 <label>Description</label>
-                <textarea
-                  rows="3"
+                <RichTextEditor
                   value={edForm.description}
-                  onChange={(e) => setEdForm({ ...edForm, description: e.target.value })}
-                ></textarea>
+                  onChange={(html) => setEdForm({ ...edForm, description: html })}
+                  placeholder="Deskripsi singkat..."
+                />
               </div>
               <div className="form-group">
                 <label className="checkbox-inline-label">

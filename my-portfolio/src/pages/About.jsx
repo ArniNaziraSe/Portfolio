@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import "../components/RichTextEditor.css";
 import "./About.css";
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
 
 // Helper buat gambar yang diupload via dashboard (path "/uploads/...")
 // jadi URL lengkap. Tetap dukung URL eksternal yang udah berupa "http://..."
@@ -86,9 +87,10 @@ function About() {
           <div className="about-intro-card">
             <h3>Hello, I'm {firstName}.</h3>
 
-            {bioParagraphs.map((paragraph, idx) => (
-              <p key={idx}>{paragraph}</p>
-            ))}
+            <div
+              className="rich-content"
+              dangerouslySetInnerHTML={{ __html: profile?.bio || "" }}
+            />
           </div>
         </section>
 
@@ -111,7 +113,10 @@ function About() {
                     <h5>{item.institution}</h5>
                     <p className="about-timeline-meta">{item.title}</p>
                     <p className="about-year">{item.period}</p>
-                    <p>{item.description}</p>
+                    <div
+                      className="rich-content"
+                      dangerouslySetInnerHTML={{ __html: item.description || "" }}
+                    />
                   </div>
                 ))}
               </div>
@@ -128,7 +133,10 @@ function About() {
                     <p className="about-timeline-meta">
                       {item.institution} | {item.period}
                     </p>
-                    <p>{item.description}</p>
+                    <div
+                      className="rich-content"
+                      dangerouslySetInnerHTML={{ __html: item.description || "" }}
+                    />
                   </div>
                 ))}
               </div>

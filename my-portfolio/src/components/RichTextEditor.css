@@ -1,0 +1,241 @@
+/* ============================================
+   RICH TEXT EDITOR (TipTap)
+   ============================================ */
+
+.rt-editor {
+  border: 1px solid #e0e3e5;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.6);
+  overflow: hidden;
+  transition: 0.2s ease;
+}
+
+.rt-editor:focus-within {
+  border-color: #765469;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(118, 84, 105, 0.08);
+}
+
+/* Toolbar */
+.rt-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 10px;
+  background: rgba(118, 84, 105, 0.04);
+  border-bottom: 1px solid rgba(118, 84, 105, 0.08);
+}
+
+.rt-toolbar button {
+  background: transparent;
+  border: 1px solid transparent;
+  color: #4e4449;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.15s ease;
+  min-width: 32px;
+}
+
+.rt-toolbar button:hover {
+  background: rgba(118, 84, 105, 0.1);
+}
+
+.rt-toolbar button.active {
+  background: #765469;
+  color: white;
+}
+
+.rt-divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(118, 84, 105, 0.15);
+  margin: 0 4px;
+}
+
+/* Editor area */
+.rt-editor-content {
+  padding: 14px 18px;
+  min-height: 120px;
+  max-height: 400px;
+  overflow-y: auto;
+  color: #191c1e;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+  outline: none;
+}
+
+.rt-editor-content > * + * {
+  margin-top: 0.6em;
+}
+
+/* Placeholder waktu kosong */
+.rt-editor-content.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #aaa5a8;
+  pointer-events: none;
+  height: 0;
+}
+
+/* Element styling di dalam editor */
+.rt-editor-content h2 {
+  font-size: 1.3em;
+  font-weight: 800;
+  margin: 0.8em 0 0.4em;
+  color: #191c1e;
+}
+
+.rt-editor-content h3 {
+  font-size: 1.1em;
+  font-weight: 700;
+  margin: 0.6em 0 0.3em;
+  color: #191c1e;
+}
+
+.rt-editor-content ul,
+.rt-editor-content ol {
+  padding-left: 1.5em;
+  margin: 0.4em 0;
+}
+
+.rt-editor-content ul li,
+.rt-editor-content ol li {
+  margin: 0.2em 0;
+}
+
+.rt-editor-content a {
+  color: #765469;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.rt-editor-content code {
+  background: rgba(118, 84, 105, 0.08);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.9em;
+  color: #5e4254;
+}
+
+.rt-editor-content pre {
+  background: #1e1e2e;
+  color: #f4f4f5;
+  padding: 14px 16px;
+  border-radius: 12px;
+  overflow-x: auto;
+  margin: 0.6em 0;
+}
+
+.rt-editor-content pre code {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  font-size: 0.85em;
+}
+
+.rt-editor-content strong {
+  font-weight: 700;
+}
+
+.rt-editor-content em {
+  font-style: italic;
+}
+
+/* ============================================
+   RENDERED CONTENT (di halaman publik)
+   Class .rich-content dipakai buat render HTML
+   dari TipTap di About, Projects, dll
+   ============================================ */
+
+.rich-content > * + * {
+  margin-top: 0.7em;
+}
+
+.rich-content h2 {
+  font-size: 1.4em;
+  font-weight: 800;
+  margin: 1em 0 0.5em;
+  color: var(--text, #191c1e);
+}
+
+.rich-content h3 {
+  font-size: 1.15em;
+  font-weight: 700;
+  margin: 0.8em 0 0.4em;
+  color: var(--text, #191c1e);
+}
+
+.rich-content ul,
+.rich-content ol {
+  padding-left: 1.6em;
+  margin: 0.5em 0;
+}
+
+.rich-content ul li,
+.rich-content ol li {
+  margin: 0.3em 0;
+}
+
+.rich-content a {
+  color: var(--primary, #765469);
+  text-decoration: underline;
+}
+
+.rich-content a:hover {
+  opacity: 0.8;
+}
+
+.rich-content code {
+  background: rgba(118, 84, 105, 0.08);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.9em;
+  color: #5e4254;
+}
+
+.rich-content pre {
+  background: #1e1e2e;
+  color: #f4f4f5;
+  padding: 14px 16px;
+  border-radius: 12px;
+  overflow-x: auto;
+  margin: 0.7em 0;
+}
+
+.rich-content pre code {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+}
+
+.rich-content strong {
+  font-weight: 700;
+}
+
+.rich-content em {
+  font-style: italic;
+}
+
+.rich-content u {
+  text-decoration: underline;
+}
+
+/* Responsive: di mobile, toolbar pill jadi lebih compact */
+@media (max-width: 480px) {
+  .rt-toolbar {
+    padding: 6px 8px;
+  }
+  .rt-toolbar button {
+    padding: 5px 8px;
+    font-size: 11px;
+    min-width: 28px;
+  }
+}

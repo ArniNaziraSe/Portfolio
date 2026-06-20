@@ -2,8 +2,15 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { getProjects } from "../utils/getProjects";
 import "./ProjectDetail.css";
+
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+
+function getImageUrl(path) {
+  if (!path) return null;
+  if (path.startsWith("http")) return path;
+  return `${API_BASE}${path}`;
+}
 
 function ProjectDetail() {
   const { slug } = useParams();
@@ -13,9 +20,11 @@ function ProjectDetail() {
   const [isNotFound, setIsNotFound] = useState(false);
 
   useEffect(() => {
+    // Backend belum ada endpoint by-slug, jadi ambil semua lalu cari yang match
     async function loadProject() {
       try {
-        const data = await getProjects();
+        const res = await fetch(`${API_BASE}/api/projects`);
+        const data = await res.json();
         const selectedProject = data.find((item) => item.slug === slug);
 
         if (!selectedProject) {
@@ -63,6 +72,16 @@ function ProjectDetail() {
     );
   }
 
+  // Transform data buat ditampilkan
+  const techArray = project.tech_stack
+    ? project.tech_stack.split(",").map((t) => t.trim()).filter(Boolean)
+    : [];
+
+  // Features di-store sebagai text dengan 1 fitur per baris
+  const featuresArray = project.features
+    ? project.features.split("\n").map((f) => f.trim()).filter(Boolean)
+    : [];
+
   return (
     <div className="home-page">
       <Header />
@@ -74,85 +93,96 @@ function ProjectDetail() {
               ← Back to Projects
             </Link>
 
-            <span className="project-type">{project.type}</span>
+            <span className="project-type">{project.category || "Web Development"}</span>
 
             <h1>{project.title}</h1>
 
-            <p>{project.shortDescription}</p>
+            {project.short_description && <p>{project.short_description}</p>}
 
             <div className="project-detail-meta">
-              <div>
-                <span>Category</span>
-                <strong>{project.category}</strong>
-              </div>
-
-              <div>
-                <span>Role</span>
-                <strong>{project.role}</strong>
-              </div>
-
-              <div>
-                <span>Year</span>
-                <strong>{project.year}</strong>
-              </div>
-
-              <div>
-                <span>Status</span>
-                <strong>{project.status}</strong>
-              </div>
+              {project.category && (
+                <div>
+                  <span>Category</span>
+                  <strong>{project.category}</strong>
+                </div>
+              )}
+              {project.role && (
+                <div>
+                  <span>Role</span>
+                  <strong>{project.role}</strong>
+                </div>
+              )}
+              {project.year && (
+                <div>
+                  <span>Year</span>
+                  <strong>{project.year}</strong>
+                </div>
+              )}
+              {project.status && (
+                <div>
+                  <span>Status</span>
+                  <strong>{project.status}</strong>
+                </div>
+              )}
             </div>
           </div>
 
           <div className="project-detail-image">
-            <img src={project.image} alt={project.title} />
+            <img src={getImageUrl(project.image_url)} alt={project.title} />
           </div>
         </section>
 
         <section className="project-detail-content">
-          <article className="project-detail-card project-overview">
-            <h2>Project Overview</h2>
-            <p>{project.description}</p>
-          </article>
+          {project.description && (
+            <article className="project-detail-card project-overview">
+              <h2>Project Overview</h2>
+              <div
+                className="rich-content"
+                dangerouslySetInnerHTML={{ __html: project.description }}
+              />
+            </article>
+          )}
 
-          <article className="project-detail-card">
-            <h2>Tools & Technologies</h2>
+          {techArray.length > 0 && (
+            <article className="project-detail-card">
+              <h2>Tools &amp; Technologies</h2>
+              <div className="project-detail-tags">
+                {techArray.map((item) => (
+                  <span key={item}>{item}</span>
+                ))}
+              </div>
+            </article>
+          )}
 
-            <div className="project-detail-tags">
-              {project.tech.map((item) => (
-                <span key={item}>{item}</span>
-              ))}
-            </div>
-          </article>
-
-          <article className="project-detail-card">
-            <h2>Key Features</h2>
-
-            <ul className="project-feature-list">
-              {project.features.map((feature) => (
-                <li key={feature}>{feature}</li>
-              ))}
-            </ul>
-          </article>
+          {featuresArray.length > 0 && (
+            <article className="project-detail-card">
+              <h2>Key Features</h2>
+              <ul className="project-feature-list">
+                {featuresArray.map((feature, idx) => (
+                  <li key={idx}>{feature}</li>
+                ))}
+              </ul>
+            </article>
+          )}
 
           <article className="project-detail-card project-links-card">
             <h2>Project Links</h2>
-
             <div className="project-detail-actions">
-              {project.demoUrl && project.demoUrl !== "#" ? (
-                <a href={project.demoUrl} target="_blank" rel="noreferrer">
+              {project.demo_link && project.demo_link !== "#" ? (
+                <a href={project.demo_link} target="_blank" rel="noreferrer">
                   View Demo
                 </a>
               ) : (
                 <span className="disabled-link">Demo Not Available</span>
               )}
 
-              {project.githubUrl && project.githubUrl !== "#" ? (
-                <a href={project.githubUrl} target="_blank" rel="noreferrer">
+              {project.github_link && project.github_link !== "#" ? (
+                <a href={project.github_link} target="_blank" rel="noreferrer">
                   GitHub Repository
                 </a>
               ) : (
                 <span className="disabled-link">
-                  {project.type === "Excel Project"
+                  {project.category === "Excel Project"
                     ? "Excel File / Preview Coming Soon"
                     : "Repository Not Available"}
                 </span>

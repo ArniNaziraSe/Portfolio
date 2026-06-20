@@ -3,8 +3,8 @@ const { Pool } = require('pg');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
 const crypto = require('crypto');
+const { S3Client, PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 require('dotenv').config();
 
 const app = express();
@@ -12,73 +12,101 @@ const app = express();
 // ============================================================
 // 1. MIDDLEWARE
 // ============================================================
-app.use(cors());
+
+// CORS — restrict ke domain frontend aja, gak boleh allow all di production
+const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
+  .split(',')
+  .map((url) => url.trim());
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Origin null untuk request dari Postman/curl/server-side — boleh
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      callback(new Error(`CORS blocked: ${origin}`));
+    },
+  })
+);
+
 app.use(express.json());
 
+// Health check buat UptimeRobot biar Render gak sleep
+app.get('/api/health', (req, res) => res.send('OK'));
+
 // ============================================================
-// 2. KONEKSI POSTGRESQL
+// 2. KONEKSI POSTGRESQL (Neon)
 // ============================================================
 const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_DATABASE,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT,
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }, // Neon wajib SSL
 });
 
 pool.connect((err, client, release) => {
-  if (err) {
-    return console.error('Error koneksi database:', err.stack);
-  }
+  if (err) return console.error('Error koneksi database:', err.stack);
   console.log('🎉 Sukses terkoneksi ke PostgreSQL Database!');
   release();
 });
 
 // ============================================================
-// UPLOAD GAMBAR (multer)
+// 3. CLOUDFLARE R2 (S3-compatible) — STORAGE GAMBAR
 // ============================================================
-
-// Pastikan folder upload ada
-['uploads/projects', 'uploads/profile'].forEach((dir) => {
-  const fullPath = path.join(__dirname, dir);
-  if (!fs.existsSync(fullPath)) fs.mkdirSync(fullPath, { recursive: true });
+const r2Client = new S3Client({
+  region: 'auto',
+  endpoint: process.env.R2_ENDPOINT,
+  credentials: {
+    accessKeyId: process.env.R2_ACCESS_KEY_ID,
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+  },
 });
 
+const R2_BUCKET = process.env.R2_BUCKET;
+const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL; // misal https://pub-xxx.r2.dev
+
+// Multer pakai memoryStorage (file ditahan di RAM sebentar sebelum di-upload ke R2)
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // max 5MB
+  fileFilter: (req, file, cb) => {
+    if (ALLOWED_IMAGE_TYPES.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Tipe file tidak didukung. Gunakan JPG, PNG, WEBP, atau GIF.'));
+    }
+  },
+});
 
-function makeUploader(folder) {
-  const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, path.join(__dirname, `uploads/${folder}`)),
-    filename: (req, file, cb) => {
-      const ext = path.extname(file.originalname);
-      cb(null, crypto.randomBytes(12).toString('hex') + ext);
-    },
-  });
-
-  return multer({
-    storage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // max 5MB
-    fileFilter: (req, file, cb) => {
-      if (ALLOWED_IMAGE_TYPES.includes(file.mimetype)) {
-        cb(null, true);
-      } else {
-        cb(new Error('Tipe file tidak didukung. Gunakan JPG, PNG, WEBP, atau GIF.'));
-      }
-    },
-  });
+// Upload buffer (dari multer.memoryStorage) ke R2, return public URL
+async function uploadToR2(file, folder) {
+  const ext = path.extname(file.originalname);
+  const key = `${folder}/${crypto.randomBytes(12).toString('hex')}${ext}`;
+  await r2Client.send(
+    new PutObjectCommand({
+      Bucket: R2_BUCKET,
+      Key: key,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+    })
+  );
+  return `${R2_PUBLIC_URL}/${key}`;
 }
 
-const uploadProjectImage = makeUploader('projects');
-const uploadAvatar = makeUploader('profile');
-
-// File yang diupload bisa diakses langsung lewat /uploads/...
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Hapus file lama di R2 berdasarkan public URL
+async function deleteFromR2(publicUrl) {
+  if (!publicUrl || !publicUrl.startsWith(R2_PUBLIC_URL)) return;
+  const key = publicUrl.replace(`${R2_PUBLIC_URL}/`, '');
+  try {
+    await r2Client.send(new DeleteObjectCommand({ Bucket: R2_BUCKET, Key: key }));
+  } catch (err) {
+    console.warn(`Gagal hapus dari R2 (skip): ${key}`, err.message);
+  }
+}
 
 // ============================================================
 // HELPER FUNCTIONS
 // ============================================================
 
-// Bikin slug otomatis dari title project, cth: "Toko Online Keren" -> "toko-online-keren"
 function slugify(text) {
   return text
     .toString()
@@ -89,7 +117,6 @@ function slugify(text) {
     .replace(/^-+|-+$/g, '');
 }
 
-// Bikin category_key otomatis dari category_label, cth: "Mobile Development" -> "mobileDevelopment"
 function toCategoryKey(label) {
   return label
     .trim()
@@ -101,16 +128,8 @@ function toCategoryKey(label) {
     .join('');
 }
 
-// Hapus file lama di /uploads kalau ada gambar baru yang gantiin
-function deleteOldUpload(relativePath) {
-  if (relativePath && relativePath.startsWith('/uploads/')) {
-    const fullPath = path.join(__dirname, relativePath);
-    if (fs.existsSync(fullPath)) fs.unlinkSync(fullPath);
-  }
-}
-
 // ============================================================
-// 3. ROUTES — semua endpoint API (wajib di atas app.listen)
+// 4. ROUTES
 // ============================================================
 
 // ------------------------------------------------------------
@@ -126,15 +145,27 @@ app.get('/api/projects', async (req, res) => {
   }
 });
 
-app.post('/api/projects', uploadProjectImage.single('image'), async (req, res) => {
+app.post('/api/projects', upload.single('image'), async (req, res) => {
   try {
-    const { title, description, github_link, tech_stack } = req.body;
+    const {
+      title, description, short_description, github_link, demo_link,
+      tech_stack, category, role, year, status, features,
+    } = req.body;
     const slug = slugify(title);
-    const image_url = req.file ? `/uploads/projects/${req.file.filename}` : '';
-
+    let image_url = '';
+    if (req.file) image_url = await uploadToR2(req.file, 'projects');
+ 
     const newProject = await pool.query(
-      'INSERT INTO projects (title, slug, description, image_url, github_link, tech_stack) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-      [title, slug, description, image_url, github_link, tech_stack]
+      `INSERT INTO projects
+        (title, slug, description, short_description, image_url, github_link, demo_link,
+         tech_stack, category, role, year, status, features)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+       RETURNING *`,
+      [
+        title, slug, description, short_description || '', image_url,
+        github_link || '', demo_link || '', tech_stack,
+        category || '', role || '', year || '', status || 'Completed', features || '',
+      ]
     );
     res.json(newProject.rows[0]);
   } catch (error) {
@@ -143,22 +174,34 @@ app.post('/api/projects', uploadProjectImage.single('image'), async (req, res) =
   }
 });
 
-app.put('/api/projects/:id', uploadProjectImage.single('image'), async (req, res) => {
+app.put('/api/projects/:id', upload.single('image'), async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, github_link, tech_stack } = req.body;
-
+    const {
+      title, description, short_description, github_link, demo_link,
+      tech_stack, category, role, year, status, features,
+    } = req.body;
+ 
     const existing = await pool.query('SELECT image_url FROM projects WHERE id = $1', [id]);
     let image_url = existing.rows[0]?.image_url || '';
-
+ 
     if (req.file) {
-      deleteOldUpload(image_url);
-      image_url = `/uploads/projects/${req.file.filename}`;
+      await deleteFromR2(image_url);
+      image_url = await uploadToR2(req.file, 'projects');
     }
-
+ 
     await pool.query(
-      'UPDATE projects SET title = $1, description = $2, image_url = $3, github_link = $4, tech_stack = $5 WHERE id = $6',
-      [title, description, image_url, github_link, tech_stack, id]
+      `UPDATE projects SET
+        title = $1, description = $2, short_description = $3, image_url = $4,
+        github_link = $5, demo_link = $6, tech_stack = $7,
+        category = $8, role = $9, year = $10, status = $11, features = $12
+       WHERE id = $13`,
+      [
+        title, description, short_description || '', image_url,
+        github_link || '', demo_link || '', tech_stack,
+        category || '', role || '', year || '', status || 'Completed', features || '',
+        id,
+      ]
     );
     res.send('Proyek berhasil di-update!');
   } catch (error) {
@@ -170,6 +213,8 @@ app.put('/api/projects/:id', uploadProjectImage.single('image'), async (req, res
 app.delete('/api/projects/:id', async (req, res) => {
   try {
     const { id } = req.params;
+    const existing = await pool.query('SELECT image_url FROM projects WHERE id = $1', [id]);
+    if (existing.rows[0]?.image_url) await deleteFromR2(existing.rows[0].image_url);
     await pool.query('DELETE FROM projects WHERE id = $1', [id]);
     res.send('Proyek berhasil dihapus!');
   } catch (error) {
@@ -179,7 +224,7 @@ app.delete('/api/projects/:id', async (req, res) => {
 });
 
 // ------------------------------------------------------------
-// 💻 SKILLS (Technical Arsenal)
+// 💻 SKILLS
 // ------------------------------------------------------------
 app.get('/api/skills', async (req, res) => {
   try {
@@ -289,7 +334,7 @@ app.delete('/api/certifications/:id', async (req, res) => {
 });
 
 // ------------------------------------------------------------
-// 👤 PROFILE (singleton)
+// 👤 PROFILE
 // ------------------------------------------------------------
 app.get('/api/profile', async (req, res) => {
   try {
@@ -301,22 +346,19 @@ app.get('/api/profile', async (req, res) => {
   }
 });
 
-app.put('/api/profile', uploadAvatar.single('avatar'), async (req, res) => {
+app.put('/api/profile', upload.single('avatar'), async (req, res) => {
   try {
     const { full_name, current_role, bio, cv_url } = req.body;
-
     const existing = await pool.query('SELECT avatar_url FROM profile WHERE id = 1');
     let avatar_url = existing.rows[0]?.avatar_url || '';
 
     if (req.file) {
-      deleteOldUpload(avatar_url);
-      avatar_url = `/uploads/profile/${req.file.filename}`;
+      await deleteFromR2(avatar_url);
+      avatar_url = await uploadToR2(req.file, 'profile');
     }
 
     await pool.query(
-      `UPDATE profile
-       SET full_name = $1, "current_role" = $2, bio = $3, avatar_url = $4, cv_url = $5
-       WHERE id = 1`,
+      `UPDATE profile SET full_name = $1, "current_role" = $2, bio = $3, avatar_url = $4, cv_url = $5 WHERE id = 1`,
       [full_name, current_role, bio, avatar_url, cv_url || '']
     );
     res.send('Profile updated successfully!');
@@ -327,7 +369,7 @@ app.put('/api/profile', uploadAvatar.single('avatar'), async (req, res) => {
 });
 
 // ------------------------------------------------------------
-// 🎓 EDUCATION (timeline_entries, type = 'education')
+// 🎓 EDUCATION
 // ------------------------------------------------------------
 app.get('/api/education', async (req, res) => {
   try {
@@ -361,9 +403,7 @@ app.put('/api/education/:id', async (req, res) => {
     const { id } = req.params;
     const { title, institution, years, description, is_featured } = req.body;
     await pool.query(
-      `UPDATE timeline_entries
-       SET title = $1, institution = $2, period = $3, description = $4, is_featured = $5
-       WHERE id = $6`,
+      `UPDATE timeline_entries SET title = $1, institution = $2, period = $3, description = $4, is_featured = $5 WHERE id = $6`,
       [title, institution, years, description || '', !!is_featured, id]
     );
     res.send('Education updated!');
@@ -385,7 +425,7 @@ app.delete('/api/education/:id', async (req, res) => {
 });
 
 // ------------------------------------------------------------
-// 💼 EXPERIENCE (timeline_entries, type = 'experience')
+// 💼 EXPERIENCE
 // ------------------------------------------------------------
 app.get('/api/experiences', async (req, res) => {
   try {
@@ -419,9 +459,7 @@ app.put('/api/experiences/:id', async (req, res) => {
     const { id } = req.params;
     const { title, institution, years, description, is_featured } = req.body;
     await pool.query(
-      `UPDATE timeline_entries
-       SET title = $1, institution = $2, period = $3, description = $4, is_featured = $5
-       WHERE id = $6`,
+      `UPDATE timeline_entries SET title = $1, institution = $2, period = $3, description = $4, is_featured = $5 WHERE id = $6`,
       [title, institution, years, description || '', !!is_featured, id]
     );
     res.send('Experience updated!');
@@ -447,16 +485,15 @@ app.delete('/api/experiences/:id', async (req, res) => {
 // ------------------------------------------------------------
 app.post('/api/admin/login', (req, res) => {
   const { password } = req.body;
-
   if (password === process.env.ADMIN_PASSWORD) {
-    res.json({ success: true, message: 'Welcome back, Arni Nazira! 🌌' });
+    res.json({ success: true, message: 'Welcome back, Serena! 🌌' });
   } else {
     res.status(401).json({ success: false, message: 'Password salah, bestie! ⚠️' });
   }
 });
 
 // ------------------------------------------------------------
-// 📈 ANALYTICS & LIVE VISITOR
+// 📈 ANALYTICS
 // ------------------------------------------------------------
 app.get('/api/analytics/overview', async (req, res) => {
   try {
@@ -479,8 +516,6 @@ app.get('/api/analytics/overview', async (req, res) => {
   }
 });
 
-// Dipanggil dari web utama tiap kali ada yang buka halaman,
-// biar "Total Visits" & "Live Now" di dashboard ke-update beneran.
 app.post('/api/track-visit', async (req, res) => {
   try {
     await pool.query('INSERT INTO page_visits DEFAULT VALUES');
@@ -491,8 +526,6 @@ app.post('/api/track-visit', async (req, res) => {
   }
 });
 
-// Data kunjungan per jam selama 24 jam terakhir, buat chart "Live Visitor Report".
-// Balikin array of 24 angka, urut dari jam paling lama ke jam paling baru.
 app.get('/api/analytics/timeseries', async (req, res) => {
   try {
     const result = await pool.query(`
@@ -503,20 +536,13 @@ app.get('/api/analytics/timeseries', async (req, res) => {
           INTERVAL '1 hour'
         ) AS hour_bucket
       )
-      SELECT
-        hours.hour_bucket,
-        COUNT(page_visits.id)::int AS visit_count
+      SELECT hours.hour_bucket, COUNT(page_visits.id)::int AS visit_count
       FROM hours
-      LEFT JOIN page_visits
-        ON date_trunc('hour', page_visits.visited_at) = hours.hour_bucket
+      LEFT JOIN page_visits ON date_trunc('hour', page_visits.visited_at) = hours.hour_bucket
       GROUP BY hours.hour_bucket
       ORDER BY hours.hour_bucket ASC
     `);
-
-    res.json(result.rows.map((row) => ({
-      hour: row.hour_bucket,
-      count: row.visit_count,
-    })));
+    res.json(result.rows.map((row) => ({ hour: row.hour_bucket, count: row.visit_count })));
   } catch (error) {
     console.error(error.message);
     res.status(500).send('Server Error Timeseries');
@@ -524,8 +550,7 @@ app.get('/api/analytics/timeseries', async (req, res) => {
 });
 
 // ------------------------------------------------------------
-// ⚠️ ERROR HANDLER UPLOAD (file kebesaran / tipe gak didukung)
-// Wajib ditaruh paling bawah, setelah semua route
+// ⚠️ ERROR HANDLER UPLOAD
 // ------------------------------------------------------------
 app.use((err, req, res, next) => {
   if (err instanceof multer.MulterError || (err.message && err.message.includes('Tipe file'))) {
@@ -535,9 +560,9 @@ app.use((err, req, res, next) => {
 });
 
 // ============================================================
-// 4. JALANKAN SERVER
+// 5. JALANKAN SERVER
 // ============================================================
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server backend berjalan gokil di http://localhost:${PORT}`);
+  console.log(`🚀 Server backend berjalan di port ${PORT}`);
 });

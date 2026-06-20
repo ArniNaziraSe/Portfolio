@@ -1,10 +1,8 @@
 import { useState, useEffect } from "react";
 import "../pages/Home.css";
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
 
-// Gabungin path gambar dari backend (cth: /uploads/projects/abc.jpg) jadi URL
-// lengkap. Tetap dukung URL eksternal lama (yang udah berupa http://...).
 function getImageUrl(path) {
   if (!path) return null;
   if (path.startsWith("http")) return path;
@@ -17,18 +15,17 @@ function MainContent() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Ambil 2 hal paralel: profile (buat link CV) & projects (buat Latest Projects).
-    // Pakai .catch per-fetch biar 1 endpoint error gak ngeblok yang lain.
     Promise.all([
       fetch(`${API_BASE}/api/projects`).then((res) => res.json()).catch(() => []),
       fetch(`${API_BASE}/api/profile`).then((res) => res.json()).catch(() => null),
     ])
       .then(([projectsData, profileData]) => {
+        // Ambil 2 project terbaru, pakai short_description biar preview pendek
         const transformedData = projectsData.slice(0, 2).map((project) => ({
           id: project.id,
-          slug: project.slug,
+          slug: project.slug || project.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
           title: project.title,
-          description: project.description,
+          shortDescription: project.short_description || "",
           image: project.image_url,
           tech: project.tech_stack ? project.tech_stack.split(",").map((t) => t.trim()) : [],
         }));
@@ -57,7 +54,6 @@ function MainContent() {
               "Informatics Engineering Graduate & Junior Web Developer. Building clean, efficient, and user-centric digital solutions."}
           </p>
 
-          {/* Tombol Download CV — cuma muncul kalau profile.cv_url udah diisi via dashboard */}
           {profile?.cv_url && (
             <div className="hero-cta">
               <a className="hero-cv-button" href={profile.cv_url} download>
@@ -108,7 +104,7 @@ function MainContent() {
                   </div>
 
                   <h3>{project.title}</h3>
-                  <p>{project.description}</p>
+                  <p>{project.shortDescription}</p>
 
                   <a className="project-link" href={`/projects/${project.slug}`}>
                     View Details →
