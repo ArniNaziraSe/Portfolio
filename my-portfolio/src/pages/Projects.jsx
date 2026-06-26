@@ -32,7 +32,7 @@ function Projects() {
   if (isLoading) {
     return (
       <p style={{ textAlign: "center", marginTop: "3rem", color: "#007acc" }}>
-        Loading data dari database, sabar ya bestie... ⌛
+        Loading data dari database, sabar ya ⌛
       </p>
     );
   }
