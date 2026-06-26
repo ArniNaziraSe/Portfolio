@@ -5,7 +5,7 @@ import TechIcon from "../components/TechIcon";
 import "../components/TechIcon.css";
 import "./About.css";
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
 
 // Helper buat gambar yang diupload via dashboard (path "/uploads/...")
 // jadi URL lengkap. Tetap dukung URL eksternal yang udah berupa "http://..."
