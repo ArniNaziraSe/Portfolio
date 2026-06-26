@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import TechIcon from "../components/TechIcon";
+import "../components/TechIcon.css";
+import "../components/RichTextEditor.css";
 import "./ProjectDetail.css";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
@@ -20,7 +23,6 @@ function ProjectDetail() {
   const [isNotFound, setIsNotFound] = useState(false);
 
   useEffect(() => {
-    // Backend belum ada endpoint by-slug, jadi ambil semua lalu cari yang match
     async function loadProject() {
       try {
         const res = await fetch(`${API_BASE}/api/projects`);
@@ -31,7 +33,6 @@ function ProjectDetail() {
           setIsNotFound(true);
           return;
         }
-
         setProject(selectedProject);
       } catch (error) {
         console.error(error);
@@ -40,7 +41,6 @@ function ProjectDetail() {
         setIsLoading(false);
       }
     }
-
     loadProject();
   }, [slug]);
 
@@ -64,7 +64,7 @@ function ProjectDetail() {
           <section className="project-not-found">
             <h1>Project Not Found</h1>
             <p>The project you are looking for does not exist.</p>
-            <Link to="/projects">Back to Projects</Link>
+            <Link to="/projects" className="back-link">← Back to Projects</Link>
           </section>
         </main>
         <Footer />
@@ -72,12 +72,10 @@ function ProjectDetail() {
     );
   }
 
-  // Transform data buat ditampilkan
   const techArray = project.tech_stack
     ? project.tech_stack.split(",").map((t) => t.trim()).filter(Boolean)
     : [];
 
-  // Features di-store sebagai text dengan 1 fitur per baris
   const featuresArray = project.features
     ? project.features.split("\n").map((f) => f.trim()).filter(Boolean)
     : [];
@@ -87,39 +85,40 @@ function ProjectDetail() {
       <Header />
 
       <main className="project-detail-main">
+        {/* Tombol back — di luar hero biar prominent */}
+        <Link to="/projects" className="back-link-top">
+          ← Back to Projects
+        </Link>
+
         <section className="project-detail-hero">
           <div className="project-detail-text">
-            <Link to="/projects" className="back-link">
-              ← Back to Projects
-            </Link>
-
-            <span className="project-type">{project.category || "Web Development"}</span>
-
+            <span className="project-type">{project.category || "Project"}</span>
             <h1>{project.title}</h1>
-
-            {project.short_description && <p>{project.short_description}</p>}
+            {project.short_description && (
+              <p className="project-short-desc">{project.short_description}</p>
+            )}
 
             <div className="project-detail-meta">
               {project.category && (
-                <div>
+                <div className="meta-item">
                   <span>Category</span>
                   <strong>{project.category}</strong>
                 </div>
               )}
               {project.role && (
-                <div>
+                <div className="meta-item">
                   <span>Role</span>
                   <strong>{project.role}</strong>
                 </div>
               )}
               {project.year && (
-                <div>
+                <div className="meta-item">
                   <span>Year</span>
                   <strong>{project.year}</strong>
                 </div>
               )}
               {project.status && (
-                <div>
+                <div className="meta-item">
                   <span>Status</span>
                   <strong>{project.status}</strong>
                 </div>
@@ -127,9 +126,11 @@ function ProjectDetail() {
             </div>
           </div>
 
-          <div className="project-detail-image">
-            <img src={getImageUrl(project.image_url)} alt={project.title} />
-          </div>
+          {project.image_url && (
+            <div className="project-detail-image">
+              <img src={getImageUrl(project.image_url)} alt={project.title} />
+            </div>
+          )}
         </section>
 
         <section className="project-detail-content">
@@ -146,9 +147,12 @@ function ProjectDetail() {
           {techArray.length > 0 && (
             <article className="project-detail-card">
               <h2>Tools &amp; Technologies</h2>
-              <div className="project-detail-tags">
+              <div className="project-detail-tags tech-with-icons">
                 {techArray.map((item) => (
-                  <span key={item}>{item}</span>
+                  <span key={item} className="tech-pill">
+                    <TechIcon name={item} size={18} />
+                    <span>{item}</span>
+                  </span>
                 ))}
               </div>
             </article>
@@ -159,36 +163,52 @@ function ProjectDetail() {
               <h2>Key Features</h2>
               <ul className="project-feature-list">
                 {featuresArray.map((feature, idx) => (
-                  <li key={idx}>{feature}</li>
+                  <li key={idx}>
+                    <span className="feature-check">✓</span>
+                    <span>{feature}</span>
+                  </li>
                 ))}
               </ul>
             </article>
           )}
 
-          <article className="project-detail-card project-links-card">
-            <h2>Project Links</h2>
-            <div className="project-detail-actions">
-              {project.demo_link && project.demo_link !== "#" ? (
-                <a href={project.demo_link} target="_blank" rel="noreferrer">
-                  View Demo
-                </a>
-              ) : (
-                <span className="disabled-link">Demo Not Available</span>
-              )}
+          {(project.demo_link || project.github_link) && (
+            <article className="project-detail-card project-links-card">
+              <h2>Project Links</h2>
+              <div className="project-detail-actions">
+                {project.demo_link && project.demo_link !== "#" ? (
+                  <a
+                    href={project.demo_link}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="project-action-btn primary"
+                  >
+                    🚀 View Demo
+                  </a>
+                ) : (
+                  <span className="disabled-link">Demo Not Available</span>
+                )}
 
-              {project.github_link && project.github_link !== "#" ? (
-                <a href={project.github_link} target="_blank" rel="noreferrer">
-                  GitHub Repository
-                </a>
-              ) : (
-                <span className="disabled-link">
-                  {project.category === "Excel Project"
-                    ? "Excel File / Preview Coming Soon"
-                    : "Repository Not Available"}
-                </span>
-              )}
-            </div>
-          </article>
+                {project.github_link && project.github_link !== "#" ? (
+                  <a
+                    href={project.github_link}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="project-action-btn secondary"
+                  >
+                    <TechIcon name="github" size={18} />
+                    <span>GitHub Repository</span>
+                  </a>
+                ) : (
+                  <span className="disabled-link">
+                    {project.category === "Excel Project"
+                      ? "Excel File / Preview Coming Soon"
+                      : "Repository Not Available"}
+                  </span>
+                )}
+              </div>
+            </article>
+          )}
         </section>
       </main>
 

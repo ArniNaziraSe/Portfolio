@@ -9,20 +9,30 @@ import Projects from "./pages/Projects.jsx";
 import ProjectDetail from "./pages/ProjectDetail.jsx";
 import About from "./pages/About.jsx";
 import AdminDashboard from './pages/AdminDashboard.jsx';
+import useTrackVisit from "./hooks/useTrackVisit";
+
+// Wrapper kecil — biar bisa panggil hook (useTrackVisit) di dalam React tree.
+// Hook gak bisa dipanggil di top level file (di luar component).
+function AppRoutes() {
+  useTrackVisit();
+
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/projects" element={<Projects />} />
+      <Route path="/projects/:slug" element={<ProjectDetail />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/admin" element={<AdminDashboard />} />
+    </Routes>
+  );
+}
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
       <ContactProvider>
         <ContactDetail />
-
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/projects/:slug" element={<ProjectDetail />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-        </Routes>
+        <AppRoutes />
       </ContactProvider>
     </BrowserRouter>
   </StrictMode>,

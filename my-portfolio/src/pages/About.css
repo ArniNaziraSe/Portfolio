@@ -329,15 +329,22 @@
   gap: 10px;
 }
 
-.about-skill-list span {
+.about-skill-list > span {
   display: inline-flex;
-  align-items: left;
+  align-items: center;
+  gap: 6px;
   padding: 8px 14px;
   border-radius: 999px;
   color: var(--text);
   background: var(--surface-variant);
   font-size: 13px;
   font-weight: 800;
+}
+
+/* Nested span (label text) di dalam pill — gak boleh inherit padding */
+.about-skill-list > span > span {
+  padding: 0;
+  background: transparent;
 }
 
 .about-skill-list span.highlight {
