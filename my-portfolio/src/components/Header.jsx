@@ -1,11 +1,11 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { useContext, useState, useEffect } from "react";
-import { ContactContext } from "../context/ContactContext";
+import { useState, useEffect } from "react";
+import { useContact } from "../context/ContactContext";
 import "./Header.css";
 
 function Header() {
   const location = useLocation();
-  const { setIsContactOpen } = useContext(ContactContext);
+  const { open: openContact } = useContact();
   const [isDark, setIsDark] = useState(() => {
     return document.documentElement.getAttribute("data-theme") === "dark";
   });
@@ -49,7 +49,7 @@ function Header() {
           </button>
           <button
             className="contact-btn"
-            onClick={() => setIsContactOpen(true)}
+            onClick={openContact}
           >
             Contact
           </button>

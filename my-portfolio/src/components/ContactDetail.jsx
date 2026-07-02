@@ -1,11 +1,11 @@
-import { useContext, useEffect, useState } from "react";
-import { ContactContext } from "../context/ContactContext";
+import { useEffect, useState } from "react";
+import { useContact } from "../context/ContactContext";
 import "./ContactDetail.css";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
 
 function ContactDetail() {
-  const { isContactOpen, setIsContactOpen } = useContext(ContactContext);
+  const { isOpen, close } = useContact();
   const [email, setEmail] = useState("hello@arninazira.my.id");
 
   useEffect(() => {
@@ -17,12 +17,12 @@ function ContactDetail() {
       .catch(() => {});
   }, []);
 
-  if (!isContactOpen) return null;
+  if (!isOpen) return null;
 
   return (
-    <div className="contact-modal-overlay" onClick={() => setIsContactOpen(false)}>
+    <div className="contact-modal-overlay" onClick={close}>
       <div className="contact-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="contact-modal-close" onClick={() => setIsContactOpen(false)}>
+        <button className="contact-modal-close" onClick={close}>
           ✕
         </button>
 

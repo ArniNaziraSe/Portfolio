@@ -1,10 +1,10 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import TechIcon from "../components/TechIcon";
 import "../components/TechIcon.css";
 import "../components/RichTextEditor.css";
-import { ContactContext } from "../context/ContactContext";
+import { useContact } from "../context/ContactContext";
 import "./About.css";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
@@ -16,7 +16,7 @@ function getImageUrl(path) {
 }
 
 function About() {
-  const { setIsContactOpen } = useContext(ContactContext);
+  const { open: openContact } = useContact();
 
   const [profile, setProfile] = useState(null);
   const [education, setEducation] = useState([]);
@@ -86,7 +86,7 @@ function About() {
                   Download CV
                 </a>
               )}
-              <button className="btn-outline" onClick={() => setIsContactOpen(true)}>
+              <button className="btn-outline" onClick={openContact}>
                 Get in touch
               </button>
             </div>
