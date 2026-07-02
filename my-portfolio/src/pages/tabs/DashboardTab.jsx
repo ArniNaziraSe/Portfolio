@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { safeFetch } from "./apiClient";
 
-// Format tanggal buat label chart: "18", "19", "20", dst
+const REFRESH_INTERVAL_MS = 15000; // Auto-refresh tiap 15 detik
+
 function formatDay(dateStr) {
   const d = new Date(dateStr);
   return String(d.getDate()).padStart(2, "0");
@@ -16,24 +17,45 @@ function DashboardTab() {
     topProjects: [],
   });
   const [daily, setDaily] = useState([]);
+  const [isLive, setIsLive] = useState(false);
+  const [lastUpdate, setLastUpdate] = useState(null);
+  const intervalRef = useRef(null);
 
-  useEffect(() => {
-    // Ambil overview & daily parallel biar cepat
-    Promise.all([
+  const fetchData = async () => {
+    const [overviewData, dailyData] = await Promise.all([
       safeFetch("/api/analytics/overview", {}),
       safeFetch("/api/analytics/daily-visits", []),
-    ]).then(([overviewData, dailyData]) => {
-      if (overviewData) setOverview(overviewData);
-      if (dailyData) setDaily(dailyData);
-    });
+    ]);
+    if (overviewData) setOverview(overviewData);
+    if (dailyData) setDaily(dailyData);
+    setLastUpdate(new Date());
+    setIsLive(true);
+  };
+
+  useEffect(() => {
+    fetchData();
+    // Auto-refresh — data ke-update tanpa reload page.
+    // clearInterval on unmount biar gak leak.
+    intervalRef.current = setInterval(fetchData, REFRESH_INTERVAL_MS);
+    return () => clearInterval(intervalRef.current);
   }, []);
 
-  // Max value buat scaling bar chart (biar bar terpanjang jadi ~90% dari tinggi container)
   const maxVisit = Math.max(...daily.map((d) => d.count), 1);
   const maxProjectView = Math.max(...(overview.topProjects || []).map((p) => p.views || 0), 1);
 
   return (
     <div className="tab-view">
+      {/* Live indicator */}
+      <div className="live-indicator">
+        <span className={`live-dot ${isLive ? "on" : ""}`}></span>
+        <span>Live · updates every {REFRESH_INTERVAL_MS / 1000}s</span>
+        {lastUpdate && (
+          <span className="last-update">
+            (last: {lastUpdate.toLocaleTimeString()})
+          </span>
+        )}
+      </div>
+
       {/* 4 Stat Cards */}
       <div className="stats-grid">
         <StatCard
@@ -82,7 +104,7 @@ function DashboardTab() {
                 >
                   <div
                     className="chart-bar-fill"
-                    style={{ height: `${Math.max(heightPct, 3)}%` }}
+                    style={{ height: `${Math.max(heightPct, 6)}%` }}
                   />
                   <div className="chart-bar-label">{formatDay(d.day)}</div>
                 </div>
@@ -135,4 +157,4 @@ function StatCard({ title, value, sub, icon }) {
   );
 }
 
-export default DashboardTab;
+export default DashboardTab;                                                      

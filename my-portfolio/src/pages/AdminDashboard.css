@@ -718,3 +718,334 @@
     font-size: 26px;
   }
 }
+
+/* ============================================
+   LIVE INDICATOR (Overview)
+   ============================================ */
+.live-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--a-primary-bg);
+  border: 1px solid var(--a-primary-soft);
+  border-radius: 999px;
+  width: fit-content;
+  font-size: 12px;
+  color: var(--a-primary-text);
+  font-weight: 600;
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #cbd5e1;
+  transition: 0.3s ease;
+}
+
+.live-dot.on {
+  background: #10b981;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5);
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
+  70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.last-update {
+  color: var(--a-text-muted);
+  font-weight: 500;
+}
+
+/* ============================================
+   FIX CHART BARS (biar visible)
+   ============================================ */
+.chart-bar-fill {
+  background: #e2e8f0 !important; /* Bar kosong: slate-200 */
+}
+
+.chart-bar.active .chart-bar-fill,
+.chart-bar:hover .chart-bar-fill {
+  background: var(--a-primary) !important;
+}
+
+/* ============================================
+   PROJECTS TABLE (tambahan)
+   ============================================ */
+.td-nowrap {
+  white-space: nowrap;
+  font-size: 13px;
+  color: var(--a-text-muted);
+}
+
+.td-tech-more {
+  font-size: 11px;
+  color: var(--a-text-muted);
+  font-weight: 600;
+  padding: 4px 6px;
+  background: var(--a-surface-alt);
+  border-radius: 4px;
+}
+
+.badge-status {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.badge-status.pub { background: #d1fae5; color: #065f46; }
+.badge-status.progress { background: #fef3c7; color: #92400e; }
+.badge-status.archived { background: #e2e8f0; color: #475569; }
+
+/* ============================================
+   ABOUT TAB — SECTION CARDS
+   ============================================ */
+.about-tab-wrapper {
+  max-width: 900px;
+}
+
+.about-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 8px;
+}
+
+.about-subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: var(--a-text-muted);
+}
+
+.about-header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-outline-teal {
+  padding: 8px 14px;
+  border-radius: var(--a-radius);
+  border: 1px solid var(--a-primary);
+  background: var(--a-surface);
+  color: var(--a-primary);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: 0.15s ease;
+}
+
+.btn-outline-teal:hover {
+  background: var(--a-primary-bg);
+}
+
+.saved-msg {
+  padding: 10px 14px;
+  background: #d1fae5;
+  color: #065f46;
+  border-radius: var(--a-radius);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.about-section-card {
+  background: var(--a-surface);
+  border: 1px solid var(--a-border);
+  border-radius: var(--a-radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.about-section-card h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--a-text);
+}
+
+.section-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.section-hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--a-text-muted);
+}
+
+.btn-add-small {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--a-primary-soft);
+  background: var(--a-primary-bg);
+  color: var(--a-primary-hover);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.btn-add-small:hover {
+  background: var(--a-primary-soft);
+}
+
+/* Avatar preview */
+.avatar-preview {
+  margin-top: 8px;
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--a-border);
+}
+
+/* Timeline items (Education, Experience) */
+.timeline-item-compact {
+  display: grid;
+  grid-template-columns: 130px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px;
+  background: var(--a-surface-alt);
+  border-radius: 10px;
+}
+
+.timeline-year {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--a-primary-hover);
+  font-family: 'Courier New', monospace;
+}
+
+.timeline-item-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.timeline-item-body strong {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--a-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.timeline-item-body span {
+  font-size: 12px;
+  color: var(--a-text-muted);
+}
+
+.timeline-item-actions {
+  display: flex;
+  gap: 4px;
+}
+
+/* Skills rows */
+.skill-row-compact {
+  display: grid;
+  grid-template-columns: 200px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px;
+  background: var(--a-surface-alt);
+  border-radius: 10px;
+}
+
+.skill-row-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--a-text);
+}
+
+.skill-row-items {
+  font-size: 12px;
+  color: var(--a-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.skill-row-actions {
+  display: flex;
+  gap: 4px;
+}
+
+/* Certifications */
+.cert-row-compact {
+  display: grid;
+  grid-template-columns: 32px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px;
+  background: var(--a-surface-alt);
+  border-radius: 10px;
+}
+
+.cert-icon {
+  font-size: 20px;
+  text-align: center;
+}
+
+.cert-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cert-body strong {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--a-text);
+}
+
+.cert-body span {
+  font-size: 12px;
+  color: var(--a-text-muted);
+}
+
+.cert-actions {
+  display: flex;
+  gap: 4px;
+}
+
+/* Inline edit form (di dalam section card) */
+.inline-edit-form {
+  padding: 16px;
+  background: var(--a-primary-bg);
+  border: 1px dashed var(--a-primary-soft);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Responsive About Tab */
+@media (max-width: 640px) {
+  .timeline-item-compact,
+  .skill-row-compact {
+    grid-template-columns: 1fr;
+  }
+
+  .timeline-item-actions,
+  .skill-row-actions,
+  .cert-actions {
+    justify-self: end;
+  }
+}

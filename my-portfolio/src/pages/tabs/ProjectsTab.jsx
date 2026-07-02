@@ -4,18 +4,19 @@ import RichTextEditor from "../../components/RichTextEditor";
 import TechIcon from "../../components/TechIcon";
 
 const EMPTY_FORM = {
-  title: "",
-  short_description: "",
-  description: "",
-  github_link: "",
-  demo_link: "",
-  tech_stack: "",
-  category: "Web Development",
-  role: "",
+  title: "", short_description: "", description: "",
+  github_link: "", demo_link: "", tech_stack: "",
+  category: "Web Development", role: "",
   year: new Date().getFullYear().toString(),
-  status: "Completed",
-  features: "",
+  status: "Completed", features: "",
 };
+
+// Warna badge status
+function getStatusClass(status) {
+  if (status === "In Progress") return "progress";
+  if (status === "Archived") return "archived";
+  return "pub"; // Completed = green
+}
 
 function ProjectsTab({ onCountChange }) {
   const [projects, setProjects] = useState([]);
@@ -118,71 +119,86 @@ function ProjectsTab({ onCountChange }) {
         ) : projects.length === 0 ? (
           <p className="empty-state-text">Belum ada project. Klik "+ New Project" untuk mulai.</p>
         ) : (
-          <table className="simple-table">
-            <thead>
-              <tr>
-                <th>PROJECT</th>
-                <th>TECH</th>
-                <th className="th-center">YEAR</th>
-                <th className="th-center">VIEWS</th>
-                <th className="th-right"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {projects.map((p) => {
-                const techList = p.tech_stack
-                  ? p.tech_stack.split(",").map((t) => t.trim()).filter(Boolean)
-                  : [];
+          <div style={{ overflowX: "auto" }}>
+            <table className="simple-table">
+              <thead>
+                <tr>
+                  <th>PROJECT</th>
+                  <th>CATEGORY</th>
+                  <th>ROLE</th>
+                  <th className="th-center">YEAR</th>
+                  <th className="th-center">STATUS</th>
+                  <th>TECH</th>
+                  <th className="th-center">VIEWS</th>
+                  <th className="th-right"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {projects.map((p) => {
+                  const techList = p.tech_stack
+                    ? p.tech_stack.split(",").map((t) => t.trim()).filter(Boolean)
+                    : [];
 
-                return (
-                  <tr key={p.id}>
-                    <td>
-                      <div className="td-project-cell">
-                        <strong>{p.title}</strong>
-                        <span>{p.category || "—"}</span>
-                      </div>
-                    </td>
-                    <td>
-                      <div className="td-tech-icons">
-                        {techList.slice(0, 4).map((t) => (
-                          <span key={t} className="tech-icon">
-                            <TechIcon name={t} size={14} />
-                          </span>
-                        ))}
-                      </div>
-                    </td>
-                    <td style={{ textAlign: "center" }}>{p.year || "—"}</td>
-                    <td style={{ textAlign: "center" }}>{p.views || 0}</td>
-                    <td>
-                      <div className="td-actions">
-                        <button
-                          onClick={() => window.open(`/projects/${p.slug}`, "_blank")}
-                          className="action-icon-btn"
-                          title="View"
-                        >
-                          👁
-                        </button>
-                        <button
-                          onClick={() => openModal(p)}
-                          className="action-icon-btn"
-                          title="Edit"
-                        >
-                          ✏️
-                        </button>
-                        <button
-                          onClick={() => handleDelete(p.id)}
-                          className="action-icon-btn del"
-                          title="Delete"
-                        >
-                          🗑
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                  return (
+                    <tr key={p.id}>
+                      <td>
+                        <div className="td-project-cell">
+                          <strong>{p.title}</strong>
+                          <span>{p.short_description?.substring(0, 40) || "—"}</span>
+                        </div>
+                      </td>
+                      <td className="td-nowrap">{p.category || "—"}</td>
+                      <td className="td-nowrap">{p.role || "—"}</td>
+                      <td style={{ textAlign: "center" }}>{p.year || "—"}</td>
+                      <td style={{ textAlign: "center" }}>
+                        <span className={`badge-status ${getStatusClass(p.status)}`}>
+                          {p.status || "Completed"}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="td-tech-icons">
+                          {techList.slice(0, 4).map((t) => (
+                            <span key={t} className="tech-icon">
+                              <TechIcon name={t} size={14} />
+                            </span>
+                          ))}
+                          {techList.length > 4 && (
+                            <span className="td-tech-more">+{techList.length - 4}</span>
+                          )}
+                        </div>
+                      </td>
+                      <td style={{ textAlign: "center", fontWeight: 700 }}>{p.views || 0}</td>
+                      <td>
+                        <div className="td-actions">
+                          <button
+                            onClick={() => window.open(`/projects/${p.slug}`, "_blank")}
+                            className="action-icon-btn"
+                            title="View live"
+                          >
+                            👁
+                          </button>
+                          <button
+                            onClick={() => openModal(p)}
+                            className="action-icon-btn"
+                            title="Edit"
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            onClick={() => handleDelete(p.id)}
+                            className="action-icon-btn del"
+                            title="Delete"
+                          >
+                            🗑
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
@@ -193,24 +209,15 @@ function ProjectsTab({ onCountChange }) {
             <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label>Title</label>
-                <input
-                  type="text"
-                  required
-                  value={form.title}
-                  onChange={(e) => setForm({ ...form, title: e.target.value })}
-                />
+                <input type="text" required value={form.title}
+                  onChange={(e) => setForm({ ...form, title: e.target.value })} />
               </div>
-
               <div className="form-group">
                 <label>Short Description</label>
-                <textarea
-                  rows="2"
-                  placeholder="Brief tagline buat card"
+                <textarea rows="2" placeholder="Brief tagline buat card"
                   value={form.short_description}
-                  onChange={(e) => setForm({ ...form, short_description: e.target.value })}
-                />
+                  onChange={(e) => setForm({ ...form, short_description: e.target.value })} />
               </div>
-
               <div className="form-group">
                 <label>Full Description</label>
                 <RichTextEditor
@@ -219,20 +226,16 @@ function ProjectsTab({ onCountChange }) {
                   placeholder="Jelasin project kamu..."
                 />
               </div>
-
               <div className="form-group">
                 <label>Image</label>
                 <input type="file" accept="image/*" onChange={handleImageChange} />
                 {imagePreview && <img src={imagePreview} alt="Preview" className="image-preview" />}
               </div>
-
               <div className="form-row-two">
                 <div className="form-group">
                   <label>Category</label>
-                  <select
-                    value={form.category}
-                    onChange={(e) => setForm({ ...form, category: e.target.value })}
-                  >
+                  <select value={form.category}
+                    onChange={(e) => setForm({ ...form, category: e.target.value })}>
                     <option>Web Development</option>
                     <option>Mobile Development</option>
                     <option>Data Analysis</option>
@@ -243,74 +246,49 @@ function ProjectsTab({ onCountChange }) {
                 </div>
                 <div className="form-group">
                   <label>Role</label>
-                  <input
-                    type="text"
-                    value={form.role}
-                    onChange={(e) => setForm({ ...form, role: e.target.value })}
-                  />
+                  <input type="text" value={form.role}
+                    onChange={(e) => setForm({ ...form, role: e.target.value })} />
                 </div>
               </div>
-
               <div className="form-row-two">
                 <div className="form-group">
                   <label>Year</label>
-                  <input
-                    type="text"
-                    value={form.year}
-                    onChange={(e) => setForm({ ...form, year: e.target.value })}
-                  />
+                  <input type="text" value={form.year}
+                    onChange={(e) => setForm({ ...form, year: e.target.value })} />
                 </div>
                 <div className="form-group">
                   <label>Status</label>
-                  <select
-                    value={form.status}
-                    onChange={(e) => setForm({ ...form, status: e.target.value })}
-                  >
+                  <select value={form.status}
+                    onChange={(e) => setForm({ ...form, status: e.target.value })}>
                     <option>Completed</option>
                     <option>In Progress</option>
                     <option>Archived</option>
                   </select>
                 </div>
               </div>
-
               <div className="form-group">
                 <label>Tech Stack (pisah koma)</label>
-                <input
-                  type="text"
-                  placeholder="React, Node.js, PostgreSQL"
+                <input type="text" placeholder="React, Node.js, PostgreSQL"
                   value={form.tech_stack}
-                  onChange={(e) => setForm({ ...form, tech_stack: e.target.value })}
-                />
+                  onChange={(e) => setForm({ ...form, tech_stack: e.target.value })} />
               </div>
-
               <div className="form-group">
                 <label>Key Features (1 per baris)</label>
-                <textarea
-                  rows="4"
-                  value={form.features}
-                  onChange={(e) => setForm({ ...form, features: e.target.value })}
-                />
+                <textarea rows="4" value={form.features}
+                  onChange={(e) => setForm({ ...form, features: e.target.value })} />
               </div>
-
               <div className="form-row-two">
                 <div className="form-group">
                   <label>GitHub Link</label>
-                  <input
-                    type="text"
-                    value={form.github_link}
-                    onChange={(e) => setForm({ ...form, github_link: e.target.value })}
-                  />
+                  <input type="text" value={form.github_link}
+                    onChange={(e) => setForm({ ...form, github_link: e.target.value })} />
                 </div>
                 <div className="form-group">
                   <label>Demo Link</label>
-                  <input
-                    type="text"
-                    value={form.demo_link}
-                    onChange={(e) => setForm({ ...form, demo_link: e.target.value })}
-                  />
+                  <input type="text" value={form.demo_link}
+                    onChange={(e) => setForm({ ...form, demo_link: e.target.value })} />
                 </div>
               </div>
-
               <div className="modal-buttons">
                 <button type="submit" className="modal-submit-btn">Save</button>
                 <button type="button" onClick={() => setShowModal(false)} className="modal-cancel-btn">
