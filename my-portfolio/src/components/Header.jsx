@@ -1,73 +1,61 @@
-import { NavLink } from "react-router-dom";
-import { useState } from "react";
-import { useContact } from "../context/ContactContext";
-import "../pages/Home.css";
+import { NavLink, useLocation } from "react-router-dom";
+import { useContext, useState, useEffect } from "react";
+import { ContactContext } from "../context/ContactContext";
+import "./Header.css";
 
 function Header() {
-  const [isOpen, setIsOpen] = useState(false);
-  const { open } = useContact();
-  const closeMenu = () => setIsOpen(false);
+  const location = useLocation();
+  const { setIsContactOpen } = useContext(ContactContext);
+  const [isDark, setIsDark] = useState(() => {
+    return document.documentElement.getAttribute("data-theme") === "dark";
+  });
+
+  const toggleTheme = () => {
+    const next = isDark ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    localStorage.setItem("theme", next);
+    setIsDark(!isDark);
+  };
+
+  useEffect(() => {
+    const saved = localStorage.getItem("theme");
+    if (saved === "dark") {
+      document.documentElement.setAttribute("data-theme", "dark");
+      setIsDark(true);
+    }
+  }, []);
 
   return (
-    <nav className="navbar">
-      <div className="nav-container">
-        <NavLink className="logo" to="/" onClick={closeMenu}>
-          DevPortfolio
+    <header className="site-header">
+      <div className="site-header-inner">
+        <NavLink to="/" className="brand-link">
+          <div className="brand-avatar">AN</div>
+          <span className="brand-name">Arni Nazira</span>
         </NavLink>
 
-        <div className={`nav-menu ${isOpen ? "show" : ""}`}>
-          <NavLink
-            to="/"
-            onClick={closeMenu}
-            className={({ isActive }) =>
-              isActive ? "nav-link active" : "nav-link"
-            }
-          >
-            Home
-          </NavLink>
+        <nav className="main-nav">
+          <NavLink to="/" end>Home</NavLink>
+          <NavLink to="/projects">Projects</NavLink>
+          <NavLink to="/about">About</NavLink>
+        </nav>
 
-          <NavLink
-            to="/projects"
-            onClick={closeMenu}
-            className={({ isActive }) =>
-              isActive ? "nav-link active" : "nav-link"
-            }
+        <div className="header-actions">
+          <button
+            className="theme-toggle-btn"
+            onClick={toggleTheme}
+            aria-label="Toggle theme"
           >
-            Projects
-          </NavLink>
-
-          <NavLink
-            to="/about"
-            onClick={closeMenu}
-            className={({ isActive }) =>
-              isActive ? "nav-link active" : "nav-link"
-            }
-          >
-            About Me
-          </NavLink>
-
-          <a
-            className="nav-link mobile-contact"
-            href="#"
-            onClick={(e) => { e.preventDefault(); open(); closeMenu(); }}
+            {isDark ? "☀" : "☾"}
+          </button>
+          <button
+            className="contact-btn"
+            onClick={() => setIsContactOpen(true)}
           >
             Contact
-          </a>
+          </button>
         </div>
-
-        <a className="contact-button" onClick={open}>
-          Contact
-        </a>
-
-        <button
-          className="mobile-menu"
-          aria-label="Menu"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          {isOpen ? "×" : "☰"}
-        </button>
       </div>
-    </nav>
+    </header>
   );
 }
 

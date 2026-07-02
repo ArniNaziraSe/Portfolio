@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import "../pages/Home.css";
+import { Link } from "react-router-dom";
+import "./MainContent.css";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
 
@@ -10,118 +11,128 @@ function getImageUrl(path) {
 }
 
 function MainContent() {
-  const [latestProjects, setLatestProjects] = useState([]);
+  const [featured, setFeatured] = useState([]);
   const [profile, setProfile] = useState(null);
+  const [projectsCount, setProjectsCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Promise.all([
       fetch(`${API_BASE}/api/projects`).then((res) => res.json()).catch(() => []),
       fetch(`${API_BASE}/api/profile`).then((res) => res.json()).catch(() => null),
-    ])
-      .then(([projectsData, profileData]) => {
-        // Ambil 2 project terbaru, pakai short_description biar preview pendek
-        const transformedData = projectsData.slice(0, 2).map((project) => ({
-          id: project.id,
-          slug: project.slug || project.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-          title: project.title,
-          shortDescription: project.short_description || "",
-          image: project.image_url,
-          tech: project.tech_stack ? project.tech_stack.split(",").map((t) => t.trim()) : [],
-        }));
-
-        setLatestProjects(transformedData);
-        setProfile(profileData);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Waduh gagal fetch data, gwenchana:", err);
-        setLoading(false);
-      });
+    ]).then(([projectsData, profileData]) => {
+      setProjectsCount(projectsData.length);
+      setFeatured(projectsData.slice(0, 3));
+      setProfile(profileData);
+      setLoading(false);
+    });
   }, []);
 
   return (
-    <main className="main-content">
-      <section className="hero-section">
-        <div className="hero-text">
-          <h1 className="hero-title">
-            Port<span>fo</span>lio
-          </h1>
+    <main className="home-main">
+      {/* HERO */}
+      <section className="hero-block">
+        <span className="status-pill">
+          <span className="status-dot" /> Available for new projects
+        </span>
 
-          <p className="hero-description">
-            <strong>{profile?.full_name || "Arni Nazira"}</strong>,{" "}
-            {profile?.current_role ||
-              "Informatics Engineering Graduate & Junior Web Developer. Building clean, efficient, and user-centric digital solutions."}
-          </p>
+        <h1 className="hero-name">{profile?.full_name || "Arni Nazira"}</h1>
 
-          {profile?.cv_url && (
-            <div className="hero-cta">
-              <a className="hero-cv-button" href={profile.cv_url} download>
-                Download CV
-              </a>
-            </div>
+        <div className="hero-desc">
+          {profile?.bio ? (
+            <div
+              className="rich-content"
+              dangerouslySetInnerHTML={{ __html: profile.bio }}
+            />
+          ) : (
+            <p>
+              Informatics Engineering graduate focused on web & mobile development
+              with Laravel, React, and Flutter — while steadily growing my data &
+              admin skills along the way.
+            </p>
           )}
         </div>
 
-        <div className="hero-image-wrapper">
-          <img
-            className="hero-image"
-            src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=900&q=80"
-            alt="Arni Nazira portfolio visual"
-          />
+        <div className="hero-buttons">
+          {profile?.cv_url && (
+            <a href={profile.cv_url} className="btn-primary" target="_blank" rel="noreferrer">
+              ⬇ Download CV
+            </a>
+          )}
+          <Link to="/projects" className="btn-outline">
+            View Projects
+          </Link>
+        </div>
+
+        {/* STATS */}
+        <div className="hero-stats">
+          <div className="stat-block">
+            <span className="stat-num">{projectsCount || "0"}+</span>
+            <span className="stat-label">Projects</span>
+          </div>
+          <div className="stat-block">
+            <span className="stat-num">{profile?.focus || "Web·Mobile"}</span>
+            <span className="stat-label">Focus</span>
+          </div>
+          <div className="stat-block">
+            <span className="stat-num">{profile?.graduation_year || "2025"}</span>
+            <span className="stat-label">Graduated</span>
+          </div>
         </div>
       </section>
 
-      <section className="latest-projects" id="projects">
+      {/* FEATURED */}
+      <section className="featured-block">
         <div className="section-heading">
-          <h2>Latest Projects</h2>
+          <div>
+            <span className="section-label">SELECTED WORK</span>
+            <h2>Featured Projects</h2>
+          </div>
+          <Link to="/projects" className="section-see-all">See all →</Link>
         </div>
 
         {loading ? (
-          <p
-            className="text-loading"
-            style={{ textAlign: "center", color: "#007acc", margin: "2rem 0" }}
-          >
-            Loading projects dari database... ⏳
-          </p>
+          <p style={{ color: "var(--text-muted)" }}>Loading...</p>
         ) : (
-          <div className="project-grid">
-            {latestProjects.map((project) => (
-              <article className="project-card" key={project.id}>
-                <div className="project-image-wrapper">
-                  <img
-                    className="project-image"
-                    src={getImageUrl(project.image)}
-                    alt={project.title}
-                  />
-                </div>
-
-                <div className="project-content">
-                  <div className="tech-list">
-                    {project.tech.map((item) => (
-                      <span key={item}>{item}</span>
-                    ))}
-                  </div>
-
-                  <h3>{project.title}</h3>
-                  <p>{project.shortDescription}</p>
-
-                  <a className="project-link" href={`/projects/${project.slug}`}>
-                    View Details →
-                  </a>
-                </div>
-              </article>
+          <div className="featured-grid">
+            {featured.map((p, idx) => (
+              <FeaturedCard key={p.id} project={p} idx={idx + 1} />
             ))}
           </div>
         )}
-
-        <div className="more-project-wrapper">
-          <a className="more-project-button" href="/projects">
-            See More Projects
-          </a>
-        </div>
       </section>
     </main>
+  );
+}
+
+function FeaturedCard({ project, idx }) {
+  const techList = project.tech_stack
+    ? project.tech_stack.split(",").map((t) => t.trim()).filter(Boolean)
+    : [];
+  const imgUrl = getImageUrl(project.image_url);
+  const numStr = String(idx).padStart(2, "0");
+
+  return (
+    <Link to={`/projects/${project.slug}`} className="featured-card">
+      <div className="number-placeholder">
+        {imgUrl ? (
+          <img src={imgUrl} alt={project.title} onError={(e) => (e.target.style.display = "none")} />
+        ) : (
+          <span className="number-placeholder-num">{numStr}</span>
+        )}
+      </div>
+
+      <div className="featured-card-body">
+        <h3>{project.title}</h3>
+        <p>{project.short_description || "—"}</p>
+
+        <div className="tech-pills">
+          {techList.slice(0, 5).map((t) => (
+            <span key={t} className="tech-pill-mini">{t}</span>
+          ))}
+        </div>
+      </div>
+    </Link>
   );
 }
 

@@ -3,18 +3,13 @@ import { API_BASE, PUBLIC_ABOUT_URL, getImageUrl, safeFetch } from "./apiClient"
 import RichTextEditor from "../../components/RichTextEditor";
 
 function AboutTab({ onSkillsCountChange }) {
-  // Profile state
   const [profile, setProfile] = useState({
-    full_name: "",
-    current_role: "",
-    bio: "",
-    avatar_url: "",
-    cv_url: "",
+    full_name: "", current_role: "", bio: "", avatar_url: "", cv_url: "",
+    focus: "", graduation_year: "", email: "", personal_note: "", hobbies: "",
   });
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
 
-  // Timeline (education + experience)
   const [education, setEducation] = useState([]);
   const [experiences, setExperiences] = useState([]);
   const [skills, setSkills] = useState([]);
@@ -23,11 +18,10 @@ function AboutTab({ onSkillsCountChange }) {
   const [isSaving, setIsSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState("");
 
-  // ============ FETCH ALL ============
   const fetchAll = () => {
     safeFetch("/api/profile", null).then((data) => {
       if (data) {
-        setProfile(data);
+        setProfile((prev) => ({ ...prev, ...data }));
         setAvatarPreview(getImageUrl(data.avatar_url));
       }
     });
@@ -45,7 +39,6 @@ function AboutTab({ onSkillsCountChange }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ============ PROFILE SAVE ============
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -59,10 +52,9 @@ function AboutTab({ onSkillsCountChange }) {
     setSavedMsg("");
     try {
       const formData = new FormData();
-      formData.append("full_name", profile.full_name || "");
-      formData.append("current_role", profile.current_role || "");
-      formData.append("bio", profile.bio || "");
-      formData.append("cv_url", profile.cv_url || "");
+      ["full_name", "current_role", "bio", "cv_url",
+       "focus", "graduation_year", "email", "personal_note", "hobbies"
+      ].forEach((k) => formData.append(k, profile[k] || ""));
       if (avatarFile) formData.append("avatar", avatarFile);
 
       await fetch(`${API_BASE}/api/profile`, { method: "PUT", body: formData });
@@ -78,25 +70,13 @@ function AboutTab({ onSkillsCountChange }) {
 
   return (
     <div className="tab-view about-tab-wrapper">
-      {/* Header + save button */}
       <div className="about-header-bar">
-        <div>
-          <p className="about-subtitle">Edits mirror the public About page.</p>
-        </div>
+        <p className="about-subtitle">Edits mirror the public About page.</p>
         <div className="about-header-actions">
-          <a
-            href={PUBLIC_ABOUT_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="btn-outline-teal"
-          >
+          <a href={PUBLIC_ABOUT_URL} target="_blank" rel="noreferrer" className="btn-outline-teal">
             👁 Preview
           </a>
-          <button
-            onClick={saveProfile}
-            className="add-project-btn"
-            disabled={isSaving}
-          >
+          <button onClick={saveProfile} className="add-project-btn" disabled={isSaving}>
             {isSaving ? "Saving..." : "💾 Save Profile"}
           </button>
         </div>
@@ -104,30 +84,46 @@ function AboutTab({ onSkillsCountChange }) {
 
       {savedMsg && <div className="saved-msg">{savedMsg}</div>}
 
-      {/* ============ BASIC INFO ============ */}
+      {/* BASIC INFO */}
       <div className="about-section-card">
         <h3>Basic Info</h3>
         <div className="form-row-two">
           <div className="form-group">
             <label>Name</label>
-            <input
-              type="text"
-              value={profile.full_name || ""}
-              onChange={(e) => setProfile({ ...profile, full_name: e.target.value })}
-            />
+            <input type="text" value={profile.full_name || ""}
+              onChange={(e) => setProfile({ ...profile, full_name: e.target.value })} />
           </div>
           <div className="form-group">
             <label>Role / Headline</label>
-            <input
-              type="text"
-              value={profile.current_role || ""}
-              onChange={(e) => setProfile({ ...profile, current_role: e.target.value })}
-            />
+            <input type="text" value={profile.current_role || ""}
+              onChange={(e) => setProfile({ ...profile, current_role: e.target.value })} />
+          </div>
+        </div>
+
+        <div className="form-row-two">
+          <div className="form-group">
+            <label>Focus (2 kata, muncul di stat Home)</label>
+            <input type="text" placeholder="Web·Mobile"
+              value={profile.focus || ""}
+              onChange={(e) => setProfile({ ...profile, focus: e.target.value })} />
+          </div>
+          <div className="form-group">
+            <label>Graduation Year</label>
+            <input type="text" placeholder="2025"
+              value={profile.graduation_year || ""}
+              onChange={(e) => setProfile({ ...profile, graduation_year: e.target.value })} />
           </div>
         </div>
 
         <div className="form-group">
-          <label>Bio</label>
+          <label>Email (Contact modal)</label>
+          <input type="email" placeholder="hello@arninazira.my.id"
+            value={profile.email || ""}
+            onChange={(e) => setProfile({ ...profile, email: e.target.value })} />
+        </div>
+
+        <div className="form-group">
+          <label>Bio (About page)</label>
           <RichTextEditor
             value={profile.bio || ""}
             onChange={(html) => setProfile({ ...profile, bio: html })}
@@ -145,81 +141,69 @@ function AboutTab({ onSkillsCountChange }) {
           </div>
           <div className="form-group">
             <label>CV File URL</label>
-            <input
-              type="text"
-              placeholder="https://..."
+            <input type="text" placeholder="https://..."
               value={profile.cv_url || ""}
-              onChange={(e) => setProfile({ ...profile, cv_url: e.target.value })}
-            />
+              onChange={(e) => setProfile({ ...profile, cv_url: e.target.value })} />
           </div>
         </div>
       </div>
 
-      {/* ============ EDUCATION ============ */}
-      <TimelineSection
-        title="Education"
-        endpoint="/api/education"
-        items={education}
-        onRefresh={fetchAll}
-      />
+      {/* BEYOND WORK */}
+      <div className="about-section-card">
+        <h3>Beyond Work</h3>
+        <div className="form-group">
+          <label>Personal Note</label>
+          <textarea rows="3"
+            placeholder="Away from the keyboard I recharge with..."
+            value={profile.personal_note || ""}
+            onChange={(e) => setProfile({ ...profile, personal_note: e.target.value })} />
+        </div>
+        <div className="form-group">
+          <label>Hobbies (pisah koma)</label>
+          <input type="text" placeholder="Photography, Reading, Hiking, Coffee"
+            value={profile.hobbies || ""}
+            onChange={(e) => setProfile({ ...profile, hobbies: e.target.value })} />
+        </div>
+      </div>
 
-      {/* ============ EXPERIENCE ============ */}
-      <TimelineSection
-        title="Experience"
-        endpoint="/api/experiences"
-        items={experiences}
-        onRefresh={fetchAll}
-      />
+      {/* EDUCATION */}
+      <TimelineSection title="Education" endpoint="/api/education" items={education} onRefresh={fetchAll} />
 
-      {/* ============ SKILLS ============ */}
+      {/* EXPERIENCE */}
+      <TimelineSection title="Experience" endpoint="/api/experiences" items={experiences} onRefresh={fetchAll} />
+
+      {/* SKILLS */}
       <SkillsSection skills={skills} onRefresh={fetchAll} />
 
-      {/* ============ CERTIFICATIONS ============ */}
+      {/* CERTIFICATIONS */}
       <CertificationsSection certs={certifications} onRefresh={fetchAll} />
     </div>
   );
 }
 
-// ============ TIMELINE SECTION (Education / Experience) ============
 function TimelineSection({ title, endpoint, items, onRefresh }) {
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [form, setForm] = useState({
-    title: "",
-    institution: "",
-    years: "",
-    description: "",
-    is_featured: false,
-  });
+  const [form, setForm] = useState({ title: "", institution: "", years: "", description: "", is_featured: false });
 
   const startAdd = () => {
     setEditingId(null);
     setForm({ title: "", institution: "", years: "", description: "", is_featured: false });
     setIsAdding(true);
   };
-
   const startEdit = (item) => {
     setEditingId(item.id);
     setForm({
-      title: item.title || "",
-      institution: item.institution || "",
-      years: item.period || "",
-      description: item.description || "",
+      title: item.title || "", institution: item.institution || "",
+      years: item.period || "", description: item.description || "",
       is_featured: !!item.is_featured,
     });
     setIsAdding(true);
   };
-
-  const cancel = () => {
-    setIsAdding(false);
-    setEditingId(null);
-  };
-
   const save = async () => {
     const url = editingId ? `${API_BASE}${endpoint}/${editingId}` : `${API_BASE}${endpoint}`;
-    const method = editingId ? "PUT" : "POST";
     await fetch(url, {
-      method,
+      method: editingId ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
     });
@@ -227,7 +211,6 @@ function TimelineSection({ title, endpoint, items, onRefresh }) {
     setEditingId(null);
     onRefresh();
   };
-
   const del = async (id) => {
     if (!window.confirm(`Hapus item ${title.toLowerCase()} ini?`)) return;
     await fetch(`${API_BASE}${endpoint}/${id}`, { method: "DELETE" });
@@ -247,9 +230,7 @@ function TimelineSection({ title, endpoint, items, onRefresh }) {
 
       {items.map((item) => (
         <div key={item.id} className="timeline-item-compact">
-          <div className="timeline-item-left">
-            <span className="timeline-year">{item.period || "—"}</span>
-          </div>
+          <div className="timeline-item-left"><span className="timeline-year">{item.period || "—"}</span></div>
           <div className="timeline-item-body">
             <strong>{item.title}</strong>
             <span>{item.institution}</span>
@@ -266,53 +247,28 @@ function TimelineSection({ title, endpoint, items, onRefresh }) {
           <div className="form-row-two">
             <div className="form-group">
               <label>Year / Period</label>
-              <input
-                type="text"
-                placeholder="e.g., 2021 — 2025"
-                value={form.years}
-                onChange={(e) => setForm({ ...form, years: e.target.value })}
-              />
+              <input type="text" placeholder="e.g., 2021 — 2025" value={form.years}
+                onChange={(e) => setForm({ ...form, years: e.target.value })} />
             </div>
             <div className="form-group">
               <label>Title</label>
-              <input
-                type="text"
-                placeholder="e.g., Bachelor Degree"
-                value={form.title}
-                onChange={(e) => setForm({ ...form, title: e.target.value })}
-              />
+              <input type="text" value={form.title}
+                onChange={(e) => setForm({ ...form, title: e.target.value })} />
             </div>
           </div>
           <div className="form-group">
             <label>Institution</label>
-            <input
-              type="text"
-              value={form.institution}
-              onChange={(e) => setForm({ ...form, institution: e.target.value })}
-            />
+            <input type="text" value={form.institution}
+              onChange={(e) => setForm({ ...form, institution: e.target.value })} />
           </div>
           <div className="form-group">
             <label>Description (optional)</label>
-            <textarea
-              rows="2"
-              value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-            />
-          </div>
-          <div className="form-group">
-            <label>
-              <input
-                type="checkbox"
-                checked={form.is_featured}
-                onChange={(e) => setForm({ ...form, is_featured: e.target.checked })}
-                style={{ marginRight: 6 }}
-              />
-              Featured (dot aktif di timeline)
-            </label>
+            <textarea rows="2" value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })} />
           </div>
           <div className="modal-buttons">
             <button className="modal-submit-btn" onClick={save}>Save</button>
-            <button className="modal-cancel-btn" onClick={cancel}>Cancel</button>
+            <button className="modal-cancel-btn" onClick={() => setIsAdding(false)}>Cancel</button>
           </div>
         </div>
       )}
@@ -320,7 +276,6 @@ function TimelineSection({ title, endpoint, items, onRefresh }) {
   );
 }
 
-// ============ SKILLS SECTION ============
 function SkillsSection({ skills, onRefresh }) {
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -331,22 +286,15 @@ function SkillsSection({ skills, onRefresh }) {
     setForm({ category_label: "", items: "", highlight: "" });
     setIsAdding(true);
   };
-
   const startEdit = (s) => {
     setEditingId(s.id);
-    setForm({
-      category_label: s.category_label || "",
-      items: s.items || "",
-      highlight: s.highlight || "",
-    });
+    setForm({ category_label: s.category_label || "", items: s.items || "", highlight: s.highlight || "" });
     setIsAdding(true);
   };
-
   const save = async () => {
     const url = editingId ? `${API_BASE}/api/skills/${editingId}` : `${API_BASE}/api/skills`;
-    const method = editingId ? "PUT" : "POST";
     await fetch(url, {
-      method,
+      method: editingId ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
     });
@@ -354,7 +302,6 @@ function SkillsSection({ skills, onRefresh }) {
     setEditingId(null);
     onRefresh();
   };
-
   const del = async (id) => {
     if (!window.confirm("Hapus skill group ini?")) return;
     await fetch(`${API_BASE}/api/skills/${id}`, { method: "DELETE" });
@@ -367,9 +314,8 @@ function SkillsSection({ skills, onRefresh }) {
         <h3>Skills</h3>
         <button className="btn-add-small" onClick={startAdd}>+ Add group</button>
       </div>
-
       <p className="section-hint">
-        Tech names pisah koma — nama yang match punya logo (e.g. React, Laravel, Flutter).
+        Tech names pisah koma — nama yang match punya logo (React, Laravel, Flutter).
       </p>
 
       {skills.map((s) => (
@@ -388,30 +334,19 @@ function SkillsSection({ skills, onRefresh }) {
           <div className="form-row-two">
             <div className="form-group">
               <label>Category (e.g., Frontend)</label>
-              <input
-                type="text"
-                value={form.category_label}
-                onChange={(e) => setForm({ ...form, category_label: e.target.value })}
-              />
+              <input type="text" value={form.category_label}
+                onChange={(e) => setForm({ ...form, category_label: e.target.value })} />
             </div>
             <div className="form-group">
               <label>Highlight (opsional)</label>
-              <input
-                type="text"
-                placeholder="React, Vue"
-                value={form.highlight}
-                onChange={(e) => setForm({ ...form, highlight: e.target.value })}
-              />
+              <input type="text" placeholder="React, Vue" value={form.highlight}
+                onChange={(e) => setForm({ ...form, highlight: e.target.value })} />
             </div>
           </div>
           <div className="form-group">
             <label>Items (pisah koma)</label>
-            <input
-              type="text"
-              placeholder="React, Vue.js, Tailwind CSS"
-              value={form.items}
-              onChange={(e) => setForm({ ...form, items: e.target.value })}
-            />
+            <input type="text" placeholder="React, Vue.js, Tailwind CSS" value={form.items}
+              onChange={(e) => setForm({ ...form, items: e.target.value })} />
           </div>
           <div className="modal-buttons">
             <button className="modal-submit-btn" onClick={save}>Save</button>
@@ -423,29 +358,25 @@ function SkillsSection({ skills, onRefresh }) {
   );
 }
 
-// ============ CERTIFICATIONS SECTION ============
 function CertificationsSection({ certs, onRefresh }) {
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [form, setForm] = useState({ title: "", issuer: "", icon: "🏆" });
+  const [form, setForm] = useState({ title: "", issuer: "", icon: "🏆", year: "" });
 
   const startAdd = () => {
     setEditingId(null);
-    setForm({ title: "", issuer: "", icon: "🏆" });
+    setForm({ title: "", issuer: "", icon: "🏆", year: "" });
     setIsAdding(true);
   };
-
   const startEdit = (c) => {
     setEditingId(c.id);
-    setForm({ title: c.title || "", issuer: c.issuer || "", icon: c.icon || "🏆" });
+    setForm({ title: c.title || "", issuer: c.issuer || "", icon: c.icon || "🏆", year: c.year || "" });
     setIsAdding(true);
   };
-
   const save = async () => {
     const url = editingId ? `${API_BASE}/api/certifications/${editingId}` : `${API_BASE}/api/certifications`;
-    const method = editingId ? "PUT" : "POST";
     await fetch(url, {
-      method,
+      method: editingId ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
     });
@@ -453,7 +384,6 @@ function CertificationsSection({ certs, onRefresh }) {
     setEditingId(null);
     onRefresh();
   };
-
   const del = async (id) => {
     if (!window.confirm("Hapus sertifikat ini?")) return;
     await fetch(`${API_BASE}/api/certifications/${id}`, { method: "DELETE" });
@@ -467,16 +397,14 @@ function CertificationsSection({ certs, onRefresh }) {
         <button className="btn-add-small" onClick={startAdd}>+ Add</button>
       </div>
 
-      {certs.length === 0 && !isAdding && (
-        <p className="empty-state-text">Belum ada sertifikat.</p>
-      )}
+      {certs.length === 0 && !isAdding && <p className="empty-state-text">Belum ada sertifikat.</p>}
 
       {certs.map((c) => (
         <div key={c.id} className="cert-row-compact">
           <span className="cert-icon">{c.icon || "🏆"}</span>
           <div className="cert-body">
             <strong>{c.title}</strong>
-            <span>{c.issuer}</span>
+            <span>{c.issuer} {c.year ? `· ${c.year}` : ""}</span>
           </div>
           <div className="cert-actions">
             <button className="action-icon-btn" onClick={() => startEdit(c)}>✏️</button>
@@ -490,28 +418,26 @@ function CertificationsSection({ certs, onRefresh }) {
           <div className="form-row-two">
             <div className="form-group">
               <label>Title</label>
-              <input
-                type="text"
-                value={form.title}
-                onChange={(e) => setForm({ ...form, title: e.target.value })}
-              />
+              <input type="text" value={form.title}
+                onChange={(e) => setForm({ ...form, title: e.target.value })} />
+            </div>
+            <div className="form-group">
+              <label>Year</label>
+              <input type="text" placeholder="2024" value={form.year}
+                onChange={(e) => setForm({ ...form, year: e.target.value })} />
+            </div>
+          </div>
+          <div className="form-row-two">
+            <div className="form-group">
+              <label>Issuer</label>
+              <input type="text" value={form.issuer}
+                onChange={(e) => setForm({ ...form, issuer: e.target.value })} />
             </div>
             <div className="form-group">
               <label>Icon (emoji)</label>
-              <input
-                type="text"
-                value={form.icon}
-                onChange={(e) => setForm({ ...form, icon: e.target.value })}
-              />
+              <input type="text" value={form.icon}
+                onChange={(e) => setForm({ ...form, icon: e.target.value })} />
             </div>
-          </div>
-          <div className="form-group">
-            <label>Issuer</label>
-            <input
-              type="text"
-              value={form.issuer}
-              onChange={(e) => setForm({ ...form, issuer: e.target.value })}
-            />
           </div>
           <div className="modal-buttons">
             <button className="modal-submit-btn" onClick={save}>Save</button>

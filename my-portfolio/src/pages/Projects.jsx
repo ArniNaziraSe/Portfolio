@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -15,92 +15,105 @@ function getImageUrl(path) {
 function Projects() {
   const [projects, setProjects] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeCategory, setActiveCategory] = useState("All");
 
   useEffect(() => {
     fetch(`${API_BASE}/api/projects`)
-      .then((response) => response.json())
+      .then((r) => r.json())
       .then((data) => {
         setProjects(data);
         setIsLoading(false);
       })
-      .catch((error) => {
-        console.error("Waduh gagal ambil data:", error);
-        setIsLoading(false);
-      });
+      .catch(() => setIsLoading(false));
   }, []);
 
-  if (isLoading) {
-    return (
-      <p style={{ textAlign: "center", marginTop: "3rem", color: "#007acc" }}>
-        Loading data dari database, sabar ya ⌛
-      </p>
-    );
-  }
+  // Ambil unique categories dari data project, sisipkan "All" di depan
+  const categories = useMemo(() => {
+    const set = new Set();
+    projects.forEach((p) => { if (p.category) set.add(p.category); });
+    return ["All", ...Array.from(set)];
+  }, [projects]);
+
+  const filtered = useMemo(() => {
+    if (activeCategory === "All") return projects;
+    return projects.filter((p) => p.category === activeCategory);
+  }, [projects, activeCategory]);
 
   return (
     <div className="home-page">
       <Header />
 
-      <main className="projects-main">
-        <header className="projects-hero">
-          <h1>Selected Projects</h1>
-          <p>
-            A collection of my work in web development, information systems,
-            data analysis, Excel dashboards, and UI design.
+      <main className="projects-page-main">
+        <div className="projects-page-header">
+          <span className="section-label">PORTFOLIO</span>
+          <h1>All Projects</h1>
+          <p className="projects-count">{filtered.length} projects</p>
+        </div>
+
+        {categories.length > 1 && (
+          <div className="filter-pills">
+            {categories.map((c) => (
+              <button
+                key={c}
+                className={`filter-pill ${activeCategory === c ? "active" : ""}`}
+                onClick={() => setActiveCategory(c)}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {isLoading ? (
+          <p style={{ textAlign: "center", padding: "60px 0", color: "var(--text-muted)" }}>
+            Loading...
           </p>
-        </header>
-
-        <section className="projects-page-grid">
-          {projects.map((project) => {
-            const techArray = project.tech_stack
-              ? project.tech_stack.split(",").map((t) => t.trim())
-              : [];
-
-            return (
-              <article className="projects-page-card" key={project.id}>
-                <div className="projects-page-image">
-                  <img src={getImageUrl(project.image_url)} alt={project.title} />
-                </div>
-
-                <div className="projects-page-content">
-                  <span className="projects-page-category">
-                    {project.category || "Web Development"}
-                  </span>
-
-                  <h3>{project.title}</h3>
-
-                  <p>{project.short_description}</p>
-
-                  <div className="projects-page-tags">
-                    {techArray.slice(0, 4).map((tag) => (
-                      <span key={tag}>{tag}</span>
-                    ))}
-                  </div>
-
-                  <div className="projects-page-actions">
-                    <Link
-                      to={`/projects/${project.slug}`}
-                      className="projects-page-button"
-                    >
-                      View Project
-                    </Link>
-
-                    <Link
-                      to={`/projects/${project.slug}`}
-                      className="projects-page-icon-button"
-                    >
-                      &lt;/&gt;
-                    </Link>
-                  </div>
-                </div>
-              </article>
-            );
-          })}
-        </section>
+        ) : (
+          <div className="projects-grid">
+            {filtered.map((p, idx) => (
+              <ProjectCard key={p.id} project={p} idx={idx + 1} />
+            ))}
+          </div>
+        )}
       </main>
 
       <Footer />
     </div>
+  );
+}
+
+function ProjectCard({ project, idx }) {
+  const techList = project.tech_stack
+    ? project.tech_stack.split(",").map((t) => t.trim()).filter(Boolean)
+    : [];
+  const imgUrl = getImageUrl(project.image_url);
+  const numStr = String(idx).padStart(2, "0");
+
+  return (
+    <Link to={`/projects/${project.slug}`} className="project-card">
+      <div className="number-placeholder">
+        {imgUrl ? (
+          <img src={imgUrl} alt={project.title} onError={(e) => (e.target.style.display = "none")} />
+        ) : (
+          <span className="number-placeholder-num">{numStr}</span>
+        )}
+      </div>
+
+      <div className="project-card-body">
+        <div className="project-card-title-row">
+          <h3>{project.title}</h3>
+          <span className="project-card-year">{project.year || ""}</span>
+        </div>
+
+        <p>{project.short_description || "—"}</p>
+
+        <div className="tech-pills">
+          {techList.slice(0, 5).map((t) => (
+            <span key={t} className="tech-pill-mini">{t}</span>
+          ))}
+        </div>
+      </div>
+    </Link>
   );
 }
 

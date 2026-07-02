@@ -17,199 +17,187 @@ function getImageUrl(path) {
 
 function ProjectDetail() {
   const { slug } = useParams();
-
   const [project, setProject] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isNotFound, setIsNotFound] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+  const [projectIdx, setProjectIdx] = useState(1);
 
   useEffect(() => {
-    async function loadProject() {
+    async function load() {
       try {
         const res = await fetch(`${API_BASE}/api/projects`);
         const data = await res.json();
-        const selectedProject = data.find((item) => item.slug === slug);
-
-        if (!selectedProject) {
-          setIsNotFound(true);
+        const idx = data.findIndex((p) => p.slug === slug);
+        if (idx === -1) {
+          setNotFound(true);
           return;
         }
-        setProject(selectedProject);
-      } catch (error) {
-        console.error(error);
-        setIsNotFound(true);
+        setProject(data[idx]);
+        setProjectIdx(idx + 1);
+
+        // Track view sekali per session
+        const viewKey = `viewed_${slug}`;
+        if (!sessionStorage.getItem(viewKey)) {
+          fetch(`${API_BASE}/api/projects/${slug}/track-view`, {
+            method: "POST",
+            keepalive: true,
+          })
+            .then(() => sessionStorage.setItem(viewKey, "true"))
+            .catch(() => {});
+        }
+      } catch (e) {
+        setNotFound(true);
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     }
-    loadProject();
+    load();
   }, [slug]);
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="home-page">
         <Header />
-        <main className="project-detail-main">
-          <p className="project-loading">Loading project...</p>
+        <main className="pd-main">
+          <p style={{ textAlign: "center", padding: "80px 0", color: "var(--text-muted)" }}>
+            Loading...
+          </p>
         </main>
         <Footer />
       </div>
     );
   }
 
-  if (isNotFound || !project) {
+  if (notFound || !project) {
     return (
       <div className="home-page">
         <Header />
-        <main className="project-detail-main">
-          <section className="project-not-found">
+        <main className="pd-main">
+          <div style={{ textAlign: "center", padding: "80px 0" }}>
             <h1>Project Not Found</h1>
-            <p>The project you are looking for does not exist.</p>
-            <Link to="/projects" className="back-link">← Back to Projects</Link>
-          </section>
+            <Link to="/projects" className="btn-primary" style={{ marginTop: 16, display: "inline-block" }}>
+              Back to projects
+            </Link>
+          </div>
         </main>
         <Footer />
       </div>
     );
   }
 
-  const techArray = project.tech_stack
+  const techList = project.tech_stack
     ? project.tech_stack.split(",").map((t) => t.trim()).filter(Boolean)
     : [];
-
-  const featuresArray = project.features
+  const featuresList = project.features
     ? project.features.split("\n").map((f) => f.trim()).filter(Boolean)
     : [];
+  const imgUrl = getImageUrl(project.image_url);
+  const numStr = String(projectIdx).padStart(2, "0");
 
   return (
     <div className="home-page">
       <Header />
 
-      <main className="project-detail-main">
-        {/* Tombol back — di luar hero biar prominent */}
-        <Link to="/projects" className="back-link-top">
-          ← Back to Projects
-        </Link>
+      <main className="pd-main">
+        <Link to="/projects" className="pd-back-link">← Back to projects</Link>
 
-        <section className="project-detail-hero">
-          <div className="project-detail-text">
-            <span className="project-type">{project.category || "Project"}</span>
-            <h1>{project.title}</h1>
-            {project.short_description && (
-              <p className="project-short-desc">{project.short_description}</p>
+        <div className="pd-header">
+          <div className="pd-meta-line">
+            <span className="pd-category">{project.category || "Project"}</span>
+            <span className="pd-dot">·</span>
+            <span className="pd-year">{project.year || ""}</span>
+          </div>
+
+          <h1>{project.title}</h1>
+
+          {project.short_description && <p className="pd-short">{project.short_description}</p>}
+
+          <div className="pd-buttons">
+            {project.github_link && (
+              <a href={project.github_link} target="_blank" rel="noreferrer" className="pd-btn-dark">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.58 0-.29-.01-1.05-.02-2.06-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.74.08-.73.08-.73 1.21.09 1.85 1.24 1.85 1.24 1.07 1.84 2.81 1.31 3.5 1 .11-.78.42-1.31.76-1.61-2.66-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.12-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 016 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.66.24 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.62-5.49 5.92.43.37.81 1.1.81 2.22 0 1.6-.01 2.89-.01 3.28 0 .32.22.7.83.58C20.56 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                View on GitHub
+              </a>
+            )}
+            {project.demo_link && (
+              <a href={project.demo_link} target="_blank" rel="noreferrer" className="btn-outline">
+                ↗ Live Demo
+              </a>
+            )}
+          </div>
+        </div>
+
+        {/* HERO IMAGE / NUMBER PLACEHOLDER */}
+        <div className="pd-hero-img number-placeholder">
+          {imgUrl ? (
+            <img src={imgUrl} alt={project.title} onError={(e) => (e.target.style.display = "none")} />
+          ) : (
+            <span className="number-placeholder-num">{numStr}</span>
+          )}
+        </div>
+
+        {/* CONTENT */}
+        <div className="pd-content-grid">
+          <div className="pd-left">
+            {project.description && (
+              <div className="pd-section">
+                <span className="section-label">OVERVIEW</span>
+                <div
+                  className="rich-content pd-desc"
+                  dangerouslySetInnerHTML={{ __html: project.description }}
+                />
+              </div>
             )}
 
-            <div className="project-detail-meta">
-              {project.category && (
-                <div className="meta-item">
-                  <span>Category</span>
-                  <strong>{project.category}</strong>
-                </div>
-              )}
+            {featuresList.length > 0 && (
+              <div className="pd-section">
+                <span className="section-label">HIGHLIGHTS</span>
+                <ul className="pd-features">
+                  {featuresList.map((f, i) => (
+                    <li key={i}>
+                      <span className="pd-feature-diamond">◆</span>
+                      <span>{f}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+
+          <aside className="pd-right">
+            <div className="pd-details-card">
+              <span className="section-label">DETAILS</span>
+
               {project.role && (
-                <div className="meta-item">
-                  <span>Role</span>
+                <div className="pd-detail-row">
+                  <span className="pd-detail-label">Role</span>
                   <strong>{project.role}</strong>
                 </div>
               )}
+
               {project.year && (
-                <div className="meta-item">
-                  <span>Year</span>
+                <div className="pd-detail-row">
+                  <span className="pd-detail-label">Year</span>
                   <strong>{project.year}</strong>
                 </div>
               )}
-              {project.status && (
-                <div className="meta-item">
-                  <span>Status</span>
-                  <strong>{project.status}</strong>
+
+              {techList.length > 0 && (
+                <div className="pd-detail-row">
+                  <span className="pd-detail-label">Tech Stack</span>
+                  <div className="pd-tech-pills">
+                    {techList.map((t) => (
+                      <span key={t} className="pd-tech-pill">
+                        <TechIcon name={t} size={12} />
+                        <span>{t}</span>
+                      </span>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
-          </div>
-
-          {project.image_url && (
-            <div className="project-detail-image">
-              <img src={getImageUrl(project.image_url)} alt={project.title} />
-            </div>
-          )}
-        </section>
-
-        <section className="project-detail-content">
-          {project.description && (
-            <article className="project-detail-card project-overview">
-              <h2>Project Overview</h2>
-              <div
-                className="rich-content"
-                dangerouslySetInnerHTML={{ __html: project.description }}
-              />
-            </article>
-          )}
-
-          {techArray.length > 0 && (
-            <article className="project-detail-card">
-              <h2>Tools &amp; Technologies</h2>
-              <div className="project-detail-tags tech-with-icons">
-                {techArray.map((item) => (
-                  <span key={item} className="tech-pill">
-                    <TechIcon name={item} size={18} />
-                    <span>{item}</span>
-                  </span>
-                ))}
-              </div>
-            </article>
-          )}
-
-          {featuresArray.length > 0 && (
-            <article className="project-detail-card">
-              <h2>Key Features</h2>
-              <ul className="project-feature-list">
-                {featuresArray.map((feature, idx) => (
-                  <li key={idx}>
-                    <span className="feature-check">✓</span>
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </article>
-          )}
-
-          {(project.demo_link || project.github_link) && (
-            <article className="project-detail-card project-links-card">
-              <h2>Project Links</h2>
-              <div className="project-detail-actions">
-                {project.demo_link && project.demo_link !== "#" ? (
-                  <a
-                    href={project.demo_link}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="project-action-btn primary"
-                  >
-                    🚀 View Demo
-                  </a>
-                ) : (
-                  <span className="disabled-link">Demo Not Available</span>
-                )}
-
-                {project.github_link && project.github_link !== "#" ? (
-                  <a
-                    href={project.github_link}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="project-action-btn secondary"
-                  >
-                    <TechIcon name="github" size={18} />
-                    <span>GitHub Repository</span>
-                  </a>
-                ) : (
-                  <span className="disabled-link">
-                    {project.category === "Excel Project"
-                      ? "Excel File / Preview Coming Soon"
-                      : "Repository Not Available"}
-                  </span>
-                )}
-              </div>
-            </article>
-          )}
-        </section>
+          </aside>
+        </div>
       </main>
 
       <Footer />

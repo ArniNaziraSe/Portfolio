@@ -295,10 +295,10 @@ app.get('/api/certifications', async (req, res) => {
 
 app.post('/api/certifications', async (req, res) => {
   try {
-    const { title, issuer, icon } = req.body;
+    const { title, issuer, icon, year } = req.body;
     const newCert = await pool.query(
-      'INSERT INTO certifications (title, issuer, icon) VALUES ($1, $2, $3) RETURNING *',
-      [title, issuer, icon || '🏆']
+      'INSERT INTO certifications (title, issuer, icon, year) VALUES ($1, $2, $3, $4) RETURNING *',
+      [title, issuer, icon || '🏆', year || '']
     );
     res.json(newCert.rows[0]);
   } catch (error) {
@@ -310,10 +310,10 @@ app.post('/api/certifications', async (req, res) => {
 app.put('/api/certifications/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, issuer, icon } = req.body;
+    const { title, issuer, icon, year } = req.body;
     await pool.query(
-      'UPDATE certifications SET title = $1, issuer = $2, icon = $3 WHERE id = $4',
-      [title, issuer, icon, id]
+      'UPDATE certifications SET title = $1, issuer = $2, icon = $3, year = $4 WHERE id = $5',
+      [title, issuer, icon, year || '', id]
     );
     res.send('Certification updated!');
   } catch (error) {
@@ -348,18 +348,27 @@ app.get('/api/profile', async (req, res) => {
 
 app.put('/api/profile', upload.single('avatar'), async (req, res) => {
   try {
-    const { full_name, current_role, bio, cv_url } = req.body;
+    const {
+      full_name, current_role, bio, cv_url,
+      focus, graduation_year, email, personal_note, hobbies,
+    } = req.body;
     const existing = await pool.query('SELECT avatar_url FROM profile WHERE id = 1');
     let avatar_url = existing.rows[0]?.avatar_url || '';
-
+ 
     if (req.file) {
       await deleteFromR2(avatar_url);
       avatar_url = await uploadToR2(req.file, 'profile');
     }
-
+ 
     await pool.query(
-      `UPDATE profile SET full_name = $1, "current_role" = $2, bio = $3, avatar_url = $4, cv_url = $5 WHERE id = 1`,
-      [full_name, current_role, bio, avatar_url, cv_url || '']
+      `UPDATE profile SET
+        full_name = $1, "current_role" = $2, bio = $3, avatar_url = $4, cv_url = $5,
+        focus = $6, graduation_year = $7, email = $8, personal_note = $9, hobbies = $10
+       WHERE id = 1`,
+      [
+        full_name, current_role, bio, avatar_url, cv_url || '',
+        focus || '', graduation_year || '', email || '', personal_note || '', hobbies || '',
+      ]
     );
     res.send('Profile updated successfully!');
   } catch (error) {

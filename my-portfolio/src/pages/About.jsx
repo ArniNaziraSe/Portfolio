@@ -1,14 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import TechIcon from "../components/TechIcon";
 import "../components/TechIcon.css";
+import "../components/RichTextEditor.css";
+import { ContactContext } from "../context/ContactContext";
 import "./About.css";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
 
-// Helper buat gambar yang diupload via dashboard (path "/uploads/...")
-// jadi URL lengkap. Tetap dukung URL eksternal yang udah berupa "http://..."
 function getImageUrl(path) {
   if (!path) return null;
   if (path.startsWith("http")) return path;
@@ -16,208 +16,168 @@ function getImageUrl(path) {
 }
 
 function About() {
-  // States dinamis untuk semua data dari database
+  const { setIsContactOpen } = useContext(ContactContext);
+
   const [profile, setProfile] = useState(null);
-  const [skills, setSkills] = useState([]);
-  const [certifications, setCertifications] = useState([]);
   const [education, setEducation] = useState([]);
   const [experiences, setExperiences] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [skills, setSkills] = useState([]);
+  const [certifications, setCertifications] = useState([]);
 
-  // Fetching semua data secara paralel
   useEffect(() => {
-    Promise.all([
-      fetch(`${API_BASE}/api/profile`).then((res) => res.json()),
-      fetch(`${API_BASE}/api/skills`).then((res) => res.json()),
-      fetch(`${API_BASE}/api/certifications`).then((res) => res.json()),
-      fetch(`${API_BASE}/api/education`).then((res) => res.json()),
-      fetch(`${API_BASE}/api/experiences`).then((res) => res.json()),
-    ])
-      .then(([profileData, skillsData, certsData, eduData, expData]) => {
-        setProfile(profileData);
-        setSkills(skillsData);
-        setCertifications(certsData);
-        setEducation(eduData);
-        setExperiences(expData);
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        console.error("Waduh, ada kendala pas ambil data About:", error);
-        setIsLoading(false);
-      });
+    fetch(`${API_BASE}/api/profile`).then((r) => r.json()).then(setProfile).catch(() => {});
+    fetch(`${API_BASE}/api/education`).then((r) => r.json()).then(setEducation).catch(() => {});
+    fetch(`${API_BASE}/api/experiences`).then((r) => r.json()).then(setExperiences).catch(() => {});
+    fetch(`${API_BASE}/api/skills`).then((r) => r.json()).then(setSkills).catch(() => {});
+    fetch(`${API_BASE}/api/certifications`).then((r) => r.json()).then(setCertifications).catch(() => {});
   }, []);
 
-  if (isLoading) {
-    return (
-      <p style={{ textAlign: "center", marginTop: "4rem", color: "#007acc" }}>
-        Loading your awesome profile... ⌛
-      </p>
-    );
-  }
+  // Combine education + experience jadi 1 timeline, urut dari terbaru
+  // Asumsi period format "YYYY" atau "YYYY — YYYY" atau "YYYY — Now"
+  const timeline = [...experiences, ...education].sort((a, b) => {
+    const getStartYear = (item) => {
+      const match = (item.period || "").match(/\d{4}/);
+      return match ? parseInt(match[0]) : 0;
+    };
+    return getStartYear(b) - getStartYear(a);
+  });
 
-  // Ambil nama depan buat sapaan "Hello, I'm ..."
-  const firstName = profile?.full_name?.split(" ")[0] || "";
-
-  // Bio bisa berisi beberapa paragraf, dipisah baris kosong ganda ("\n\n")
-  const bioParagraphs = (profile?.bio || "").split("\n\n").filter(Boolean);
+  const hobbiesArray = profile?.hobbies
+    ? profile.hobbies.split(",").map((h) => h.trim()).filter(Boolean)
+    : [];
 
   return (
     <div className="home-page">
       <Header />
 
       <main className="about-main">
-        <section className="about-title-section">
-          <h1>About Me</h1>
-          <div className="about-title-line"></div>
-        </section>
-
-        <section className="about-profile-section">
-          <div className="about-avatar-card">
-            <div className="about-avatar">
+        {/* HERO: avatar + intro */}
+        <section className="about-hero">
+          <div className="about-avatar-wrap">
+            <div className="about-avatar-card">
               {profile?.avatar_url ? (
-                <img src={getImageUrl(profile.avatar_url)} alt="Profile portrait" />
+                <img src={getImageUrl(profile.avatar_url)} alt={profile.full_name} />
               ) : (
-                <span className="about-avatar-placeholder">Profile portrait</span>
+                <div className="about-avatar-fallback">AN</div>
               )}
             </div>
-
-            <h2>{profile?.full_name}</h2>
-            <p>{profile?.current_role}</p>
           </div>
 
-          <div className="about-intro-card">
-            <h3>Hello, I'm {firstName}.</h3>
+          <div className="about-intro">
+            <span className="section-label">ABOUT ME</span>
+            <h1>{profile?.full_name || "Arni Nazira"}</h1>
 
-            {bioParagraphs.map((paragraph, idx) => (
-              <p key={idx}>{paragraph}</p>
-            ))}
+            {profile?.bio ? (
+              <div
+                className="rich-content about-bio"
+                dangerouslySetInnerHTML={{ __html: profile.bio }}
+              />
+            ) : (
+              <p className="about-bio">
+                I recently graduated in Informatics Engineering and I love the full journey
+                of building software — from understanding a real problem, to shaping the
+                interface, to shipping a stable backend behind it.
+              </p>
+            )}
+
+            <div className="about-actions">
+              {profile?.cv_url && (
+                <a href={profile.cv_url} className="btn-primary" target="_blank" rel="noreferrer">
+                  Download CV
+                </a>
+              )}
+              <button className="btn-outline" onClick={() => setIsContactOpen(true)}>
+                Get in touch
+              </button>
+            </div>
           </div>
         </section>
 
-        <section className="about-details-section">
-          <div className="about-cv-column">
-            <h3 className="about-section-heading">
-              <span>🎓</span>
-              Curriculum Vitae
-            </h3>
+        {/* TIMELINE */}
+        {timeline.length > 0 && (
+          <section className="about-timeline-block">
+            <span className="section-label">EXPERIENCE & EDUCATION</span>
+            <div className="timeline-list">
+              {timeline.map((item) => (
+                <div key={`${item.type}-${item.id}`} className="timeline-entry">
+                  <div className="timeline-year-col">
+                    <span className="mono">{item.period || "—"}</span>
+                  </div>
+                  <div className="timeline-dot" />
+                  <div className="timeline-content">
+                    <strong>{item.title}</strong>
+                    <span className="timeline-institution">{item.institution}</span>
+                    {item.description && (
+                      <p className="timeline-desc">{item.description}</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
-            <div className="about-cv-card">
-              <div className="about-cv-block">
-                <h4>Education</h4>
+        {/* SKILLS */}
+        {skills.length > 0 && (
+          <section className="about-skills-block">
+            <span className="section-label">SKILLS</span>
+            <div className="skills-grid">
+              {skills.map((s) => {
+                const items = s.items ? s.items.split(",").map((i) => i.trim()).filter(Boolean) : [];
+                return (
+                  <div key={s.id} className="skill-category-card">
+                    <h4>{s.category_label}</h4>
+                    <div className="skill-items">
+                      {items.map((item) => (
+                        <span key={item} className="skill-item">
+                          <TechIcon name={item} size={14} />
+                          <span>{item}</span>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
-                {education.map((item) => (
-                  <div
-                    key={item.id}
-                    className={`about-timeline-item ${item.is_featured ? "active" : ""}`}
-                  >
-                    <h5>{item.institution}</h5>
-                    <p className="about-timeline-meta">{item.title}</p>
-                    <p className="about-year">{item.period}</p>
-                    <p>{item.description}</p>
+        {/* CERTIFICATES + BEYOND WORK (2-col) */}
+        <section className="about-bottom-grid">
+          {certifications.length > 0 && (
+            <div>
+              <span className="section-label">CERTIFICATES</span>
+              <div className="cert-list">
+                {certifications.map((c) => (
+                  <div key={c.id} className="cert-item">
+                    <div>
+                      <strong>{c.title}</strong>
+                      <span>{c.issuer}</span>
+                    </div>
+                    <span className="mono cert-year">{c.year || ""}</span>
                   </div>
                 ))}
               </div>
+            </div>
+          )}
 
-              <div className="about-cv-block">
-                <h4>Academic Project Experience</h4>
-
-                {experiences.map((item) => (
-                  <div
-                    key={item.id}
-                    className={`about-timeline-item ${item.is_featured ? "active" : ""}`}
-                  >
-                    <h5>{item.title}</h5>
-                    <p className="about-timeline-meta">
-                      {item.institution} | {item.period}
-                    </p>
-                    <p>{item.description}</p>
-                  </div>
-                ))}
-              </div>
-
-              {profile?.cv_url && (
-                <div className="about-download-card">
-                  <div>
-                    <h4>Curriculum Vitae</h4>
-                    <p>Download my latest CV for more detailed information.</p>
-                  </div>
-
-                  <a href={profile.cv_url} download>
-                    Download CV
-                  </a>
+          {(profile?.personal_note || hobbiesArray.length > 0) && (
+            <div>
+              <span className="section-label">BEYOND WORK</span>
+              {profile?.personal_note && <p className="beyond-note">{profile.personal_note}</p>}
+              {hobbiesArray.length > 0 && (
+                <div className="hobby-pills">
+                  {hobbiesArray.map((h) => (
+                    <span key={h} className="hobby-pill">{h}</span>
+                  ))}
                 </div>
               )}
             </div>
-          </div>
-
-          <aside className="about-sidebar">
-            <h3 className="about-section-heading">
-              <span>💻</span>
-              Technical Arsenal
-            </h3>
-
-            <div className="about-skills-card">
-              {skills.map((skillGroup) => (
-                <SkillGroup
-                  key={skillGroup.id}
-                  title={skillGroup.category_label}
-                  items={
-                    skillGroup.items
-                      ? skillGroup.items.split(",").map((i) => i.trim()).filter(Boolean)
-                      : []
-                  }
-                  highlight={
-                    skillGroup.highlight
-                      ? skillGroup.highlight.split(",").map((i) => i.trim()).filter(Boolean)
-                      : []
-                  }
-                />
-              ))}
-            </div>
-
-            <div className="about-certification-card">
-              <h4>Certifications</h4>
-
-              <div className="about-certification-list">
-                {certifications.map((certification) => (
-                  <div className="about-certification-item" key={certification.id}>
-                    <div className="about-certification-icon">
-                      {certification.icon}
-                    </div>
-
-                    <div>
-                      <h5>{certification.title}</h5>
-                      <p>{certification.issuer}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </aside>
+          )}
         </section>
       </main>
 
       <Footer />
-    </div>
-  );
-}
-
-function SkillGroup({ title, items, highlight = [] }) {
-  return (
-    <div className="about-skill-group">
-      <h4>{title}</h4>
-
-      <div className="about-skill-list">
-        {items.map((item) => (
-          <span
-            className={highlight.includes(item) ? "highlight" : ""}
-            key={item}
-          >
-            <TechIcon name={item} size={14} />
-            <span>{item}</span>
-          </span>
-        ))}
-      </div>
     </div>
   );
 }
