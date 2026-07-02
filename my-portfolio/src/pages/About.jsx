@@ -47,10 +47,6 @@ function About() {
   const experiencesSorted = sortByYear(experiences);
   const educationSorted = sortByYear(education);
 
-  const hobbiesArray = profile?.hobbies
-    ? profile.hobbies.split(",").map((h) => h.trim()).filter(Boolean)
-    : [];
-
   return (
     <div className="home-page">
       <Header />
@@ -144,11 +140,11 @@ function About() {
 
         {/* CERTIFICATES + BEYOND WORK */}
         <section className="about-bottom-grid">
-          {certifications.length > 0 && (
-            <div>
-              <span className="section-label">CERTIFICATES</span>
-              <div className="cert-list">
-                {certifications.map((c) => (
+          <div>
+            <span className="section-label">CERTIFICATES</span>
+            <div className="cert-list">
+              {certifications.length > 0 ? (
+                certifications.map((c) => (
                   <div key={c.id} className="cert-item">
                     <div>
                       <strong>{c.title}</strong>
@@ -156,24 +152,27 @@ function About() {
                     </div>
                     <span className="mono cert-year">{c.year || ""}</span>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {(profile?.personal_note || hobbiesArray.length > 0) && (
-            <div>
-              <span className="section-label">BEYOND WORK</span>
-              {profile?.personal_note && <p className="beyond-note">{profile.personal_note}</p>}
-              {hobbiesArray.length > 0 && (
-                <div className="hobby-pills">
-                  {hobbiesArray.map((h) => (
-                    <span key={h} className="hobby-pill">{h}</span>
-                  ))}
-                </div>
+                ))
+              ) : (
+                <p style={{ margin: 0, fontSize: 13, color: "var(--text-subtle)" }}>
+                  Belum ada sertifikat.
+                </p>
               )}
             </div>
-          )}
+          </div>
+
+          <div>
+            <span className="section-label">BEYOND WORK</span>
+            <p className="beyond-note">
+              Away from the keyboard I recharge with photography, long reads, and good coffee — small habits that keep my eye for detail sharp.
+            </p>
+            <div className="hobby-pills">
+              <span className="hobby-pill">Photography</span>
+              <span className="hobby-pill">Reading</span>
+              <span className="hobby-pill">Hiking</span>
+              <span className="hobby-pill">Coffee</span>
+            </div>
+          </div>
         </section>
       </main>
 

@@ -29,10 +29,14 @@ function Projects() {
       .catch(() => setIsLoading(false));
   }, []);
 
+  // Kategori fixed baseline + tambahin category unik dari data yg gak ada di baseline
   const categories = useMemo(() => {
-    const set = new Set();
-    projects.forEach((p) => { if (p.category) set.add(p.category); });
-    return ["All", ...Array.from(set)];
+    const fixed = ["All", "Web App", "Mobile App", "Dashboard", "Admin/Data"];
+    const fromData = new Set();
+    projects.forEach((p) => {
+      if (p.category && !fixed.includes(p.category)) fromData.add(p.category);
+    });
+    return [...fixed, ...Array.from(fromData)];
   }, [projects]);
 
   const filtered = useMemo(() => {

@@ -6,7 +6,7 @@ import TechIcon from "../../components/TechIcon";
 const EMPTY_FORM = {
   title: "", short_description: "", description: "",
   github_link: "", demo_link: "", tech_stack: "",
-  category: "Web Development", role: "",
+  category: "Web App", role: "",
   year: new Date().getFullYear().toString(),
   status: "Completed", features: "",
 };
@@ -54,7 +54,7 @@ function ProjectsTab({ onCountChange }) {
         github_link: project.github_link || "",
         demo_link: project.demo_link || "",
         tech_stack: project.tech_stack || "",
-        category: project.category || "Web Development",
+        category: project.category || "Web App",
         role: project.role || "",
         year: project.year || new Date().getFullYear().toString(),
         status: project.status || "Completed",
@@ -236,11 +236,10 @@ function ProjectsTab({ onCountChange }) {
                   <label>Category</label>
                   <select value={form.category}
                     onChange={(e) => setForm({ ...form, category: e.target.value })}>
-                    <option>Web Development</option>
-                    <option>Mobile Development</option>
-                    <option>Data Analysis</option>
-                    <option>UI/UX Design</option>
-                    <option>Excel Project</option>
+                    <option>Web App</option>
+                    <option>Mobile App</option>
+                    <option>Dashboard</option>
+                    <option>Admin/Data</option>
                     <option>Other</option>
                   </select>
                 </div>
