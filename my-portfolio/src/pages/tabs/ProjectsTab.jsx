@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { API_BASE, getImageUrl, safeFetch } from "./apiClient";
 import RichTextEditor from "../../components/RichTextEditor";
+import TechIcon from "../../components/TechIcon";
 
 const EMPTY_FORM = {
   title: "",
@@ -15,13 +16,6 @@ const EMPTY_FORM = {
   status: "Completed",
   features: "",
 };
-
-// Class CSS badge berdasarkan status (warna beda biar gampang dibedain mata)
-function getStatusClass(status) {
-  if (status === "In Progress") return "progress";
-  if (status === "Archived") return "archived";
-  return "pub"; // default = Completed → ijo
-}
 
 function ProjectsTab({ onCountChange }) {
   const [projects, setProjects] = useState([]);
@@ -86,11 +80,8 @@ function ProjectsTab({ onCountChange }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     const url = isEditing ? `${API_BASE}/api/projects/${currentId}` : `${API_BASE}/api/projects`;
-
     const formData = new FormData();
-    Object.entries(form).forEach(([key, value]) => {
-      formData.append(key, value);
-    });
+    Object.entries(form).forEach(([key, value]) => formData.append(key, value));
     if (imageFile) formData.append("image", imageFile);
 
     fetch(url, {
@@ -99,88 +90,97 @@ function ProjectsTab({ onCountChange }) {
     }).then(() => {
       fetchProjects();
       setShowModal(false);
-      alert("🎉 Project database status updated!");
     });
   };
 
   const handleDelete = (id) => {
-    if (window.confirm("Hapus project ini dari database?")) {
+    if (window.confirm("Hapus project ini?")) {
       fetch(`${API_BASE}/api/projects/${id}`, { method: "DELETE" })
         .then(() => fetchProjects())
-        .catch((err) => console.error("Gagal menghapus project:", err));
+        .catch((err) => console.error("Gagal menghapus:", err));
     }
   };
 
   return (
-    <div className="tab-view animate-fade">
+    <div className="tab-view">
       <div className="view-header-with-action">
         <div>
-          <h1>Manage Projects</h1>
-          <p>Curate, organize, deploy, and synchronize your technical works repository documents.</p>
+          <h1>{projects.length} projects</h1>
         </div>
         <button className="add-project-btn" onClick={() => openModal()}>
-          + Add New Project
+          + New Project
         </button>
       </div>
 
-      <div className="projects-table-card">
+      <div className="simple-table-card">
         {isFetching ? (
-          <p className="empty-state-text">Memuat data projects...</p>
+          <p className="empty-state-text">Memuat data...</p>
         ) : projects.length === 0 ? (
-          <p className="empty-state-text">Belum ada project. Klik "+ Add New Project" untuk mulai.</p>
+          <p className="empty-state-text">Belum ada project. Klik "+ New Project" untuk mulai.</p>
         ) : (
-          <table className="ethereal-data-table">
+          <table className="simple-table">
             <thead>
               <tr>
-                <th>PROJECT INFO</th>
-                <th>CATEGORY</th>
-                <th>ROLE</th>
-                <th>YEAR</th>
-                <th>TECH STACK</th>
-                <th>STATUS</th>
-                <th>ACTIONS</th>
+                <th>PROJECT</th>
+                <th>TECH</th>
+                <th className="th-center">YEAR</th>
+                <th className="th-center">VIEWS</th>
+                <th className="th-right"></th>
               </tr>
             </thead>
             <tbody>
-              {projects.map((p) => (
-                <tr key={p.id}>
-                  <td className="td-project-info">
-                    <img
-                      src={getImageUrl(p.image_url) || "https://images.unsplash.com/photo-1551288049-bebda4e38f71"}
-                      alt=""
-                    />
-                    <div>
-                      <strong>{p.title}</strong>
-                      <span>{p.short_description?.substring(0, 50) || "No description"}...</span>
-                    </div>
-                  </td>
-                  <td className="td-text-cell">{p.category || "—"}</td>
-                  <td className="td-text-cell">{p.role || "—"}</td>
-                  <td className="td-text-cell">{p.year || "—"}</td>
-                  <td>
-                    <div className="table-tech-tags">
-                      {p.tech_stack?.split(",").map((t) => (
-                        <span key={t} className="pill-tag">
-                          {t.trim()}
-                        </span>
-                      ))}
-                    </div>
-                  </td>
-                  <td>
-                    <span className={`badge-status ${getStatusClass(p.status)}`}>
-                      {p.status || "Completed"}
-                    </span>
-                  </td>
-                  <td className="td-actions">
-                    <button onClick={() => openModal(p)} className="action-icon-btn">
-                      ✏️
-                    </button>
-                    <button onClick={() => handleDelete(p.id)} className="action-icon-btn del">
-                      🗑️
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {projects.map((p) => {
+                const techList = p.tech_stack
+                  ? p.tech_stack.split(",").map((t) => t.trim()).filter(Boolean)
+                  : [];
+
+                return (
+                  <tr key={p.id}>
+                    <td>
+                      <div className="td-project-cell">
+                        <strong>{p.title}</strong>
+                        <span>{p.category || "—"}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="td-tech-icons">
+                        {techList.slice(0, 4).map((t) => (
+                          <span key={t} className="tech-icon">
+                            <TechIcon name={t} size={14} />
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+                    <td style={{ textAlign: "center" }}>{p.year || "—"}</td>
+                    <td style={{ textAlign: "center" }}>{p.views || 0}</td>
+                    <td>
+                      <div className="td-actions">
+                        <button
+                          onClick={() => window.open(`/projects/${p.slug}`, "_blank")}
+                          className="action-icon-btn"
+                          title="View"
+                        >
+                          👁
+                        </button>
+                        <button
+                          onClick={() => openModal(p)}
+                          className="action-icon-btn"
+                          title="Edit"
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          onClick={() => handleDelete(p.id)}
+                          className="action-icon-btn del"
+                          title="Delete"
+                        >
+                          🗑
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}
@@ -189,10 +189,10 @@ function ProjectsTab({ onCountChange }) {
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-glass-container modal-wide">
-            <h3>{isEditing ? "✨ Modify Project" : "➕ New Project Record"}</h3>
+            <h3>{isEditing ? "Edit Project" : "New Project"}</h3>
             <form onSubmit={handleSubmit}>
               <div className="form-group">
-                <label>Project Title</label>
+                <label>Title</label>
                 <input
                   type="text"
                   required
@@ -202,26 +202,26 @@ function ProjectsTab({ onCountChange }) {
               </div>
 
               <div className="form-group">
-                <label>Short Description (1-2 kalimat, buat preview di card)</label>
+                <label>Short Description</label>
                 <textarea
                   rows="2"
-                  placeholder="Brief tagline buat tampilan card di halaman Projects"
+                  placeholder="Brief tagline buat card"
                   value={form.short_description}
                   onChange={(e) => setForm({ ...form, short_description: e.target.value })}
-                ></textarea>
-              </div>
-
-              <div className="form-group">
-                <label>Full Description (rich text — tampil di halaman detail)</label>
-                <RichTextEditor
-                  value={form.description}
-                  onChange={(html) => setForm({ ...form, description: html })}
-                  placeholder="Jelasin project kamu lebih lengkap..."
                 />
               </div>
 
               <div className="form-group">
-                <label>Project Image</label>
+                <label>Full Description</label>
+                <RichTextEditor
+                  value={form.description}
+                  onChange={(html) => setForm({ ...form, description: html })}
+                  placeholder="Jelasin project kamu..."
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Image</label>
                 <input type="file" accept="image/*" onChange={handleImageChange} />
                 {imagePreview && <img src={imagePreview} alt="Preview" className="image-preview" />}
               </div>
@@ -245,7 +245,6 @@ function ProjectsTab({ onCountChange }) {
                   <label>Role</label>
                   <input
                     type="text"
-                    placeholder="e.g., Fullstack Developer"
                     value={form.role}
                     onChange={(e) => setForm({ ...form, role: e.target.value })}
                   />
@@ -257,7 +256,6 @@ function ProjectsTab({ onCountChange }) {
                   <label>Year</label>
                   <input
                     type="text"
-                    placeholder="2025"
                     value={form.year}
                     onChange={(e) => setForm({ ...form, year: e.target.value })}
                   />
@@ -276,23 +274,22 @@ function ProjectsTab({ onCountChange }) {
               </div>
 
               <div className="form-group">
-                <label>Tech Stack (pisahkan dengan koma)</label>
+                <label>Tech Stack (pisah koma)</label>
                 <input
                   type="text"
-                  placeholder="e.g., React, Node.js, PostgreSQL"
+                  placeholder="React, Node.js, PostgreSQL"
                   value={form.tech_stack}
                   onChange={(e) => setForm({ ...form, tech_stack: e.target.value })}
                 />
               </div>
 
               <div className="form-group">
-                <label>Key Features (satu fitur per baris)</label>
+                <label>Key Features (1 per baris)</label>
                 <textarea
                   rows="4"
-                  placeholder={`User authentication\nDashboard admin\nReal-time analytics`}
                   value={form.features}
                   onChange={(e) => setForm({ ...form, features: e.target.value })}
-                ></textarea>
+                />
               </div>
 
               <div className="form-row-two">
@@ -300,7 +297,6 @@ function ProjectsTab({ onCountChange }) {
                   <label>GitHub Link</label>
                   <input
                     type="text"
-                    placeholder="https://github.com/..."
                     value={form.github_link}
                     onChange={(e) => setForm({ ...form, github_link: e.target.value })}
                   />
@@ -309,7 +305,6 @@ function ProjectsTab({ onCountChange }) {
                   <label>Demo Link</label>
                   <input
                     type="text"
-                    placeholder="https://..."
                     value={form.demo_link}
                     onChange={(e) => setForm({ ...form, demo_link: e.target.value })}
                   />
@@ -317,9 +312,7 @@ function ProjectsTab({ onCountChange }) {
               </div>
 
               <div className="modal-buttons">
-                <button type="submit" className="modal-submit-btn">
-                  Save
-                </button>
+                <button type="submit" className="modal-submit-btn">Save</button>
                 <button type="button" onClick={() => setShowModal(false)} className="modal-cancel-btn">
                   Cancel
                 </button>

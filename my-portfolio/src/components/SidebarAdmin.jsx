@@ -4,8 +4,11 @@ function SidebarAdmin({ activeTab, setActiveTab, onLogout }) {
   return (
     <aside className="admin-sidebar-nav">
       <div className="sidebar-brand">
-        <h2>Portfolio Admin</h2>
-        <span>System Controller</span>
+        <div className="sidebar-brand-avatar">AN</div>
+        <div className="sidebar-brand-text">
+          <strong>Dashboard</strong>
+          <span>admin</span>
+        </div>
       </div>
 
       <nav className="sidebar-menu">
@@ -13,25 +16,26 @@ function SidebarAdmin({ activeTab, setActiveTab, onLogout }) {
           className={activeTab === "dashboard" ? "active" : ""}
           onClick={() => setActiveTab("dashboard")}
         >
-          📊 Dashboard
+          <span>🏠</span> Overview
         </button>
         <button
           className={activeTab === "projects" ? "active" : ""}
           onClick={() => setActiveTab("projects")}
         >
-          💻 Projects
+          <span>▦</span> Projects
         </button>
         <button
           className={activeTab === "about" ? "active" : ""}
           onClick={() => setActiveTab("about")}
         >
-          👤 About Me
+          <span>👤</span> About
         </button>
       </nav>
 
-      <div className="sidebar-logout-wrapper">
+      <div className="sidebar-footer">
+        <a href="/" target="_blank" rel="noreferrer">← Back to site</a>
         <button onClick={onLogout} className="admin-logout-btn">
-          🚪 Exit
+          🚪 Logout
         </button>
       </div>
     </aside>

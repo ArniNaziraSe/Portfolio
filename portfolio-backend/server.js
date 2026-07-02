@@ -497,18 +497,22 @@ app.post('/api/admin/login', (req, res) => {
 // ------------------------------------------------------------
 app.get('/api/analytics/overview', async (req, res) => {
   try {
-    const totalVisits = await pool.query('SELECT COUNT(*) FROM page_visits');
-    const liveNow = await pool.query(
-      "SELECT COUNT(*) FROM page_visits WHERE visited_at >= NOW() - INTERVAL '1 hour'"
-    );
-    const recentVisits = await pool.query(
-      'SELECT id, visited_at FROM page_visits ORDER BY id DESC LIMIT 5'
-    );
-
+    const [totalVisits, thisWeek, projectViews, projectsCount, topProjects, recent] = await Promise.all([
+      pool.query('SELECT COUNT(*) FROM page_visits'),
+      pool.query(`SELECT COUNT(*) FROM page_visits WHERE visited_at >= NOW() - INTERVAL '7 days'`),
+      pool.query('SELECT COALESCE(SUM(views), 0) AS total FROM projects'),
+      pool.query('SELECT COUNT(*) FROM projects'),
+      pool.query('SELECT id, title, views FROM projects ORDER BY views DESC NULLS LAST LIMIT 4'),
+      pool.query('SELECT id, visited_at FROM page_visits ORDER BY id DESC LIMIT 5'),
+    ]);
+ 
     res.json({
       totalVisits: parseInt(totalVisits.rows[0].count),
-      liveNow: parseInt(liveNow.rows[0].count),
-      notifications: recentVisits.rows,
+      thisWeek: parseInt(thisWeek.rows[0].count),
+      projectViews: parseInt(projectViews.rows[0].total),
+      projectsCount: parseInt(projectsCount.rows[0].count),
+      topProjects: topProjects.rows,
+      notifications: recent.rows,
     });
   } catch (error) {
     console.error(error.message);
@@ -546,6 +550,42 @@ app.get('/api/analytics/timeseries', async (req, res) => {
   } catch (error) {
     console.error(error.message);
     res.status(500).send('Server Error Timeseries');
+  }
+});
+
+app.get('/api/analytics/daily-visits', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      WITH days AS (
+        SELECT generate_series(
+          date_trunc('day', NOW()) - INTERVAL '13 days',
+          date_trunc('day', NOW()),
+          INTERVAL '1 day'
+        ) AS day_bucket
+      )
+      SELECT
+        days.day_bucket,
+        COUNT(page_visits.id)::int AS visit_count
+      FROM days
+      LEFT JOIN page_visits ON date_trunc('day', page_visits.visited_at) = days.day_bucket
+      GROUP BY days.day_bucket
+      ORDER BY days.day_bucket ASC
+    `);
+    res.json(result.rows.map((row) => ({ day: row.day_bucket, count: row.visit_count })));
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send('Server Error Daily Visits');
+  }
+});
+
+app.post('/api/projects/:slug/track-view', async (req, res) => {
+  try {
+    const { slug } = req.params;
+    await pool.query('UPDATE projects SET views = COALESCE(views, 0) + 1 WHERE slug = $1', [slug]);
+    res.send('View tracked');
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send('Track view error');
   }
 });
 
