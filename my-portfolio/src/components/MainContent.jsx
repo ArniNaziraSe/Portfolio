@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import "./MainContent.css";
+import TechIcon from "./TechIcon";
+import "./TechIcon.css";
+import "../pages/MainContent.css";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
 
@@ -18,8 +20,8 @@ function MainContent() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`${API_BASE}/api/projects`).then((res) => res.json()).catch(() => []),
-      fetch(`${API_BASE}/api/profile`).then((res) => res.json()).catch(() => null),
+      fetch(`${API_BASE}/api/projects`).then((r) => r.json()).catch(() => []),
+      fetch(`${API_BASE}/api/profile`).then((r) => r.json()).catch(() => null),
     ]).then(([projectsData, profileData]) => {
       setProjectsCount(projectsData.length);
       setFeatured(projectsData.slice(0, 3));
@@ -30,7 +32,6 @@ function MainContent() {
 
   return (
     <main className="home-main">
-      {/* HERO */}
       <section className="hero-block">
         <span className="status-pill">
           <span className="status-dot" /> Available for new projects
@@ -40,16 +41,9 @@ function MainContent() {
 
         <div className="hero-desc">
           {profile?.bio ? (
-            <div
-              className="rich-content"
-              dangerouslySetInnerHTML={{ __html: profile.bio }}
-            />
+            <div className="rich-content" dangerouslySetInnerHTML={{ __html: profile.bio }} />
           ) : (
-            <p>
-              Informatics Engineering graduate focused on web & mobile development
-              with Laravel, React, and Flutter — while steadily growing my data &
-              admin skills along the way.
-            </p>
+            <p>Informatics Engineering graduate focused on web & mobile development.</p>
           )}
         </div>
 
@@ -59,12 +53,9 @@ function MainContent() {
               ⬇ Download CV
             </a>
           )}
-          <Link to="/projects" className="btn-outline">
-            View Projects
-          </Link>
+          <Link to="/projects" className="btn-outline">View Projects</Link>
         </div>
 
-        {/* STATS */}
         <div className="hero-stats">
           <div className="stat-block">
             <span className="stat-num">{projectsCount || "0"}+</span>
@@ -81,7 +72,6 @@ function MainContent() {
         </div>
       </section>
 
-      {/* FEATURED */}
       <section className="featured-block">
         <div className="section-heading">
           <div>
@@ -120,6 +110,9 @@ function FeaturedCard({ project, idx }) {
         ) : (
           <span className="number-placeholder-num">{numStr}</span>
         )}
+        {project.category && (
+          <span className="card-category-label">{project.category}</span>
+        )}
       </div>
 
       <div className="featured-card-body">
@@ -128,7 +121,10 @@ function FeaturedCard({ project, idx }) {
 
         <div className="tech-pills">
           {techList.slice(0, 5).map((t) => (
-            <span key={t} className="tech-pill-mini">{t}</span>
+            <span key={t} className="tech-pill-icon">
+              <TechIcon name={t} size={12} />
+              <span>{t}</span>
+            </span>
           ))}
         </div>
       </div>

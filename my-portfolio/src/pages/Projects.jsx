@@ -2,6 +2,8 @@ import { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import TechIcon from "../components/TechIcon";
+import "../components/TechIcon.css";
 import "./Projects.css";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
@@ -27,7 +29,6 @@ function Projects() {
       .catch(() => setIsLoading(false));
   }, []);
 
-  // Ambil unique categories dari data project, sisipkan "All" di depan
   const categories = useMemo(() => {
     const set = new Set();
     projects.forEach((p) => { if (p.category) set.add(p.category); });
@@ -50,19 +51,18 @@ function Projects() {
           <p className="projects-count">{filtered.length} projects</p>
         </div>
 
-        {categories.length > 1 && (
-          <div className="filter-pills">
-            {categories.map((c) => (
-              <button
-                key={c}
-                className={`filter-pill ${activeCategory === c ? "active" : ""}`}
-                onClick={() => setActiveCategory(c)}
-              >
-                {c}
-              </button>
-            ))}
-          </div>
-        )}
+        {/* Filter pills - selalu tampil, minimal "All" */}
+        <div className="filter-pills">
+          {categories.map((c) => (
+            <button
+              key={c}
+              className={`filter-pill ${activeCategory === c ? "active" : ""}`}
+              onClick={() => setActiveCategory(c)}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
 
         {isLoading ? (
           <p style={{ textAlign: "center", padding: "60px 0", color: "var(--text-muted)" }}>
@@ -97,6 +97,9 @@ function ProjectCard({ project, idx }) {
         ) : (
           <span className="number-placeholder-num">{numStr}</span>
         )}
+        {project.category && (
+          <span className="card-category-label">{project.category}</span>
+        )}
       </div>
 
       <div className="project-card-body">
@@ -109,7 +112,10 @@ function ProjectCard({ project, idx }) {
 
         <div className="tech-pills">
           {techList.slice(0, 5).map((t) => (
-            <span key={t} className="tech-pill-mini">{t}</span>
+            <span key={t} className="tech-pill-icon">
+              <TechIcon name={t} size={12} />
+              <span>{t}</span>
+            </span>
           ))}
         </div>
       </div>

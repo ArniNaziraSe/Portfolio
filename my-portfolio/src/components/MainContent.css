@@ -245,3 +245,39 @@
   .hero-block { margin-bottom: 60px; }
   .home-main { padding-top: 40px; padding-bottom: 60px; }
 }
+
+/* Category label di pojok atas card (design "DASHBOARD", "MOBILE APP", etc) */
+.card-category-label {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  z-index: 2;
+}
+
+/* Tech pills dengan icon (Home & Projects) */
+.tech-pill-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--surface-variant);
+  border: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.tech-pill-icon .tech-icon-fallback {
+  width: 14px;
+  height: 14px;
+  font-size: 9px;
+  background: var(--primary-bg);
+  color: var(--primary-hover);
+}

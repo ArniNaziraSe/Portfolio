@@ -15,6 +15,18 @@ function getImageUrl(path) {
   return `${API_BASE}${path}`;
 }
 
+// Sort by tahun (extract dari period), terbaru di atas
+function sortByYear(items) {
+  return [...items].sort((a, b) => {
+    const getYear = (item) => {
+      const match = (item.period || "").match(/\d{4}/g);
+      // Ambil tahun terakhir (end year), atau tahun pertama jika cuma 1
+      return match ? parseInt(match[match.length - 1]) : 0;
+    };
+    return getYear(b) - getYear(a);
+  });
+}
+
 function About() {
   const { open: openContact } = useContact();
 
@@ -32,15 +44,8 @@ function About() {
     fetch(`${API_BASE}/api/certifications`).then((r) => r.json()).then(setCertifications).catch(() => {});
   }, []);
 
-  // Combine education + experience jadi 1 timeline, urut dari terbaru
-  // Asumsi period format "YYYY" atau "YYYY — YYYY" atau "YYYY — Now"
-  const timeline = [...experiences, ...education].sort((a, b) => {
-    const getStartYear = (item) => {
-      const match = (item.period || "").match(/\d{4}/);
-      return match ? parseInt(match[0]) : 0;
-    };
-    return getStartYear(b) - getStartYear(a);
-  });
+  const experiencesSorted = sortByYear(experiences);
+  const educationSorted = sortByYear(education);
 
   const hobbiesArray = profile?.hobbies
     ? profile.hobbies.split(",").map((h) => h.trim()).filter(Boolean)
@@ -51,7 +56,6 @@ function About() {
       <Header />
 
       <main className="about-main">
-        {/* HERO: avatar + intro */}
         <section className="about-hero">
           <div className="about-avatar-wrap">
             <div className="about-avatar-card">
@@ -74,9 +78,7 @@ function About() {
               />
             ) : (
               <p className="about-bio">
-                I recently graduated in Informatics Engineering and I love the full journey
-                of building software — from understanding a real problem, to shaping the
-                interface, to shipping a stable backend behind it.
+                Informatics Engineering graduate focused on web & mobile development.
               </p>
             )}
 
@@ -86,32 +88,30 @@ function About() {
                   Download CV
                 </a>
               )}
-              <button className="btn-outline" onClick={openContact}>
-                Get in touch
-              </button>
+              <button className="btn-outline" onClick={openContact}>Get in touch</button>
             </div>
           </div>
         </section>
 
-        {/* TIMELINE */}
-        {timeline.length > 0 && (
+        {/* EXPERIENCE (separated) */}
+        {experiencesSorted.length > 0 && (
           <section className="about-timeline-block">
-            <span className="section-label">EXPERIENCE & EDUCATION</span>
+            <span className="section-label">EXPERIENCE</span>
             <div className="timeline-list">
-              {timeline.map((item) => (
-                <div key={`${item.type}-${item.id}`} className="timeline-entry">
-                  <div className="timeline-year-col">
-                    <span className="mono">{item.period || "—"}</span>
-                  </div>
-                  <div className="timeline-dot" />
-                  <div className="timeline-content">
-                    <strong>{item.title}</strong>
-                    <span className="timeline-institution">{item.institution}</span>
-                    {item.description && (
-                      <p className="timeline-desc">{item.description}</p>
-                    )}
-                  </div>
-                </div>
+              {experiencesSorted.map((item) => (
+                <TimelineEntry key={`exp-${item.id}`} item={item} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* EDUCATION (separated) */}
+        {educationSorted.length > 0 && (
+          <section className="about-timeline-block">
+            <span className="section-label">EDUCATION</span>
+            <div className="timeline-list">
+              {educationSorted.map((item) => (
+                <TimelineEntry key={`edu-${item.id}`} item={item} />
               ))}
             </div>
           </section>
@@ -142,7 +142,7 @@ function About() {
           </section>
         )}
 
-        {/* CERTIFICATES + BEYOND WORK (2-col) */}
+        {/* CERTIFICATES + BEYOND WORK */}
         <section className="about-bottom-grid">
           {certifications.length > 0 && (
             <div>
@@ -178,6 +178,22 @@ function About() {
       </main>
 
       <Footer />
+    </div>
+  );
+}
+
+function TimelineEntry({ item }) {
+  return (
+    <div className="timeline-entry">
+      <div className="timeline-year-col">
+        <span className="mono">{item.period || "—"}</span>
+      </div>
+      <div className="timeline-dot" />
+      <div className="timeline-content">
+        <strong>{item.title}</strong>
+        <span className="timeline-institution">{item.institution}</span>
+        {item.description && <p className="timeline-desc">{item.description}</p>}
+      </div>
     </div>
   );
 }
