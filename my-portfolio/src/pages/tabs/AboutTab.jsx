@@ -148,24 +148,6 @@ function AboutTab({ onSkillsCountChange }) {
         </div>
       </div>
 
-      {/* BEYOND WORK */}
-      <div className="about-section-card">
-        <h3>Beyond Work</h3>
-        <div className="form-group">
-          <label>Personal Note</label>
-          <textarea rows="3"
-            placeholder="Away from the keyboard I recharge with..."
-            value={profile.personal_note || ""}
-            onChange={(e) => setProfile({ ...profile, personal_note: e.target.value })} />
-        </div>
-        <div className="form-group">
-          <label>Hobbies (pisah koma)</label>
-          <input type="text" placeholder="Photography, Reading, Hiking, Coffee"
-            value={profile.hobbies || ""}
-            onChange={(e) => setProfile({ ...profile, hobbies: e.target.value })} />
-        </div>
-      </div>
-
       {/* EDUCATION */}
       <TimelineSection title="Education" endpoint="/api/education" items={education} onRefresh={fetchAll} />
 

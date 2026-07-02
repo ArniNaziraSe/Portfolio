@@ -164,13 +164,13 @@ function About() {
           <div>
             <span className="section-label">BEYOND WORK</span>
             <p className="beyond-note">
-              Away from the keyboard I recharge with photography, long reads, and good coffee — small habits that keep my eye for detail sharp.
+              When I'm not coding, you'll probably find me exploring something creative or curious. I believe these interests keep me balanced and bring fresh perspective into my work as a developer.
             </p>
             <div className="hobby-pills">
-              <span className="hobby-pill">Photography</span>
-              <span className="hobby-pill">Reading</span>
-              <span className="hobby-pill">Hiking</span>
-              <span className="hobby-pill">Coffee</span>
+              <span className="hobby-pill">💃 Dance — both traditional and modern styles, a creative outlet that keeps me energized</span>
+              <span className="hobby-pill">🎬 Movies — especially action, romance, and fantasy genres</span>
+              <span className="hobby-pill">🗣️ Language Learning — always excited to pick up a new language and culture</span>
+              <span className="hobby-pill">☕ Coffee — my constant companion during long coding sessions</span>
             </div>
           </div>
         </section>
