@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import TechIcon from "./TechIcon";
 import "./TechIcon.css";
-import "../pages/MainContent.css";
+import "./MainContent.css";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
 
