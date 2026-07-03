@@ -288,7 +288,8 @@
 .hero-stats { max-width: 900px; }
 
 /* Card grid fix: pakai auto-fill supaya kalau cuma 1 project,
-   card tetep kecil di kiri (gak fullwidth stretch). */
+   card tetep kecil di kiri (gak fullwidth stretch).
+   Min 260px biar 3 card muat side-by-side di layar desktop typical. */
 .featured-grid {
   grid-template-columns: repeat(auto-fill, minmax(260px, 380px));
   justify-content: start;

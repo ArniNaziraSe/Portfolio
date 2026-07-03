@@ -146,7 +146,7 @@
   color: var(--primary-hover);
 }
 
-/* Card grid fix — sama seperti Home. */
+/* Card grid fix — sama seperti Home. Min 260px biar 3-4 card muat side-by-side. */
 .projects-grid {
   grid-template-columns: repeat(auto-fill, minmax(260px, 380px));
   justify-content: start;
