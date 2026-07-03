@@ -145,3 +145,23 @@
   background: var(--primary-bg);
   color: var(--primary-hover);
 }
+
+/* Card grid fix — sama seperti Home. */
+.projects-grid {
+  grid-template-columns: repeat(auto-fill, minmax(300px, 380px));
+  justify-content: start;
+}
+
+/* ============================================
+   RESPONSIVE MOBILE
+   ============================================ */
+@media (max-width: 640px) {
+  .projects-grid {
+    grid-template-columns: 1fr;
+    justify-content: stretch;
+  }
+
+  .projects-page-header h1 { font-size: 40px; }
+  .filter-pills { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 20px; }
+  .filter-pill { flex-shrink: 0; }
+}

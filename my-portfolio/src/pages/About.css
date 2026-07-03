@@ -331,3 +331,35 @@
 .about-avatar-card img {
   display: block;
 }
+
+/* ============================================
+   RESPONSIVE MOBILE (extra)
+   ============================================ */
+@media (max-width: 640px) {
+  .about-hero { gap: 24px; }
+  .about-avatar-wrap { max-width: 150px; }
+  .about-intro h1 { font-size: 32px; }
+  .about-bio { font-size: 14px; }
+  .about-actions { flex-direction: column; align-items: stretch; }
+  .about-actions .btn-primary,
+  .about-actions .btn-outline { text-align: center; justify-content: center; }
+
+  /* Timeline compact */
+  .timeline-entry {
+    grid-template-columns: 70px 16px 1fr;
+    gap: 10px;
+    padding: 12px 0;
+  }
+  .timeline-year-col { font-size: 10px; padding-top: 6px; }
+  .timeline-content strong { font-size: 14px; }
+  .timeline-institution { font-size: 13px; }
+  .timeline-desc { font-size: 12px; }
+
+  /* Skills 1 kolom */
+  .skills-grid { grid-template-columns: 1fr; }
+
+  /* Certificate + Beyond Work 1 kolom */
+  .about-bottom-grid { grid-template-columns: 1fr; gap: 32px; }
+  .cert-item { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .cert-year { font-size: 11px; }
+}

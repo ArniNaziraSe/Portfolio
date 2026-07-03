@@ -8,6 +8,7 @@ const EMPTY_FORM = {
   github_link: "", demo_link: "", tech_stack: "",
   category: "Web App", role: "",
   year: new Date().getFullYear().toString(),
+  month: "",
   status: "Completed", features: "",
 };
 
@@ -57,6 +58,7 @@ function ProjectsTab({ onCountChange }) {
         category: project.category || "Web App",
         role: project.role || "",
         year: project.year || new Date().getFullYear().toString(),
+        month: project.month || "",
         status: project.status || "Completed",
         features: project.features || "",
       });
@@ -249,7 +251,26 @@ function ProjectsTab({ onCountChange }) {
                     onChange={(e) => setForm({ ...form, role: e.target.value })} />
                 </div>
               </div>
-              <div className="form-row-two">
+              <div className="form-row-three">
+                <div className="form-group">
+                  <label>Month</label>
+                  <select value={form.month}
+                    onChange={(e) => setForm({ ...form, month: e.target.value })}>
+                    <option value="">— pilih —</option>
+                    <option>Januari</option>
+                    <option>Februari</option>
+                    <option>Maret</option>
+                    <option>April</option>
+                    <option>Mei</option>
+                    <option>Juni</option>
+                    <option>Juli</option>
+                    <option>Agustus</option>
+                    <option>September</option>
+                    <option>Oktober</option>
+                    <option>November</option>
+                    <option>Desember</option>
+                  </select>
+                </div>
                 <div className="form-group">
                   <label>Year</label>
                   <input type="text" value={form.year}

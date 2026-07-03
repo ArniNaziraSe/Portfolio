@@ -14,31 +14,24 @@
 .site-header-inner {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 16px var(--page-padding);
+  padding: 14px var(--page-padding);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
+  gap: 16px;
 }
 
-.brand-link {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+/* Brand */
+.brand-link { display: flex; align-items: center; gap: 12px; }
 
 .brand-avatar {
-  width: 40px;
-  height: 40px;
+  width: 40px; height: 40px;
   border-radius: 10px;
   background: var(--primary);
   color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 13px;
-  letter-spacing: 0.02em;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 13px; letter-spacing: 0.02em;
+  flex-shrink: 0;
 }
 
 .brand-name {
@@ -47,6 +40,7 @@
   color: var(--text);
 }
 
+/* Desktop Nav */
 .main-nav {
   display: flex;
   gap: 32px;
@@ -60,22 +54,21 @@
   border-bottom: 2px solid transparent;
   transition: 0.15s ease;
 }
-
 .main-nav a:hover { color: var(--text); }
 .main-nav a.active {
   color: var(--primary);
   border-bottom-color: var(--primary);
 }
 
+/* Desktop actions */
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .theme-toggle-btn {
-  width: 40px;
-  height: 40px;
+  width: 40px; height: 40px;
   border-radius: 10px;
   border: 1px solid var(--border);
   background: var(--surface);
@@ -83,9 +76,7 @@
   font-size: 16px;
   transition: 0.15s ease;
 }
-.theme-toggle-btn:hover {
-  background: var(--surface-variant);
-}
+.theme-toggle-btn:hover { background: var(--surface-variant); }
 
 .contact-btn {
   padding: 10px 22px;
@@ -102,9 +93,88 @@
   transform: translateY(-1px);
 }
 
-@media (max-width: 700px) {
-  .main-nav { gap: 18px; }
-  .main-nav a { font-size: 13px; }
-  .contact-btn { padding: 8px 16px; font-size: 13px; }
+/* Hamburger button — hidden by default (desktop) */
+.hamburger-btn {
+  display: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  align-items: center;
+  justify-content: center;
+}
+
+/* Mobile menu dropdown */
+.mobile-nav {
+  display: none;
+  padding: 8px 16px 16px;
+  border-top: 1px solid var(--border-soft);
+  background: var(--surface);
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mobile-nav a,
+.mobile-nav button {
+  padding: 12px 14px;
+  border-radius: 10px;
+  text-align: left;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.mobile-nav a:hover,
+.mobile-nav button:hover {
+  background: var(--surface-variant);
+}
+
+.mobile-nav a.active {
+  color: var(--primary);
+  background: var(--primary-bg);
+}
+
+.mobile-nav-divider {
+  height: 1px;
+  background: var(--border-soft);
+  margin: 6px 4px;
+}
+
+.mobile-nav-contact {
+  background: var(--primary) !important;
+  color: white !important;
+  text-align: center !important;
+  margin-top: 4px;
+}
+.mobile-nav-contact:hover {
+  background: var(--primary-hover) !important;
+}
+
+/* ============================================
+   RESPONSIVE — mobile & tablet
+   ============================================ */
+@media (max-width: 780px) {
+  /* Hide desktop nav & actions */
+  .main-nav { display: none; }
+  .header-actions { display: none; }
+
+  /* Show hamburger */
+  .hamburger-btn { display: flex; }
+
+  /* Show mobile nav when opened */
+  .mobile-nav { display: flex; }
+
+  /* Brand name still shows on tablet-ish, hide on very small */
+  .brand-name { font-size: 14px; }
+}
+
+@media (max-width: 400px) {
   .brand-name { display: none; }
 }

@@ -8,6 +8,32 @@ import "./Projects.css";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
 
+const MONTHS = {
+  januari: 1, februari: 2, maret: 3, april: 4, mei: 5, juni: 6,
+  juli: 7, agustus: 8, september: 9, oktober: 10, november: 11, desember: 12,
+  january: 1, february: 2, march: 3, may: 5, june: 6,
+  july: 7, august: 8, october: 10, december: 12,
+  jan: 1, feb: 2, mar: 3, apr: 4, jun: 6, jul: 7,
+  aug: 8, sep: 9, sept: 9, oct: 10, nov: 11, dec: 12,
+};
+
+function getProjectSortKey(p) {
+  const year = parseInt(p.year || "0") || 0;
+  const monthText = String(p.month || "").toLowerCase();
+  let monthNum = 0;
+  for (const [name, num] of Object.entries(MONTHS)) {
+    if (monthText.includes(name)) {
+      monthNum = num;
+      break;
+    }
+  }
+  if (monthNum === 0) {
+    const asNum = parseInt(monthText);
+    if (asNum >= 1 && asNum <= 12) monthNum = asNum;
+  }
+  return year * 100 + monthNum;
+}
+
 function getImageUrl(path) {
   if (!path) return null;
   if (path.startsWith("http")) return path;
@@ -40,8 +66,9 @@ function Projects() {
   }, [projects]);
 
   const filtered = useMemo(() => {
-    if (activeCategory === "All") return projects;
-    return projects.filter((p) => p.category === activeCategory);
+    const base = activeCategory === "All" ? projects : projects.filter((p) => p.category === activeCategory);
+    // Sort by newest month+year descending
+    return [...base].sort((a, b) => getProjectSortKey(b) - getProjectSortKey(a));
   }, [projects, activeCategory]);
 
   return (
@@ -87,17 +114,19 @@ function Projects() {
 }
 
 function ProjectCard({ project, idx }) {
+  const [imgError, setImgError] = useState(false);
   const techList = project.tech_stack
     ? project.tech_stack.split(",").map((t) => t.trim()).filter(Boolean)
     : [];
   const imgUrl = getImageUrl(project.image_url);
   const numStr = String(idx).padStart(2, "0");
+  const showImage = imgUrl && !imgError;
 
   return (
     <Link to={`/projects/${project.slug}`} className="project-card">
       <div className="number-placeholder">
-        {imgUrl ? (
-          <img src={imgUrl} alt={project.title} onError={(e) => (e.target.style.display = "none")} />
+        {showImage ? (
+          <img src={imgUrl} alt={project.title} onError={() => setImgError(true)} />
         ) : (
           <span className="number-placeholder-num">{numStr}</span>
         )}

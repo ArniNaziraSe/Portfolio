@@ -192,3 +192,16 @@
   .pd-content-grid { grid-template-columns: 1fr; }
   .pd-right { position: relative; top: 0; }
 }
+
+/* ============================================
+   RESPONSIVE MOBILE
+   ============================================ */
+@media (max-width: 640px) {
+  .pd-header h1 { font-size: 40px; }
+  .pd-buttons { flex-direction: column; align-items: stretch; }
+  .pd-btn-dark, .pd-buttons .btn-outline {
+    text-align: center;
+    justify-content: center;
+  }
+  .pd-details-card { padding: 20px; }
+}

@@ -1049,3 +1049,13 @@
     justify-self: end;
   }
 }
+
+/* Form row 3 kolom (Month, Year, Status) */
+.form-row-three {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 640px) {
+  .form-row-three { grid-template-columns: 1fr; }
+}

@@ -148,29 +148,25 @@ app.get('/api/projects', async (req, res) => {
 app.post('/api/projects', upload.single('image'), async (req, res) => {
   try {
     const {
-      title, description, short_description, github_link, demo_link,
-      tech_stack, category, role, year, status, features,
+      title, description, github_link, tech_stack, category, role,
+      year, month, status, features, demo_link, short_description,
     } = req.body;
+ 
+    const image_url = req.file ? await uploadToR2(req.file, 'project') : '';
     const slug = slugify(title);
-    let image_url = '';
-    if (req.file) image_url = await uploadToR2(req.file, 'projects');
  
     const newProject = await pool.query(
-      `INSERT INTO projects
-        (title, slug, description, short_description, image_url, github_link, demo_link,
-         tech_stack, category, role, year, status, features)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-       RETURNING *`,
-      [
-        title, slug, description, short_description || '', image_url,
-        github_link || '', demo_link || '', tech_stack,
-        category || '', role || '', year || '', status || 'Completed', features || '',
-      ]
+      `INSERT INTO projects (title, slug, description, image_url, github_link, tech_stack,
+                             category, role, year, month, status, features, demo_link, short_description)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *`,
+      [title, slug, description, image_url, github_link, tech_stack,
+       category || '', role || '', year || '', month || '',
+       status || 'Completed', features || '', demo_link || '', short_description || '']
     );
     res.json(newProject.rows[0]);
   } catch (error) {
     console.error(error.message);
-    res.status(500).send('Gagal menambah proyek');
+    res.status(500).send('Gagal menambah project');
   }
 });
 
@@ -178,8 +174,8 @@ app.put('/api/projects/:id', upload.single('image'), async (req, res) => {
   try {
     const { id } = req.params;
     const {
-      title, description, short_description, github_link, demo_link,
-      tech_stack, category, role, year, status, features,
+      title, description, github_link, tech_stack, category, role,
+      year, month, status, features, demo_link, short_description,
     } = req.body;
  
     const existing = await pool.query('SELECT image_url FROM projects WHERE id = $1', [id]);
@@ -187,26 +183,24 @@ app.put('/api/projects/:id', upload.single('image'), async (req, res) => {
  
     if (req.file) {
       await deleteFromR2(image_url);
-      image_url = await uploadToR2(req.file, 'projects');
+      image_url = await uploadToR2(req.file, 'project');
     }
  
+    const slug = slugify(title);
     await pool.query(
       `UPDATE projects SET
-        title = $1, description = $2, short_description = $3, image_url = $4,
-        github_link = $5, demo_link = $6, tech_stack = $7,
-        category = $8, role = $9, year = $10, status = $11, features = $12
-       WHERE id = $13`,
-      [
-        title, description, short_description || '', image_url,
-        github_link || '', demo_link || '', tech_stack,
-        category || '', role || '', year || '', status || 'Completed', features || '',
-        id,
-      ]
+        title=$1, slug=$2, description=$3, image_url=$4, github_link=$5, tech_stack=$6,
+        category=$7, role=$8, year=$9, month=$10, status=$11, features=$12,
+        demo_link=$13, short_description=$14
+       WHERE id=$15`,
+      [title, slug, description, image_url, github_link, tech_stack,
+       category || '', role || '', year || '', month || '',
+       status || 'Completed', features || '', demo_link || '', short_description || '', id]
     );
-    res.send('Proyek berhasil di-update!');
+    res.send('Project updated!');
   } catch (error) {
     console.error(error.message);
-    res.status(500).send('Gagal mengupdate proyek');
+    res.status(500).send('Gagal update project');
   }
 });
 
