@@ -208,10 +208,12 @@ function AboutTab({ onSkillsCountChange }) {
             onChange={(e) => setProfile({ ...profile, personal_note: e.target.value })} />
         </div>
         <div className="form-group">
-          <label>Hobbies (pisah koma)</label>
-          <input type="text" placeholder="Photography, Reading, Hiking, Coffee"
+          <label>Hobbies (satu per baris — bisa pakai emoji + deskripsi)</label>
+          <textarea rows="5"
+            placeholder={"💃 Dance — creative outlet\n🎬 Movies — action & romance\n☕ Coffee — coding companion"}
             value={profile.hobbies || ""}
-            onChange={(e) => setProfile({ ...profile, hobbies: e.target.value })} />
+            onChange={(e) => setProfile({ ...profile, hobbies: e.target.value })}
+            style={{ fontFamily: "inherit" }} />
         </div>
       </div>
 

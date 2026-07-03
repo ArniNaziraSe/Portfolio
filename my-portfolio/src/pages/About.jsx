@@ -24,11 +24,9 @@ const MONTHS = {
   aug: 8, sep: 9, sept: 9, oct: 10, nov: 11, dec: 12,
 };
 
-// Sort key: tahun*100 + bulan. Untuk "Agustus 2024" -> 202408.
-// "November - Desember 2024" -> 202412 (bulan terakhir).
 function getSortKey(text) {
   if (!text) return 0;
-  const lower = text.toLowerCase();
+  const lower = String(text).toLowerCase();
   const years = lower.match(/\d{4}/g);
   const year = years ? parseInt(years[years.length - 1]) : 0;
 
@@ -52,6 +50,15 @@ function sortCertsByNewest(items) {
   return [...items].sort((a, b) => getSortKey(b.year) - getSortKey(a.year));
 }
 
+// Parse hobbies dari textarea (satu per baris)
+function parseHobbies(text) {
+  if (!text) return [];
+  return text
+    .split(/\r?\n/)
+    .map((h) => h.trim())
+    .filter(Boolean);
+}
+
 function About() {
   const { open: openContact } = useContact();
 
@@ -73,6 +80,7 @@ function About() {
   const experiencesSorted = sortByNewest(experiences);
   const educationSorted = sortByNewest(education);
   const certsSorted = sortCertsByNewest(certifications);
+  const hobbiesList = parseHobbies(profile?.hobbies);
 
   return (
     <div className="home-page">
@@ -120,7 +128,6 @@ function About() {
           </div>
         </section>
 
-        {/* EXPERIENCE (separated) */}
         {experiencesSorted.length > 0 && (
           <section className="about-timeline-block">
             <span className="section-label">EXPERIENCE</span>
@@ -132,7 +139,6 @@ function About() {
           </section>
         )}
 
-        {/* EDUCATION (separated) */}
         {educationSorted.length > 0 && (
           <section className="about-timeline-block">
             <span className="section-label">EDUCATION</span>
@@ -144,7 +150,6 @@ function About() {
           </section>
         )}
 
-        {/* SKILLS */}
         {skills.length > 0 && (
           <section className="about-skills-block">
             <span className="section-label">SKILLS</span>
@@ -169,7 +174,7 @@ function About() {
           </section>
         )}
 
-        {/* CERTIFICATES + BEYOND WORK */}
+        {/* CERTIFICATES + BEYOND WORK (dari database) */}
         <section className="about-bottom-grid">
           <div>
             <span className="section-label">CERTIFICATES</span>
@@ -194,15 +199,20 @@ function About() {
 
           <div>
             <span className="section-label">BEYOND WORK</span>
-            <p className="beyond-note">
-              When I'm not coding, you'll probably find me exploring something creative or curious. I believe these interests keep me balanced and bring fresh perspective into my work as a developer.
-            </p>
-            <div className="hobby-pills">
-              <span className="hobby-pill">💃 Dance — both traditional and modern styles, a creative outlet that keeps me energized</span>
-              <span className="hobby-pill">🗣️ Language Learning — always excited to pick up a new language and culture</span>
-              <span className="hobby-pill">🎬 Movies — especially action, romance, and fantasy genres</span>
-              <span className="hobby-pill">☕ Coffee — my constant companion during long coding sessions</span>
-            </div>
+            {profile?.personal_note ? (
+              <p className="beyond-note">{profile.personal_note}</p>
+            ) : (
+              <p className="beyond-note" style={{ color: "var(--text-subtle)" }}>
+                Belum ada catatan personal.
+              </p>
+            )}
+            {hobbiesList.length > 0 && (
+              <div className="hobby-pills">
+                {hobbiesList.map((h, i) => (
+                  <span key={i} className="hobby-pill">{h}</span>
+                ))}
+              </div>
+            )}
           </div>
         </section>
       </main>
