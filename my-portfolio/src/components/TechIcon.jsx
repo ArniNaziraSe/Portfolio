@@ -1,138 +1,129 @@
 import {
   // Frontend
-  SiReact, SiVuedotjs, SiAngular, SiNextdotjs, SiSvelte, SiVite,
-  SiJavascript, SiTypescript, SiHtml5, SiCss3, SiSass, SiTailwindcss, SiBootstrap,
+  SiReact, SiVuedotjs, SiNextdotjs, SiAngular, SiSvelte,
+  SiTailwindcss, SiBootstrap, SiSass, SiTypescript, SiJavascript,
+  SiHtml5, SiCss3, SiRedux,
   // Backend
-  SiNodedotjs, SiExpress, SiNestjs, SiDjango, SiFlask, SiLaravel, SiPhp, SiPython,
+  SiNodedotjs, SiExpress, SiLaravel, SiPhp, SiPython, SiDjango, SiFlask,
   // Database
-  SiPostgresql, SiMysql, SiMongodb, SiSqlite, SiRedis, SiFirebase, SiSupabase,
-  // Cloud & DevOps
-  SiDocker, SiKubernetes, SiCloudflare, SiVercel, SiNetlify, SiHeroku,
-  // Version control
-  SiGit, SiGithub, SiGitlab,
+  SiMysql, SiPostgresql, SiMongodb, SiRedis, SiSqlite, SiFirebase, SiSupabase,
+  // Mobile
+  SiFlutter, SiKotlin, SiSwift, SiAndroid,
+  // DevOps / Deploy
+  SiGit, SiGithub, SiGitlab, SiDocker, SiVercel, SiNetlify,
   // Design
   SiFigma, SiCanva,
-  // Mobile
-  SiKotlin, SiSwift, SiFlutter, SiDart, SiAndroid,
-  // Other languages
-  SiGo, SiRust, SiCplusplus, SiC,
-  // Tools
-  SiPostman, SiNotion, SiSlack,
+  // Productivity / PM
+  SiTrello, SiJira, SiSlack, SiNotion,
+  // Microsoft Office
+  SiMicrosoftexcel, SiMicrosoftword, SiMicrosoftpowerpoint, SiMicrosoftoutlook,
+  // Google
+  SiGooglesheets, SiGoogledocs, SiGoogleslides,
+  // Other
+  SiWordpress,
 } from "react-icons/si";
+import "./TechIcon.css";
 
-// Mapping nama → icon. Pakai lowercase + strip spasi biar match-nya forgiving.
-// "React.js", "React", "react" semua match ke SiReact.
-const ICON_MAP = {
-  // Frontend frameworks
-  react: SiReact, reactjs: SiReact,
-  vue: SiVuedotjs, vuejs: SiVuedotjs,
-  angular: SiAngular,
-  nextjs: SiNextdotjs, next: SiNextdotjs,
-  svelte: SiSvelte,
-  vite: SiVite,
+// URUTAN: yang paling spesifik/panjang di atas.
+// "next.js" harus dicek sebelum "next". "google sheets" sebelum "google".
+const iconMap = [
+  // ============ Framework variants (specific dulu) ============
+  { keywords: ["next.js", "nextjs", "next js"], Icon: SiNextdotjs, color: "#000000" },
+  { keywords: ["react native", "reactnative"], Icon: SiReact, color: "#61DAFB" },
+  { keywords: ["react.js", "reactjs", "react"], Icon: SiReact, color: "#61DAFB" },
+  { keywords: ["vue.js", "vuejs", "vue"], Icon: SiVuedotjs, color: "#4FC08D" },
+  { keywords: ["node.js", "nodejs", "node js"], Icon: SiNodedotjs, color: "#339933" },
+  { keywords: ["angular"], Icon: SiAngular, color: "#DD0031" },
+  { keywords: ["svelte"], Icon: SiSvelte, color: "#FF3E00" },
+  { keywords: ["express"], Icon: SiExpress, color: "#000000" },
+  { keywords: ["redux"], Icon: SiRedux, color: "#764ABC" },
+  { keywords: ["bootstrap"], Icon: SiBootstrap, color: "#7952B3" },
+  { keywords: ["sass", "scss"], Icon: SiSass, color: "#CC6699" },
+  { keywords: ["tailwind"], Icon: SiTailwindcss, color: "#06B6D4" },
+  { keywords: ["typescript"], Icon: SiTypescript, color: "#3178C6" },
+  { keywords: ["javascript", "java script"], Icon: SiJavascript, color: "#F7DF1E" },
+  { keywords: ["html"], Icon: SiHtml5, color: "#E34F26" },
+  { keywords: ["css"], Icon: SiCss3, color: "#1572B6" },
 
-  // Languages
-  javascript: SiJavascript, js: SiJavascript,
-  typescript: SiTypescript, ts: SiTypescript,
-  html: SiHtml5, html5: SiHtml5,
-  css: SiCss3, css3: SiCss3,
-  sass: SiSass, scss: SiSass,
-  tailwind: SiTailwindcss, tailwindcss: SiTailwindcss,
-  bootstrap: SiBootstrap,
+  // ============ Backend ============
+  { keywords: ["laravel"], Icon: SiLaravel, color: "#FF2D20" },
+  { keywords: ["php"], Icon: SiPhp, color: "#777BB4" },
+  { keywords: ["django"], Icon: SiDjango, color: "#092E20" },
+  { keywords: ["flask"], Icon: SiFlask, color: "#000000" },
+  { keywords: ["python"], Icon: SiPython, color: "#3776AB" },
 
-  // Backend
-  node: SiNodedotjs, nodejs: SiNodedotjs,
-  express: SiExpress, expressjs: SiExpress,
-  nest: SiNestjs, nestjs: SiNestjs,
-  django: SiDjango,
-  flask: SiFlask,
-  laravel: SiLaravel,
-  php: SiPhp,
-  python: SiPython,
+  // ============ Database ============
+  { keywords: ["mysql"], Icon: SiMysql, color: "#4479A1" },
+  { keywords: ["postgresql", "postgres", "psql"], Icon: SiPostgresql, color: "#4169E1" },
+  { keywords: ["mongodb", "mongo"], Icon: SiMongodb, color: "#47A248" },
+  { keywords: ["redis"], Icon: SiRedis, color: "#DC382D" },
+  { keywords: ["sqlite"], Icon: SiSqlite, color: "#003B57" },
+  { keywords: ["firebase"], Icon: SiFirebase, color: "#FFCA28" },
+  { keywords: ["supabase"], Icon: SiSupabase, color: "#3ECF8E" },
 
-  // Database
-  postgresql: SiPostgresql, postgres: SiPostgresql,
-  mysql: SiMysql,
-  mongodb: SiMongodb, mongo: SiMongodb,
-  sqlite: SiSqlite,
-  redis: SiRedis,
-  firebase: SiFirebase,
-  supabase: SiSupabase,
+  // ============ Mobile ============
+  { keywords: ["flutter"], Icon: SiFlutter, color: "#02569B" },
+  { keywords: ["kotlin"], Icon: SiKotlin, color: "#7F52FF" },
+  { keywords: ["swift"], Icon: SiSwift, color: "#F05138" },
+  { keywords: ["android"], Icon: SiAndroid, color: "#3DDC84" },
 
-  // Cloud & DevOps
-  docker: SiDocker,
-  kubernetes: SiKubernetes, k8s: SiKubernetes,
-  cloudflare: SiCloudflare,
-  vercel: SiVercel,
-  netlify: SiNetlify,
-  heroku: SiHeroku,
+  // ============ Version Control ============
+  { keywords: ["github"], Icon: SiGithub, color: "#181717" },
+  { keywords: ["gitlab"], Icon: SiGitlab, color: "#FC6D26" },
+  { keywords: ["git", "version control", "vcs"], Icon: SiGit, color: "#F05032" },
 
-  // Version control
-  git: SiGit,
-  github: SiGithub,
-  gitlab: SiGitlab,
+  // ============ DevOps / Deploy ============
+  { keywords: ["docker"], Icon: SiDocker, color: "#2496ED" },
+  { keywords: ["vercel"], Icon: SiVercel, color: "#000000" },
+  { keywords: ["netlify"], Icon: SiNetlify, color: "#00C7B7" },
 
-  // Design
-  figma: SiFigma,
-  canva: SiCanva,
+  // ============ Design ============
+  { keywords: ["figma"], Icon: SiFigma, color: "#F24E1E" },
+  { keywords: ["canva"], Icon: SiCanva, color: "#00C4CC" },
 
-  // Mobile
-  kotlin: SiKotlin,
-  swift: SiSwift,
-  flutter: SiFlutter,
-  dart: SiDart,
-  android: SiAndroid,
+  // ============ Productivity / PM (Agile via Jira) ============
+  { keywords: ["trello"], Icon: SiTrello, color: "#0079BF" },
+  { keywords: ["jira", "agile", "scrum"], Icon: SiJira, color: "#0052CC" },
+  { keywords: ["slack"], Icon: SiSlack, color: "#4A154B" },
+  { keywords: ["notion"], Icon: SiNotion, color: "#000000" },
 
-  // Other languages
-  go: SiGo, golang: SiGo,
-  rust: SiRust,
-  "c++": SiCplusplus, cpp: SiCplusplus, cplusplus: SiCplusplus,
-  c: SiC,
+  // ============ Microsoft Office ============
+  { keywords: ["microsoft excel", "ms excel", "excel"], Icon: SiMicrosoftexcel, color: "#217346" },
+  { keywords: ["microsoft word", "ms word"], Icon: SiMicrosoftword, color: "#2B579A" },
+  { keywords: ["microsoft powerpoint", "ms powerpoint", "powerpoint", "ppt"], Icon: SiMicrosoftpowerpoint, color: "#B7472A" },
+  { keywords: ["outlook", "microsoft outlook"], Icon: SiMicrosoftoutlook, color: "#0078D4" },
+  // "word" pisah, taruh terakhir supaya "microsoft word" match dulu
+  { keywords: ["word"], Icon: SiMicrosoftword, color: "#2B579A" },
 
-  // Tools
-  postman: SiPostman,
-  notion: SiNotion,
-  slack: SiSlack,
-};
+  // ============ Google ============
+  { keywords: ["google sheets", "google sheet", "gsheets"], Icon: SiGooglesheets, color: "#0F9D58" },
+  { keywords: ["google docs", "google doc", "gdocs"], Icon: SiGoogledocs, color: "#4285F4" },
+  { keywords: ["google slides", "gslides"], Icon: SiGoogleslides, color: "#F4B400" },
+  { keywords: ["sheets"], Icon: SiGooglesheets, color: "#0F9D58" }, // fallback pendek
 
-// Warna brand official tiap tech. Kalau gak ada di map, fallback ke abu-abu.
-const COLOR_MAP = {
-  react: "#61DAFB", vue: "#4FC08D", angular: "#DD0031", nextjs: "#000000", svelte: "#FF3E00", vite: "#646CFF",
-  javascript: "#F7DF1E", typescript: "#3178C6", html: "#E34F26", css: "#1572B6", sass: "#CC6699",
-  tailwind: "#06B6D4", bootstrap: "#7952B3",
-  node: "#5FA04E", express: "#000000", nest: "#E0234E", django: "#092E20", flask: "#000000", laravel: "#FF2D20",
-  php: "#777BB4", python: "#3776AB",
-  postgresql: "#4169E1", mysql: "#4479A1", mongodb: "#47A248", redis: "#FF4438", firebase: "#DD2C00", supabase: "#3FCF8E",
-  docker: "#2496ED", kubernetes: "#326CE5", cloudflare: "#F38020",
-  vercel: "#000000", netlify: "#00C7B7", heroku: "#430098",
-  git: "#F05032", github: "#181717", gitlab: "#FC6D26",
-  figma: "#F24E1E", canva: "#00C4CC",
-  kotlin: "#7F52FF", swift: "#F05138", flutter: "#02569B", dart: "#0175C2", android: "#34A853",
-  go: "#00ADD8", rust: "#000000", "c++": "#00599C",
-  postman: "#FF6C37", notion: "#000000", slack: "#4A154B",
-};
+  // ============ Other ============
+  { keywords: ["wordpress"], Icon: SiWordpress, color: "#21759B" },
+];
 
-function normalize(name) {
-  return name.toLowerCase().replace(/[\s.]+/g, "");
-}
+function TechIcon({ name, size = 14 }) {
+  if (!name) return null;
+  const lower = String(name).toLowerCase();
 
-function TechIcon({ name, size = 18, showLabel = false, className = "" }) {
-  const key = normalize(name);
-  const Icon = ICON_MAP[key];
-  const color = COLOR_MAP[key] || "#807479";
-
-  if (!Icon) {
-    return (
-      <span className={`tech-icon-fallback ${className}`}>
-        {showLabel ? name : name.charAt(0).toUpperCase()}
-      </span>
-    );
+  for (const { keywords, Icon, color } of iconMap) {
+    for (const kw of keywords) {
+      if (lower.includes(kw)) {
+        return <Icon size={size} color={color} style={{ flexShrink: 0 }} />;
+      }
+    }
   }
 
+  // Fallback: huruf pertama dengan style bulet teal
   return (
-    <span className={`tech-icon ${className}`} title={name}>
-      <Icon size={size} color={color} />
-      {showLabel && <span className="tech-icon-label">{name}</span>}
+    <span
+      className="tech-icon-fallback"
+      style={{ width: size, height: size, fontSize: Math.max(size * 0.55, 8) }}
+    >
+      {String(name).charAt(0).toUpperCase()}
     </span>
   );
 }
