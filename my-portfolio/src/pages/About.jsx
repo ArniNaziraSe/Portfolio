@@ -15,22 +15,48 @@ function getImageUrl(path) {
   return `${API_BASE}${path}`;
 }
 
-// Sort by tahun (extract dari period), terbaru di atas
-function sortByYear(items) {
-  return [...items].sort((a, b) => {
-    const getYear = (item) => {
-      const match = (item.period || "").match(/\d{4}/g);
-      // Ambil tahun terakhir (end year), atau tahun pertama jika cuma 1
-      return match ? parseInt(match[match.length - 1]) : 0;
-    };
-    return getYear(b) - getYear(a);
-  });
+const MONTHS = {
+  januari: 1, februari: 2, maret: 3, april: 4, mei: 5, juni: 6,
+  juli: 7, agustus: 8, september: 9, oktober: 10, november: 11, desember: 12,
+  january: 1, february: 2, march: 3, may: 5, june: 6,
+  july: 7, august: 8, october: 10, december: 12,
+  jan: 1, feb: 2, mar: 3, apr: 4, jun: 6, jul: 7,
+  aug: 8, sep: 9, sept: 9, oct: 10, nov: 11, dec: 12,
+};
+
+// Sort key: tahun*100 + bulan. Untuk "Agustus 2024" -> 202408.
+// "November - Desember 2024" -> 202412 (bulan terakhir).
+function getSortKey(text) {
+  if (!text) return 0;
+  const lower = text.toLowerCase();
+  const years = lower.match(/\d{4}/g);
+  const year = years ? parseInt(years[years.length - 1]) : 0;
+
+  let lastMonthNum = 0;
+  let lastMonthPos = -1;
+  for (const [name, num] of Object.entries(MONTHS)) {
+    const idx = lower.lastIndexOf(name);
+    if (idx > lastMonthPos) {
+      lastMonthPos = idx;
+      lastMonthNum = num;
+    }
+  }
+  return year * 100 + lastMonthNum;
+}
+
+function sortByNewest(items) {
+  return [...items].sort((a, b) => getSortKey(b.period) - getSortKey(a.period));
+}
+
+function sortCertsByNewest(items) {
+  return [...items].sort((a, b) => getSortKey(b.year) - getSortKey(a.year));
 }
 
 function About() {
   const { open: openContact } = useContact();
 
   const [profile, setProfile] = useState(null);
+  const [avatarError, setAvatarError] = useState(false);
   const [education, setEducation] = useState([]);
   const [experiences, setExperiences] = useState([]);
   const [skills, setSkills] = useState([]);
@@ -44,8 +70,9 @@ function About() {
     fetch(`${API_BASE}/api/certifications`).then((r) => r.json()).then(setCertifications).catch(() => {});
   }, []);
 
-  const experiencesSorted = sortByYear(experiences);
-  const educationSorted = sortByYear(education);
+  const experiencesSorted = sortByNewest(experiences);
+  const educationSorted = sortByNewest(education);
+  const certsSorted = sortCertsByNewest(certifications);
 
   return (
     <div className="home-page">
@@ -55,8 +82,12 @@ function About() {
         <section className="about-hero">
           <div className="about-avatar-wrap">
             <div className="about-avatar-card">
-              {profile?.avatar_url ? (
-                <img src={getImageUrl(profile.avatar_url)} alt={profile.full_name} />
+              {profile?.avatar_url && !avatarError ? (
+                <img
+                  src={getImageUrl(profile.avatar_url)}
+                  alt={profile.full_name}
+                  onError={() => setAvatarError(true)}
+                />
               ) : (
                 <div className="about-avatar-fallback">AN</div>
               )}
@@ -144,7 +175,7 @@ function About() {
             <span className="section-label">CERTIFICATES</span>
             <div className="cert-list">
               {certifications.length > 0 ? (
-                certifications.map((c) => (
+                certsSorted.map((c) => (
                   <div key={c.id} className="cert-item">
                     <div>
                       <strong>{c.title}</strong>
@@ -168,8 +199,8 @@ function About() {
             </p>
             <div className="hobby-pills">
               <span className="hobby-pill">💃 Dance — both traditional and modern styles, a creative outlet that keeps me energized</span>
-              <span className="hobby-pill">🎬 Movies — especially action, romance, and fantasy genres</span>
               <span className="hobby-pill">🗣️ Language Learning — always excited to pick up a new language and culture</span>
+              <span className="hobby-pill">🎬 Movies — especially action, romance, and fantasy genres</span>
               <span className="hobby-pill">☕ Coffee — my constant companion during long coding sessions</span>
             </div>
           </div>

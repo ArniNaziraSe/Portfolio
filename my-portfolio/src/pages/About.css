@@ -1,5 +1,5 @@
 .about-main {
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 60px var(--page-padding) 80px;
   flex: 1;
@@ -315,4 +315,19 @@
   }
 
   .timeline-year-col { font-size: 11px; }
+}
+
+/* ===== WIDEN CONTENT ===== */
+.about-main { max-width: 1200px; }
+
+/* Skills grid: paksa 2 kolom di layar besar */
+@media (min-width: 900px) {
+  .skills-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Avatar broken image fallback */
+.about-avatar-card img {
+  display: block;
 }

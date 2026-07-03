@@ -1,6 +1,55 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { API_BASE, PUBLIC_ABOUT_URL, getImageUrl, safeFetch } from "./apiClient";
 import RichTextEditor from "../../components/RichTextEditor";
+
+// Sort helper: ekstrak tahun terakhir dari string period, terbaru di atas
+function sortByPeriodYear(items) {
+  return [...items].sort((a, b) => {
+    const getYear = (item) => {
+      const match = (item.period || "").match(/\d{4}/g);
+      return match ? parseInt(match[match.length - 1]) : 0;
+    };
+    return getYear(b) - getYear(a);
+  });
+}
+
+function sortCertsByYear(items) {
+  return [...items].sort((a, b) => {
+    const getYear = (item) => {
+      const match = (item.year || "").match(/\d{4}/);
+      return match ? parseInt(match[0]) : 0;
+    };
+    return getYear(b) - getYear(a);
+  });
+}
+
+const MONTHS = {
+  januari: 1, februari: 2, maret: 3, april: 4, mei: 5, juni: 6,
+  juli: 7, agustus: 8, september: 9, oktober: 10, november: 11, desember: 12,
+  january: 1, february: 2, march: 3, may: 5, june: 6,
+  july: 7, august: 8, october: 10, december: 12,
+  jan: 1, feb: 2, mar: 3, apr: 4, jun: 6, jul: 7,
+  aug: 8, sep: 9, sept: 9, oct: 10, nov: 11, dec: 12,
+};
+
+// Sort key gabungan bulan+tahun. "Agustus 2024" -> 202408, "Desember 2024" -> 202412.
+function getSortKey(text) {
+  if (!text) return 0;
+  const lower = String(text).toLowerCase();
+  const years = lower.match(/\d{4}/g);
+  const year = years ? parseInt(years[years.length - 1]) : 0;
+
+  let lastMonthNum = 0;
+  let lastMonthPos = -1;
+  for (const [name, num] of Object.entries(MONTHS)) {
+    const idx = lower.lastIndexOf(name);
+    if (idx > lastMonthPos) {
+      lastMonthPos = idx;
+      lastMonthNum = num;
+    }
+  }
+  return year * 100 + lastMonthNum;
+}
 
 function AboutTab({ onSkillsCountChange }) {
   const [profile, setProfile] = useState({
@@ -148,6 +197,24 @@ function AboutTab({ onSkillsCountChange }) {
         </div>
       </div>
 
+      {/* BEYOND WORK */}
+      <div className="about-section-card">
+        <h3>Beyond Work</h3>
+        <div className="form-group">
+          <label>Personal Note</label>
+          <textarea rows="3"
+            placeholder="Away from the keyboard I recharge with..."
+            value={profile.personal_note || ""}
+            onChange={(e) => setProfile({ ...profile, personal_note: e.target.value })} />
+        </div>
+        <div className="form-group">
+          <label>Hobbies (pisah koma)</label>
+          <input type="text" placeholder="Photography, Reading, Hiking, Coffee"
+            value={profile.hobbies || ""}
+            onChange={(e) => setProfile({ ...profile, hobbies: e.target.value })} />
+        </div>
+      </div>
+
       {/* EDUCATION */}
       <TimelineSection title="Education" endpoint="/api/education" items={education} onRefresh={fetchAll} />
 
@@ -166,7 +233,15 @@ function AboutTab({ onSkillsCountChange }) {
 function TimelineSection({ title, endpoint, items, onRefresh }) {
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [sortDesc, setSortDesc] = useState(true);
   const [form, setForm] = useState({ title: "", institution: "", years: "", description: "", is_featured: false });
+
+  // Sort by bulan+tahun terakhir. "Agustus 2024" > "Februari 2024".
+  const sortedItems = useMemo(() => {
+    const withKey = items.map((item) => ({ ...item, _sortKey: getSortKey(item.period) }));
+    withKey.sort((a, b) => sortDesc ? b._sortKey - a._sortKey : a._sortKey - b._sortKey);
+    return withKey;
+  }, [items, sortDesc]);
 
   const startAdd = () => {
     setEditingId(null);
@@ -203,14 +278,24 @@ function TimelineSection({ title, endpoint, items, onRefresh }) {
     <div className="about-section-card">
       <div className="section-card-header">
         <h3>{title}</h3>
-        <button className="btn-add-small" onClick={startAdd}>+ Add</button>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button
+            className="btn-add-small"
+            onClick={() => setSortDesc(!sortDesc)}
+            title="Toggle sort"
+            style={{ background: "transparent" }}
+          >
+            {sortDesc ? "↓ Newest" : "↑ Oldest"}
+          </button>
+          <button className="btn-add-small" onClick={startAdd}>+ Add</button>
+        </div>
       </div>
 
       {items.length === 0 && !isAdding && (
         <p className="empty-state-text">Belum ada {title.toLowerCase()}.</p>
       )}
 
-      {items.map((item) => (
+      {sortedItems.map((item) => (
         <div key={item.id} className="timeline-item-compact">
           <div className="timeline-item-left"><span className="timeline-year">{item.period || "—"}</span></div>
           <div className="timeline-item-body">
@@ -343,7 +428,14 @@ function SkillsSection({ skills, onRefresh }) {
 function CertificationsSection({ certs, onRefresh }) {
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [sortDesc, setSortDesc] = useState(true);
   const [form, setForm] = useState({ title: "", issuer: "", icon: "🏆", year: "" });
+
+  const sortedCerts = useMemo(() => {
+    const withKey = certs.map((c) => ({ ...c, _sortKey: getSortKey(c.year) }));
+    withKey.sort((a, b) => sortDesc ? b._sortKey - a._sortKey : a._sortKey - b._sortKey);
+    return withKey;
+  }, [certs, sortDesc]);
 
   const startAdd = () => {
     setEditingId(null);
@@ -376,12 +468,21 @@ function CertificationsSection({ certs, onRefresh }) {
     <div className="about-section-card">
       <div className="section-card-header">
         <h3>Certifications</h3>
-        <button className="btn-add-small" onClick={startAdd}>+ Add</button>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button
+            className="btn-add-small"
+            onClick={() => setSortDesc(!sortDesc)}
+            style={{ background: "transparent" }}
+          >
+            {sortDesc ? "↓ Newest" : "↑ Oldest"}
+          </button>
+          <button className="btn-add-small" onClick={startAdd}>+ Add</button>
+        </div>
       </div>
 
       {certs.length === 0 && !isAdding && <p className="empty-state-text">Belum ada sertifikat.</p>}
 
-      {certs.map((c) => (
+      {sortedCerts.map((c) => (
         <div key={c.id} className="cert-row-compact">
           <span className="cert-icon">{c.icon || "🏆"}</span>
           <div className="cert-body">
