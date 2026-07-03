@@ -148,7 +148,7 @@
 
 /* Card grid fix — sama seperti Home. */
 .projects-grid {
-  grid-template-columns: repeat(auto-fill, minmax(300px, 380px));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 380px));
   justify-content: start;
 }
 
