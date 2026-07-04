@@ -6,28 +6,27 @@ const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
 
 function ContactDetail() {
   const { isOpen, close } = useContact();
-  const [email, setEmail] = useState("arninzra@gmail.com");
+  const [email, setEmail] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
 
   useEffect(() => {
     fetch(`${API_BASE}/api/profile`)
       .then((r) => r.json())
       .then((data) => {
         if (data?.email) setEmail(data.email);
+        if (data?.whatsapp) setWhatsapp(data.whatsapp);
       })
       .catch(() => {});
   }, []);
 
   if (!isOpen) return null;
 
-  const whatsappNumber = "6285648539749"; // ganti dengan nomor kamu, format: kode negara tanpa "+" atau "0" di depan
-  const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-    "Hi Arni, I'd like to talk about..."
-  )}`;
+  const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(
+    "Let's Collaborate"
+  )}&body=${encodeURIComponent("Hi Arni,\n\nI'd like to talk about...")}`;
 
-  const gmailComposeLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
-  email
-  )}&su=${encodeURIComponent("Let's Collaborate")}&body=${encodeURIComponent(
-    "Hi Arni,\n\nI'd like to talk about..."
+  const whatsappLink = `https://wa.me/${whatsapp}?text=${encodeURIComponent(
+    "Hi Arni, I'd like to talk about..."
   )}`;
 
   return (

@@ -333,7 +333,10 @@ app.delete('/api/certifications/:id', async (req, res) => {
 app.get('/api/profile', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM profile LIMIT 1');
-    res.json(result.rows[0]);
+    res.json(result.rows[0], {
+      email: process.env.EMAIL,
+      whatsapp: process.env.WHATSAPP_NUMBER,
+    });
   } catch (error) {
     console.error(error.message);
     res.status(500).send('Server Error Profile');
