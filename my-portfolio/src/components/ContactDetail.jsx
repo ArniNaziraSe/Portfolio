@@ -19,7 +19,7 @@ function ContactDetail() {
 
   if (!isOpen) return null;
 
-  const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(
+  const mailtoLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
     "Let's Collaborate"
   )}&body=${encodeURIComponent("Hi Arni,\n\nI'd like to talk about...")}`;
 
