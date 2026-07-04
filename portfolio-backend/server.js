@@ -77,6 +77,9 @@ const upload = multer({
   },
 });
 
+const helmet = require("helmet");
+app.use(helmet());
+
 // Upload buffer (dari multer.memoryStorage) ke R2, return public URL
 async function uploadToR2(file, folder) {
   const ext = path.extname(file.originalname);
