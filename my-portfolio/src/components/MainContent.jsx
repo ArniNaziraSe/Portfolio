@@ -70,13 +70,13 @@ function MainContent() {
         <h1 className="hero-name">{profile?.full_name || "Arni Nazira"}</h1>
 
         <div className="hero-desc">
-          <p>Informatics Engineering graduate focused on software development and data analytics.</p>
+          <p>Informatics Engineering graduate passionate about building functional, user-centered web applications.</p>
         </div>
 
         <div className="hero-buttons">
           {profile?.cv_url && (
             <a href={profile.cv_url} className="btn-primary" target="_blank" rel="noreferrer">
-              ⬇ Download CV
+              Download CV
             </a>
           )}
           <Link to="/projects" className="btn-outline">View Projects</Link>
