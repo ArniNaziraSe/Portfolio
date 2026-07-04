@@ -23,3 +23,28 @@ export async function safeFetch(endpoint, fallback) {
     return fallback;
   }
 }
+
+// Fetch untuk endpoint admin (POST/PUT/DELETE) — otomatis attach JWT token
+// dari sessionStorage. Kalau token expired/invalid, redirect ke login.
+export async function authFetch(endpoint, options = {}) {
+  const token = sessionStorage.getItem("admin_token");
+  const url = endpoint.startsWith("http") ? endpoint : `${API_BASE}${endpoint}`;
+
+  const headers = {
+    ...(options.headers || {}),
+    Authorization: `Bearer ${token}`,
+  };
+
+  const res = await fetch(url, { ...options, headers });
+
+  // Token expired atau invalid — clear session & reload biar balik ke login
+  if (res.status === 401) {
+    sessionStorage.removeItem("admin_token");
+    sessionStorage.removeItem("admin_logged_in");
+    alert("Sesi kamu sudah habis, silakan login ulang.");
+    window.location.reload();
+    return res;
+  }
+
+  return res;
+}

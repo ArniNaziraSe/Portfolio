@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { API_BASE, getImageUrl, safeFetch } from "./apiClient";
+import { API_BASE, getImageUrl, safeFetch, authFetch } from "./apiClient";
 import RichTextEditor from "../../components/RichTextEditor";
 import TechIcon from "../../components/TechIcon";
 
@@ -82,12 +82,12 @@ function ProjectsTab({ onCountChange }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const url = isEditing ? `${API_BASE}/api/projects/${currentId}` : `${API_BASE}/api/projects`;
+    const endpoint = isEditing ? `/api/projects/${currentId}` : `/api/projects`;
     const formData = new FormData();
     Object.entries(form).forEach(([key, value]) => formData.append(key, value));
     if (imageFile) formData.append("image", imageFile);
 
-    fetch(url, {
+    authFetch(endpoint, {
       method: isEditing ? "PUT" : "POST",
       body: formData,
     }).then(() => {
@@ -98,7 +98,7 @@ function ProjectsTab({ onCountChange }) {
 
   const handleDelete = (id) => {
     if (window.confirm("Hapus project ini?")) {
-      fetch(`${API_BASE}/api/projects/${id}`, { method: "DELETE" })
+      authFetch(`/api/projects/${id}`, { method: "DELETE" })
         .then(() => fetchProjects())
         .catch((err) => console.error("Gagal menghapus:", err));
     }

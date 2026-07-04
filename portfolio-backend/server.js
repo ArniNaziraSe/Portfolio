@@ -1,3 +1,6 @@
+const helmet = require("helmet");
+app.use(helmet());
+
 const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
@@ -76,9 +79,6 @@ const upload = multer({
     }
   },
 });
-
-const helmet = require("helmet");
-app.use(helmet());
 
 // Upload buffer (dari multer.memoryStorage) ke R2, return public URL
 async function uploadToR2(file, folder) {

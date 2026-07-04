@@ -24,7 +24,8 @@ function AdminLogin({ onSuccess }) {
 
       if (res.ok && data.success) {
         sessionStorage.setItem("admin_logged_in", "true");
-        onSuccess(); // kasih tau parent kalau login berhasil
+        sessionStorage.setItem("admin_token", data.token); // simpan JWT
+        onSuccess();
       } else {
         setErrorMsg(data.message || "Password salah!");
       }

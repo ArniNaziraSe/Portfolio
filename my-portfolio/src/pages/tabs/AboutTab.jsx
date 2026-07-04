@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { API_BASE, PUBLIC_ABOUT_URL, getImageUrl, safeFetch } from "./apiClient";
+import { API_BASE, PUBLIC_ABOUT_URL, getImageUrl, safeFetch, authFetch } from "./apiClient";
 import RichTextEditor from "../../components/RichTextEditor";
 
 // Sort helper: ekstrak tahun terakhir dari string period, terbaru di atas
@@ -106,7 +106,7 @@ function AboutTab({ onSkillsCountChange }) {
       ].forEach((k) => formData.append(k, profile[k] || ""));
       if (avatarFile) formData.append("avatar", avatarFile);
 
-      await fetch(`${API_BASE}/api/profile`, { method: "PUT", body: formData });
+      await authFetch("/api/profile", { method: "PUT", body: formData });
       setSavedMsg("✓ Profile saved!");
       fetchAll();
     } catch (e) {
@@ -260,8 +260,8 @@ function TimelineSection({ title, endpoint, items, onRefresh }) {
     setIsAdding(true);
   };
   const save = async () => {
-    const url = editingId ? `${API_BASE}${endpoint}/${editingId}` : `${API_BASE}${endpoint}`;
-    await fetch(url, {
+    const path = editingId ? `${endpoint}/${editingId}` : endpoint;
+    await authFetch(path, {
       method: editingId ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
@@ -272,7 +272,7 @@ function TimelineSection({ title, endpoint, items, onRefresh }) {
   };
   const del = async (id) => {
     if (!window.confirm(`Hapus item ${title.toLowerCase()} ini?`)) return;
-    await fetch(`${API_BASE}${endpoint}/${id}`, { method: "DELETE" });
+    await authFetch(`${endpoint}/${id}`, { method: "DELETE" });
     onRefresh();
   };
 
@@ -361,8 +361,8 @@ function SkillsSection({ skills, onRefresh }) {
     setIsAdding(true);
   };
   const save = async () => {
-    const url = editingId ? `${API_BASE}/api/skills/${editingId}` : `${API_BASE}/api/skills`;
-    await fetch(url, {
+    const path = editingId ? `/api/skills/${editingId}` : `/api/skills`;
+    await authFetch(path, {
       method: editingId ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
@@ -373,7 +373,7 @@ function SkillsSection({ skills, onRefresh }) {
   };
   const del = async (id) => {
     if (!window.confirm("Hapus skill group ini?")) return;
-    await fetch(`${API_BASE}/api/skills/${id}`, { method: "DELETE" });
+    await authFetch(`/api/skills/${id}`, { method: "DELETE" });
     onRefresh();
   };
 
@@ -450,8 +450,8 @@ function CertificationsSection({ certs, onRefresh }) {
     setIsAdding(true);
   };
   const save = async () => {
-    const url = editingId ? `${API_BASE}/api/certifications/${editingId}` : `${API_BASE}/api/certifications`;
-    await fetch(url, {
+    const path = editingId ? `/api/certifications/${editingId}` : `/api/certifications`;
+    await authFetch(path, {
       method: editingId ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
@@ -462,7 +462,7 @@ function CertificationsSection({ certs, onRefresh }) {
   };
   const del = async (id) => {
     if (!window.confirm("Hapus sertifikat ini?")) return;
-    await fetch(`${API_BASE}/api/certifications/${id}`, { method: "DELETE" });
+    await authFetch(`/api/certifications/${id}`, { method: "DELETE" });
     onRefresh();
   };
 
