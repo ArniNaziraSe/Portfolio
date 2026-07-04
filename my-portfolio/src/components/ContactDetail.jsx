@@ -39,7 +39,7 @@ function ContactDetail() {
         <h2>Let's talk</h2>
         <p>Have a project or opportunity in mind? Reach out through any of these.</p>
 
-        <a href={gmailComposeLink} className="contact-email-btn">
+        <a href={mailtoLink} className="contact-email-btn">
           <span className="mail-icon">✉</span>
           <span>{email}</span>
         </a>
