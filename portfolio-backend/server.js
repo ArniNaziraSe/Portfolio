@@ -1,12 +1,12 @@
-const helmet = require("helmet");
-app.use(helmet());
-
 const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const crypto = require('crypto');
+const helmet = require('helmet');
+const jwt = require('jsonwebtoken');
+const rateLimit = require('express-rate-limit');
 const { S3Client, PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 require('dotenv').config();
 
@@ -33,6 +33,8 @@ app.use(
 );
 
 app.use(express.json());
+
+app.use(helmet());
 
 // Health check buat UptimeRobot biar Render gak sleep
 app.get('/api/health', (req, res) => res.send('OK'));
