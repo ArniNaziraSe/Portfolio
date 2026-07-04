@@ -70,11 +70,7 @@ function MainContent() {
         <h1 className="hero-name">{profile?.full_name || "Arni Nazira"}</h1>
 
         <div className="hero-desc">
-          {profile?.bio ? (
-            <div className="rich-content" dangerouslySetInnerHTML={{ __html: profile.bio }} />
-          ) : (
-            <p>Informatics Engineering graduate focused on web & mobile development.</p>
-          )}
+          <p>Informatics Engineering graduate focused on software development and data analytics.</p>
         </div>
 
         <div className="hero-buttons">
