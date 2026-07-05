@@ -205,3 +205,16 @@
   }
   .pd-details-card { padding: 20px; }
 }
+
+/* Impact section — highlighted supaya kelihatan sebagai keyword */
+.pd-impact {
+  margin: 0;
+  padding: 16px 20px;
+  background: var(--primary-bg);
+  border-left: 3px solid var(--primary);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text);
+  font-weight: 500;
+}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { API_BASE, getImageUrl, safeFetch, authFetch } from "./apiClient";
+import { API_BASE, getImageUrl, safeFetch } from "./apiClient";
 import RichTextEditor from "../../components/RichTextEditor";
 import TechIcon from "../../components/TechIcon";
 
@@ -10,6 +10,7 @@ const EMPTY_FORM = {
   year: new Date().getFullYear().toString(),
   month: "",
   status: "Completed", features: "",
+  project_type: "", impact: "",
 };
 
 // Warna badge status
@@ -61,6 +62,8 @@ function ProjectsTab({ onCountChange }) {
         month: project.month || "",
         status: project.status || "Completed",
         features: project.features || "",
+        project_type: project.project_type || "",
+        impact: project.impact || "",
       });
       setImagePreview(getImageUrl(project.image_url));
     } else {
@@ -82,12 +85,12 @@ function ProjectsTab({ onCountChange }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const endpoint = isEditing ? `/api/projects/${currentId}` : `/api/projects`;
+    const url = isEditing ? `${API_BASE}/api/projects/${currentId}` : `${API_BASE}/api/projects`;
     const formData = new FormData();
     Object.entries(form).forEach(([key, value]) => formData.append(key, value));
     if (imageFile) formData.append("image", imageFile);
 
-    authFetch(endpoint, {
+    fetch(url, {
       method: isEditing ? "PUT" : "POST",
       body: formData,
     }).then(() => {
@@ -98,7 +101,7 @@ function ProjectsTab({ onCountChange }) {
 
   const handleDelete = (id) => {
     if (window.confirm("Hapus project ini?")) {
-      authFetch(`/api/projects/${id}`, { method: "DELETE" })
+      fetch(`${API_BASE}/api/projects/${id}`, { method: "DELETE" })
         .then(() => fetchProjects())
         .catch((err) => console.error("Gagal menghapus:", err));
     }
@@ -127,11 +130,13 @@ function ProjectsTab({ onCountChange }) {
                 <tr>
                   <th>PROJECT</th>
                   <th>CATEGORY</th>
+                  <th>TYPE</th>
                   <th>ROLE</th>
-                  <th className="th-center">YEAR</th>
+                  <th className="th-center">PERIOD</th>
                   <th className="th-center">STATUS</th>
                   <th>TECH</th>
                   <th className="th-center">VIEWS</th>
+                  <th>IMPACT</th>
                   <th className="th-right"></th>
                 </tr>
               </thead>
@@ -150,8 +155,21 @@ function ProjectsTab({ onCountChange }) {
                         </div>
                       </td>
                       <td className="td-nowrap">{p.category || "—"}</td>
+                      <td className="td-nowrap">
+                        {p.project_type ? (
+                          <span className="badge-type">{p.project_type}</span>
+                        ) : "—"}
+                      </td>
                       <td className="td-nowrap">{p.role || "—"}</td>
-                      <td style={{ textAlign: "center" }}>{p.year || "—"}</td>
+                      <td className="td-nowrap" style={{ textAlign: "center" }}>
+                        {p.month || p.year ? (
+                          <>
+                            {p.month && <span style={{ fontSize: 12 }}>{p.month}</span>}
+                            {p.month && p.year && " "}
+                            {p.year && <strong>{p.year}</strong>}
+                          </>
+                        ) : "—"}
+                      </td>
                       <td style={{ textAlign: "center" }}>
                         <span className={`badge-status ${getStatusClass(p.status)}`}>
                           {p.status || "Completed"}
@@ -170,6 +188,11 @@ function ProjectsTab({ onCountChange }) {
                         </div>
                       </td>
                       <td style={{ textAlign: "center", fontWeight: 700 }}>{p.views || 0}</td>
+                      <td className="td-impact" title={p.impact || ""}>
+                        {p.impact ? (
+                          p.impact.length > 60 ? p.impact.substring(0, 60) + "…" : p.impact
+                        ) : "—"}
+                      </td>
                       <td>
                         <div className="td-actions">
                           <button
@@ -291,6 +314,24 @@ function ProjectsTab({ onCountChange }) {
                 <input type="text" placeholder="React, Node.js, PostgreSQL"
                   value={form.tech_stack}
                   onChange={(e) => setForm({ ...form, tech_stack: e.target.value })} />
+              </div>
+              <div className="form-group">
+                <label>Project Type</label>
+                <select value={form.project_type}
+                  onChange={(e) => setForm({ ...form, project_type: e.target.value })}>
+                  <option value="">— pilih —</option>
+                  <option>Self-initiated</option>
+                  <option>Class Project</option>
+                  <option>Work Project</option>
+                  <option>Group Project</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Impact (dampak / hasil yang dibuat)</label>
+                <textarea rows="3"
+                  placeholder="Contoh: Reduced admin time by 60% for RT/RW village staff. Deployed to 3 real users."
+                  value={form.impact}
+                  onChange={(e) => setForm({ ...form, impact: e.target.value })} />
               </div>
               <div className="form-group">
                 <label>Key Features (1 per baris)</label>

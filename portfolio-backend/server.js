@@ -155,6 +155,7 @@ app.post('/api/projects', upload.single('image'), async (req, res) => {
     const {
       title, description, github_link, tech_stack, category, role,
       year, month, status, features, demo_link, short_description,
+      project_type, impact,
     } = req.body;
  
     const image_url = req.file ? await uploadToR2(req.file, 'project') : '';
@@ -162,11 +163,13 @@ app.post('/api/projects', upload.single('image'), async (req, res) => {
  
     const newProject = await pool.query(
       `INSERT INTO projects (title, slug, description, image_url, github_link, tech_stack,
-                             category, role, year, month, status, features, demo_link, short_description)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *`,
+                             category, role, year, month, status, features, demo_link,
+                             short_description, project_type, impact)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16) RETURNING *`,
       [title, slug, description, image_url, github_link, tech_stack,
        category || '', role || '', year || '', month || '',
-       status || 'Completed', features || '', demo_link || '', short_description || '']
+       status || 'Completed', features || '', demo_link || '', short_description || '',
+       project_type || '', impact || '']
     );
     res.json(newProject.rows[0]);
   } catch (error) {
@@ -181,6 +184,7 @@ app.put('/api/projects/:id', upload.single('image'), async (req, res) => {
     const {
       title, description, github_link, tech_stack, category, role,
       year, month, status, features, demo_link, short_description,
+      project_type, impact,
     } = req.body;
  
     const existing = await pool.query('SELECT image_url FROM projects WHERE id = $1', [id]);
@@ -196,11 +200,12 @@ app.put('/api/projects/:id', upload.single('image'), async (req, res) => {
       `UPDATE projects SET
         title=$1, slug=$2, description=$3, image_url=$4, github_link=$5, tech_stack=$6,
         category=$7, role=$8, year=$9, month=$10, status=$11, features=$12,
-        demo_link=$13, short_description=$14
-       WHERE id=$15`,
+        demo_link=$13, short_description=$14, project_type=$15, impact=$16
+       WHERE id=$17`,
       [title, slug, description, image_url, github_link, tech_stack,
        category || '', role || '', year || '', month || '',
-       status || 'Completed', features || '', demo_link || '', short_description || '', id]
+       status || 'Completed', features || '', demo_link || '', short_description || '',
+       project_type || '', impact || '', id]
     );
     res.send('Project updated!');
   } catch (error) {

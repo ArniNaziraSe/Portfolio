@@ -21,6 +21,7 @@ function ProjectDetail() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [projectIdx, setProjectIdx] = useState(1);
+  const [heroImgError, setHeroImgError] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -129,8 +130,8 @@ function ProjectDetail() {
 
         {/* HERO IMAGE / NUMBER PLACEHOLDER */}
         <div className="pd-hero-img number-placeholder">
-          {imgUrl ? (
-            <img src={imgUrl} alt={project.title} onError={(e) => (e.target.style.display = "none")} />
+          {imgUrl && !heroImgError ? (
+            <img src={imgUrl} alt={project.title} onError={() => setHeroImgError(true)} />
           ) : (
             <span className="number-placeholder-num">{numStr}</span>
           )}
@@ -162,11 +163,25 @@ function ProjectDetail() {
                 </ul>
               </div>
             )}
+
+            {project.impact && (
+              <div className="pd-section">
+                <span className="section-label">IMPACT</span>
+                <p className="pd-impact">{project.impact}</p>
+              </div>
+            )}
           </div>
 
           <aside className="pd-right">
             <div className="pd-details-card">
               <span className="section-label">DETAILS</span>
+
+              {project.project_type && (
+                <div className="pd-detail-row">
+                  <span className="pd-detail-label">Project Type</span>
+                  <strong>{project.project_type}</strong>
+                </div>
+              )}
 
               {project.role && (
                 <div className="pd-detail-row">
