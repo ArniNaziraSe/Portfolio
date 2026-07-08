@@ -104,7 +104,11 @@ function ProjectDetail() {
 
         <div className="pd-header">
           <div className="pd-meta-line">
-            <span className="pd-category">{project.category || "Project"}</span>
+            <span className="pd-category">
+              {project.category
+                ? project.category.split(",").map((c) => c.trim()).filter(Boolean).join(" · ")
+                : "Project"}
+            </span>
             <span className="pd-dot">·</span>
             <span className="pd-year">{project.year || ""}</span>
           </div>

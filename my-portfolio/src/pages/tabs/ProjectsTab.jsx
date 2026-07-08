@@ -6,12 +6,28 @@ import TechIcon from "../../components/TechIcon";
 const EMPTY_FORM = {
   title: "", short_description: "", description: "",
   github_link: "", demo_link: "", tech_stack: "",
-  category: "Web App", role: "",
+  category: "", role: "",
   year: new Date().getFullYear().toString(),
   month: "",
   status: "Completed", features: "",
   project_type: "", impact: "",
 };
+
+// Fixed category options (bisa pilih lebih dari 1)
+const CATEGORIES = ["Web App", "Mobile App", "Dashboard", "Admin/Data", "Other"];
+
+// Parse "Web App, Dashboard" jadi array ["Web App", "Dashboard"]
+function parseCategories(str) {
+  if (!str) return [];
+  return str.split(",").map((c) => c.trim()).filter(Boolean);
+}
+
+// Toggle: kalau ada, hapus. Kalau gak ada, tambah.
+function toggleCat(currentStr, cat) {
+  const list = parseCategories(currentStr);
+  if (list.includes(cat)) return list.filter((c) => c !== cat).join(", ");
+  return [...list, cat].join(", ");
+}
 
 // Warna badge status
 function getStatusClass(status) {
@@ -56,7 +72,7 @@ function ProjectsTab({ onCountChange }) {
         github_link: project.github_link || "",
         demo_link: project.demo_link || "",
         tech_stack: project.tech_stack || "",
-        category: project.category || "Web App",
+        category: project.category || "",
         role: project.role || "",
         year: project.year || new Date().getFullYear().toString(),
         month: project.month || "",
@@ -154,7 +170,11 @@ function ProjectsTab({ onCountChange }) {
                           <span>{p.short_description?.substring(0, 40) || "—"}</span>
                         </div>
                       </td>
-                      <td className="td-nowrap">{p.category || "—"}</td>
+                      <td className="td-nowrap">
+                        {p.category
+                          ? p.category.split(",").map((c) => c.trim()).filter(Boolean).join(", ")
+                          : "—"}
+                      </td>
                       <td className="td-nowrap">
                         {p.project_type ? (
                           <span className="badge-type">{p.project_type}</span>
@@ -256,23 +276,28 @@ function ProjectsTab({ onCountChange }) {
                 <input type="file" accept="image/*" onChange={handleImageChange} />
                 {imagePreview && <img src={imagePreview} alt="Preview" className="image-preview" />}
               </div>
-              <div className="form-row-two">
-                <div className="form-group">
-                  <label>Category</label>
-                  <select value={form.category}
-                    onChange={(e) => setForm({ ...form, category: e.target.value })}>
-                    <option>Web App</option>
-                    <option>Mobile App</option>
-                    <option>Dashboard</option>
-                    <option>Admin/Data</option>
-                    <option>Other</option>
-                  </select>
+              <div className="form-group">
+                <label>Category (bisa pilih lebih dari 1)</label>
+                <div className="category-checkboxes">
+                  {CATEGORIES.map((cat) => {
+                    const isChecked = parseCategories(form.category).includes(cat);
+                    return (
+                      <label key={cat} className={`category-checkbox-item ${isChecked ? "checked" : ""}`}>
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => setForm({ ...form, category: toggleCat(form.category, cat) })}
+                        />
+                        <span>{cat}</span>
+                      </label>
+                    );
+                  })}
                 </div>
-                <div className="form-group">
-                  <label>Role</label>
-                  <input type="text" value={form.role}
-                    onChange={(e) => setForm({ ...form, role: e.target.value })} />
-                </div>
+              </div>
+              <div className="form-group">
+                <label>Role</label>
+                <input type="text" value={form.role}
+                  onChange={(e) => setForm({ ...form, role: e.target.value })} />
               </div>
               <div className="form-row-three">
                 <div className="form-group">

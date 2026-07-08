@@ -1080,3 +1080,45 @@
   max-width: 240px;
   cursor: help;
 }
+
+/* Category checkboxes (multi-select) */
+.category-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.category-checkbox-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--a-border);
+  background: var(--a-surface);
+  cursor: pointer;
+  transition: 0.15s ease;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--a-text-muted);
+  user-select: none;
+}
+
+.category-checkbox-item:hover {
+  border-color: var(--a-primary-soft);
+  color: var(--a-text);
+}
+
+.category-checkbox-item.checked {
+  background: var(--a-primary-bg);
+  border-color: var(--a-primary);
+  color: var(--a-primary-hover);
+}
+
+.category-checkbox-item input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--a-primary);
+  margin: 0;
+  cursor: pointer;
+}

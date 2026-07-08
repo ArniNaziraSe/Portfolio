@@ -1,12 +1,14 @@
 import {
   // Frontend
-  SiReact, SiVuedotjs, SiNextdotjs, SiAngular, SiSvelte,
+  SiReact, SiVuedotjs, SiNextdotjs, SiNuxtdotjs, SiAngular, SiSvelte,
   SiTailwindcss, SiBootstrap, SiSass, SiTypescript, SiJavascript,
-  SiHtml5, SiCss3, SiRedux,
+  SiHtml5, SiCss3, SiRedux, SiAlpinedotjs, SiAstro,
   // Backend
   SiNodedotjs, SiExpress, SiLaravel, SiPhp, SiPython, SiDjango, SiFlask,
+  SiNestjs, SiGraphql,
   // Database
   SiMysql, SiPostgresql, SiMongodb, SiRedis, SiSqlite, SiFirebase, SiSupabase,
+  SiPrisma,
   // Mobile
   SiFlutter, SiKotlin, SiSwift, SiAndroid,
   // DevOps
@@ -20,8 +22,8 @@ import {
 } from "react-icons/si";
 import "./TechIcon.css";
 
-// Custom "brand box": kotak warna dengan huruf. Dipake untuk Microsoft Office,
-// Google Workspace, dll yang icon SI-nya tidak tersedia di react-icons v5.5.0.
+// Custom brand box: kotak warna dengan huruf. Untuk logo yang tidak
+// tersedia di react-icons/si (Microsoft, Google, Livewire, Blade, dll).
 function BrandBox({ letter, color, size }) {
   return (
     <span
@@ -46,17 +48,22 @@ function BrandBox({ letter, color, size }) {
   );
 }
 
-// URUTAN: paling spesifik dulu. "next.js" sebelum "next", "google sheets" sebelum "sheets".
+// URUTAN: paling spesifik dulu. "next.js" sebelum "next", dst.
+// Substring matching: "Laravel 10+" match keyword "laravel" -> Laravel logo.
 const iconMap = [
-  // Framework
+  // ============ Framework specific dulu ============
   { keywords: ["next.js", "nextjs", "next js"], Icon: SiNextdotjs, color: "#000000" },
+  { keywords: ["nuxt.js", "nuxtjs", "nuxt"], Icon: SiNuxtdotjs, color: "#00DC82" },
   { keywords: ["react native", "reactnative"], Icon: SiReact, color: "#61DAFB" },
   { keywords: ["react.js", "reactjs", "react"], Icon: SiReact, color: "#61DAFB" },
   { keywords: ["vue.js", "vuejs", "vue"], Icon: SiVuedotjs, color: "#4FC08D" },
   { keywords: ["node.js", "nodejs", "node js"], Icon: SiNodedotjs, color: "#339933" },
   { keywords: ["angular"], Icon: SiAngular, color: "#DD0031" },
   { keywords: ["svelte"], Icon: SiSvelte, color: "#FF3E00" },
+  { keywords: ["astro"], Icon: SiAstro, color: "#FF5D01" },
+  { keywords: ["alpine.js", "alpinejs", "alpine js", "alpine"], Icon: SiAlpinedotjs, color: "#8BC0D0" },
   { keywords: ["express"], Icon: SiExpress, color: "#000000" },
+  { keywords: ["nestjs", "nest.js", "nest js"], Icon: SiNestjs, color: "#E0234E" },
   { keywords: ["redux"], Icon: SiRedux, color: "#764ABC" },
   { keywords: ["bootstrap"], Icon: SiBootstrap, color: "#7952B3" },
   { keywords: ["sass", "scss"], Icon: SiSass, color: "#CC6699" },
@@ -66,14 +73,21 @@ const iconMap = [
   { keywords: ["html"], Icon: SiHtml5, color: "#E34F26" },
   { keywords: ["css"], Icon: SiCss3, color: "#1572B6" },
 
-  // Backend
+  // ============ Backend ============
+  // Livewire dulu (spesifik), sebelum Laravel keyword catch
+  { keywords: ["livewire"], brand: { letter: "L", color: "#FB70A9" } },
+  { keywords: ["blade"], brand: { letter: "B", color: "#F53003" } },
+  { keywords: ["filament"], brand: { letter: "F", color: "#F59E0B" } },
+  { keywords: ["inertia"], brand: { letter: "I", color: "#9553E9" } },
   { keywords: ["laravel"], Icon: SiLaravel, color: "#FF2D20" },
   { keywords: ["php"], Icon: SiPhp, color: "#777BB4" },
   { keywords: ["django"], Icon: SiDjango, color: "#092E20" },
   { keywords: ["flask"], Icon: SiFlask, color: "#000000" },
   { keywords: ["python"], Icon: SiPython, color: "#3776AB" },
+  { keywords: ["graphql"], Icon: SiGraphql, color: "#E10098" },
 
-  // Database
+  // ============ Database / ORM ============
+  { keywords: ["prisma"], Icon: SiPrisma, color: "#2D3748" },
   { keywords: ["mysql"], Icon: SiMysql, color: "#4479A1" },
   { keywords: ["postgresql", "postgres", "psql"], Icon: SiPostgresql, color: "#4169E1" },
   { keywords: ["mongodb", "mongo"], Icon: SiMongodb, color: "#47A248" },
@@ -82,39 +96,39 @@ const iconMap = [
   { keywords: ["firebase"], Icon: SiFirebase, color: "#FFCA28" },
   { keywords: ["supabase"], Icon: SiSupabase, color: "#3ECF8E" },
 
-  // Mobile
+  // ============ Mobile ============
   { keywords: ["flutter"], Icon: SiFlutter, color: "#02569B" },
   { keywords: ["kotlin"], Icon: SiKotlin, color: "#7F52FF" },
   { keywords: ["swift"], Icon: SiSwift, color: "#F05138" },
   { keywords: ["android"], Icon: SiAndroid, color: "#3DDC84" },
 
-  // Version Control
+  // ============ Version Control ============
   { keywords: ["github"], Icon: SiGithub, color: "#181717" },
   { keywords: ["gitlab"], Icon: SiGitlab, color: "#FC6D26" },
   { keywords: ["git", "version control", "vcs"], Icon: SiGit, color: "#F05032" },
 
-  // DevOps
+  // ============ DevOps ============
   { keywords: ["docker"], Icon: SiDocker, color: "#2496ED" },
   { keywords: ["vercel"], Icon: SiVercel, color: "#000000" },
   { keywords: ["netlify"], Icon: SiNetlify, color: "#00C7B7" },
 
-  // Design
+  // ============ Design ============
   { keywords: ["figma"], Icon: SiFigma, color: "#F24E1E" },
   { keywords: ["canva"], Icon: SiCanva, color: "#00C4CC" },
 
-  // PM
+  // ============ PM ============
   { keywords: ["trello"], Icon: SiTrello, color: "#0079BF" },
   { keywords: ["jira", "agile", "scrum"], Icon: SiJira, color: "#0052CC" },
   { keywords: ["slack"], Icon: SiSlack, color: "#4A154B" },
   { keywords: ["notion"], Icon: SiNotion, color: "#000000" },
 
-  // ============ Microsoft Office (custom BrandBox) ============
+  // ============ Microsoft Office (BrandBox) ============
   { keywords: ["microsoft excel", "ms excel", "excel"], brand: { letter: "X", color: "#217346" } },
   { keywords: ["microsoft powerpoint", "ms powerpoint", "powerpoint", "ppt"], brand: { letter: "P", color: "#B7472A" } },
   { keywords: ["outlook", "microsoft outlook"], brand: { letter: "O", color: "#0078D4" } },
   { keywords: ["microsoft word", "ms word", "word"], brand: { letter: "W", color: "#2B579A" } },
 
-  // ============ Google Workspace (custom BrandBox) ============
+  // ============ Google Workspace (BrandBox) ============
   { keywords: ["google sheets", "google sheet", "gsheets"], brand: { letter: "S", color: "#0F9D58" } },
   { keywords: ["google docs", "google doc", "gdocs"], brand: { letter: "D", color: "#4285F4" } },
   { keywords: ["google slides", "gslides"], brand: { letter: "S", color: "#F4B400" } },
@@ -131,18 +145,11 @@ function TechIcon({ name, size = 14 }) {
   for (const entry of iconMap) {
     const matched = entry.keywords.some((kw) => lower.includes(kw));
     if (matched) {
-      // Icon dari react-icons/si
-      if (entry.Icon) {
-        return <entry.Icon size={size} color={entry.color} style={{ flexShrink: 0 }} />;
-      }
-      // Brand box custom (Office, Google, dll)
-      if (entry.brand) {
-        return <BrandBox letter={entry.brand.letter} color={entry.brand.color} size={size} />;
-      }
+      if (entry.Icon) return <entry.Icon size={size} color={entry.color} style={{ flexShrink: 0 }} />;
+      if (entry.brand) return <BrandBox letter={entry.brand.letter} color={entry.brand.color} size={size} />;
     }
   }
 
-  // Fallback: bulet huruf pertama
   return (
     <span
       className="tech-icon-fallback"

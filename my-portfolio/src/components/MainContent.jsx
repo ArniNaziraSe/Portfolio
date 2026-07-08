@@ -70,7 +70,11 @@ function MainContent() {
         <h1 className="hero-name">{profile?.full_name || "Arni Nazira"}</h1>
 
         <div className="hero-desc">
-          <p>Informatics Engineering graduate passionate about building functional, user-centered web applications.</p>
+          {profile?.bio ? (
+            <div className="rich-content" dangerouslySetInnerHTML={{ __html: profile.bio }} />
+          ) : (
+            <p>Informatics Engineering graduate focused on web & mobile development.</p>
+          )}
         </div>
 
         <div className="hero-buttons">
@@ -139,7 +143,9 @@ function FeaturedCard({ project, idx }) {
           <span className="number-placeholder-num">{numStr}</span>
         )}
         {project.category && (
-          <span className="card-category-label">{project.category}</span>
+          <span className="card-category-label">
+            {project.category.split(",")[0].trim()}
+          </span>
         )}
       </div>
 

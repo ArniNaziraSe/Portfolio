@@ -60,14 +60,21 @@ function Projects() {
     const fixed = ["All", "Web App", "Mobile App", "Dashboard", "Admin/Data"];
     const fromData = new Set();
     projects.forEach((p) => {
-      if (p.category && !fixed.includes(p.category)) fromData.add(p.category);
+      (p.category || "").split(",").forEach((c) => {
+        const trimmed = c.trim();
+        if (trimmed && !fixed.includes(trimmed)) fromData.add(trimmed);
+      });
     });
     return [...fixed, ...Array.from(fromData)];
   }, [projects]);
 
   const filtered = useMemo(() => {
-    const base = activeCategory === "All" ? projects : projects.filter((p) => p.category === activeCategory);
-    // Sort by newest month+year descending
+    const base = activeCategory === "All"
+      ? projects
+      : projects.filter((p) => {
+          const cats = (p.category || "").split(",").map((c) => c.trim());
+          return cats.includes(activeCategory);
+        });
     return [...base].sort((a, b) => getProjectSortKey(b) - getProjectSortKey(a));
   }, [projects, activeCategory]);
 
@@ -131,7 +138,9 @@ function ProjectCard({ project, idx }) {
           <span className="number-placeholder-num">{numStr}</span>
         )}
         {project.category && (
-          <span className="card-category-label">{project.category}</span>
+          <span className="card-category-label">
+            {project.category.split(",")[0].trim()}
+          </span>
         )}
       </div>
 
