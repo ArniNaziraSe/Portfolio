@@ -57,7 +57,7 @@ function Projects() {
 
   // Kategori fixed baseline + tambahin category unik dari data yg gak ada di baseline
   const categories = useMemo(() => {
-    const fixed = ["All", "Web App", "Mobile App", "Dashboard", "Admin/Data"];
+    const fixed = ["All", "Web App", "Mobile App", "Dashboard", "Admin/Data", "UI/UX Product Design"];
     const fromData = new Set();
     projects.forEach((p) => {
       (p.category || "").split(",").forEach((c) => {

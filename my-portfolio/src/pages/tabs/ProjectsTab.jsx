@@ -14,7 +14,7 @@ const EMPTY_FORM = {
 };
 
 // Fixed category options (bisa pilih lebih dari 1)
-const CATEGORIES = ["Web App", "Mobile App", "Dashboard", "Admin/Data", "Other"];
+const CATEGORIES = ["Web App", "Mobile App", "Dashboard", "Admin/Data", "UI/UX Product Design", "Other"];
 
 // Parse "Web App, Dashboard" jadi array ["Web App", "Dashboard"]
 function parseCategories(str) {
