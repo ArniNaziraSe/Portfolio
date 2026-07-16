@@ -2,7 +2,7 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(248, 250, 252, 0.85);
+  background: rgba(241, 251, 250, 0.85);
   backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border-soft);
 }
@@ -21,35 +21,26 @@
   gap: 16px;
 }
 
-/* Brand */
-.brand-link { display: flex; align-items: center; gap: 12px; }
+/* Brand logo */
+.brand-link { display: flex; align-items: center; }
 
-.brand-avatar {
-  width: 40px; height: 40px;
-  border-radius: 10px;
-  background: var(--primary);
-  color: white;
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 800; font-size: 13px; letter-spacing: 0.02em;
-  flex-shrink: 0;
+.brand-logo-img {
+  height: 44px;
+  width: auto;
+  object-fit: contain;
+  display: block;
 }
 
-.brand-name {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text);
-}
-
-/* Desktop Nav */
+/* Nav */
 .main-nav {
   display: flex;
-  gap: 32px;
+  gap: 40px;
 }
 
 .main-nav a {
   color: var(--text-muted);
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
   padding: 4px 2px;
   border-bottom: 2px solid transparent;
   transition: 0.15s ease;
@@ -60,7 +51,7 @@
   border-bottom-color: var(--primary);
 }
 
-/* Desktop actions */
+/* Header actions */
 .header-actions {
   display: flex;
   align-items: center;
@@ -79,7 +70,7 @@
 .theme-toggle-btn:hover { background: var(--surface-variant); }
 
 .contact-btn {
-  padding: 10px 22px;
+  padding: 11px 26px;
   border-radius: 999px;
   border: none;
   background: var(--primary);
@@ -91,13 +82,13 @@
 .contact-btn:hover {
   background: var(--primary-hover);
   transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(20, 184, 166, 0.35);
 }
 
-/* Hamburger button — hidden by default (desktop) */
+/* Hamburger */
 .hamburger-btn {
   display: none;
-  width: 40px;
-  height: 40px;
+  width: 40px; height: 40px;
   border-radius: 10px;
   border: 1px solid var(--border);
   background: var(--surface);
@@ -106,7 +97,7 @@
   justify-content: center;
 }
 
-/* Mobile menu dropdown */
+/* Mobile menu */
 .mobile-nav {
   display: none;
   padding: 8px 16px 16px;
@@ -125,7 +116,7 @@
   background: transparent;
   font-family: inherit;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text);
   cursor: pointer;
   transition: 0.15s ease;
@@ -157,24 +148,14 @@
   background: var(--primary-hover) !important;
 }
 
-/* ============================================
-   RESPONSIVE — mobile & tablet
-   ============================================ */
+/* Responsive */
 @media (max-width: 780px) {
-  /* Hide desktop nav & actions */
   .main-nav { display: none; }
   .header-actions { display: none; }
-
-  /* Show hamburger */
   .hamburger-btn { display: flex; }
-
-  /* Show mobile nav when opened */
   .mobile-nav { display: flex; }
-
-  /* Brand name still shows on tablet-ish, hide on very small */
-  .brand-name { font-size: 14px; }
 }
 
 @media (max-width: 400px) {
-  .brand-name { display: none; }
+  .brand-logo-img { height: 36px; }
 }

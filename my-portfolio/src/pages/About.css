@@ -6,102 +6,30 @@
   width: 100%;
 }
 
-/* ============================================
-   HERO
-   ============================================ */
-.about-hero {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 48px;
-  margin-bottom: 80px;
-  align-items: start;
+/* Section headings */
+.about-section {
+  margin-bottom: 60px;
 }
 
-.about-avatar-wrap {
-  position: sticky;
-  top: 100px;
-}
-
-.about-avatar-card {
-  aspect-ratio: 1;
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--border);
-  background: var(--surface);
-  background-image: radial-gradient(circle, var(--border) 1px, transparent 1px);
-  background-size: 12px 12px;
-  padding: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  position: relative;
-}
-
-.about-avatar-fallback {
-  width: 100%;
-  height: 100%;
-  border-radius: var(--radius-lg);
-  background: var(--primary);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 60px;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-}
-
-.about-avatar-card img {
-  position: absolute;
-  inset: 40px;
-  width: calc(100% - 80px);
-  height: calc(100% - 80px);
-  object-fit: cover;
-  border-radius: var(--radius-lg);
-}
-
-.about-intro h1 {
-  font-size: clamp(36px, 5vw, 56px);
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  margin: 8px 0 24px;
+.about-section-title {
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  margin: 0 0 32px;
   color: var(--text);
+  text-transform: uppercase;
 }
 
-.about-bio {
-  font-size: clamp(15px, 1.5vw, 17px);
-  line-height: 1.7;
-  color: var(--text-muted);
-}
-
-.about-bio p { margin: 0 0 16px; }
-
-.about-actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 24px;
-  flex-wrap: wrap;
-}
-
-/* ============================================
-   TIMELINE
-   ============================================ */
-.about-timeline-block {
-  margin-bottom: 80px;
-}
-
-.about-timeline-block .section-label { margin-bottom: 24px; }
-
+/* Timeline */
 .timeline-list {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  position: relative;
 }
 
 .timeline-entry {
   display: grid;
-  grid-template-columns: 140px 24px 1fr;
+  grid-template-columns: 160px 24px 1fr;
   gap: 20px;
   padding: 16px 0;
   align-items: start;
@@ -116,8 +44,8 @@
 }
 
 .timeline-dot {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background: var(--primary);
   margin-top: 8px;
@@ -131,16 +59,16 @@
   top: 18px;
   left: 50%;
   transform: translateX(-50%);
-  width: 1px;
+  width: 1.5px;
   height: calc(100% + 20px);
-  background: var(--border);
+  background: var(--primary-soft);
 }
 
 .timeline-entry:last-child .timeline-dot::after { display: none; }
 
 .timeline-content strong {
   display: block;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--text);
   margin-bottom: 4px;
@@ -150,7 +78,7 @@
   display: block;
   font-size: 14px;
   color: var(--primary);
-  font-weight: 600;
+  font-weight: 700;
   margin-bottom: 8px;
 }
 
@@ -161,15 +89,7 @@
   color: var(--text-muted);
 }
 
-/* ============================================
-   SKILLS GRID
-   ============================================ */
-.about-skills-block {
-  margin-bottom: 80px;
-}
-
-.about-skills-block .section-label { margin-bottom: 24px; }
-
+/* Skills grid */
 .skills-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -177,15 +97,15 @@
 }
 
 .skill-category-card {
-  padding: 20px;
+  padding: 24px;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 2px solid var(--primary-soft);
   border-radius: var(--radius-lg);
 }
 
 .skill-category-card h4 {
   margin: 0 0 14px;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--text);
 }
@@ -202,42 +122,31 @@
   gap: 6px;
   padding: 5px 10px;
   border-radius: 999px;
-  background: var(--surface-variant);
-  border: 1px solid var(--border);
+  background: var(--primary-bg);
+  border: 1px solid var(--primary-soft);
   font-size: 12px;
   font-weight: 600;
   color: var(--text-muted);
 }
 
-.skill-item .tech-icon-fallback {
-  background: var(--primary-bg);
-  color: var(--primary-hover);
-  font-size: 9px;
-  width: 14px;
-  height: 14px;
-}
-
-/* ============================================
-   BOTTOM: Certificates + Beyond Work
-   ============================================ */
+/* Bottom grid: Certs + Hobby */
 .about-bottom-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 40px;
+  margin-top: 20px;
 }
-
-.about-bottom-grid .section-label { margin-bottom: 20px; }
 
 .cert-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .cert-item {
-  padding: 14px 18px;
+  padding: 16px 20px;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 2px solid var(--primary-soft);
   border-radius: var(--radius);
   display: flex;
   justify-content: space-between;
@@ -263,6 +172,7 @@
   font-size: 12px;
   color: var(--text-subtle);
   flex-shrink: 0;
+  font-weight: 600;
 }
 
 .beyond-note {
@@ -279,87 +189,27 @@
 }
 
 .hobby-pill {
-  padding: 6px 14px;
+  padding: 8px 16px;
   border-radius: 999px;
   background: var(--surface);
-  border: 1px solid var(--border);
-  font-size: 12px;
+  border: 1.5px solid var(--primary-soft);
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-muted);
 }
 
-/* ============================================
-   RESPONSIVE
-   ============================================ */
+/* Responsive */
 @media (max-width: 800px) {
-  .about-hero {
-    grid-template-columns: 1fr;
-    gap: 32px;
-  }
-
-  .about-avatar-wrap {
-    position: relative;
-    top: 0;
-    max-width: 200px;
-    margin: 0 auto;
-  }
-
-  .about-bottom-grid {
-    grid-template-columns: 1fr;
-    gap: 40px;
-  }
-
-  .timeline-entry {
-    grid-template-columns: 80px 20px 1fr;
-    gap: 12px;
-  }
-
-  .timeline-year-col { font-size: 11px; }
+  .about-bottom-grid { grid-template-columns: 1fr; gap: 40px; }
+  .skills-grid { grid-template-columns: 1fr; }
 }
 
-/* ===== WIDEN CONTENT ===== */
-.about-main { max-width: 1200px; }
-
-/* Skills grid: paksa 2 kolom di layar besar */
-@media (min-width: 900px) {
-  .skills-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-/* Avatar broken image fallback */
-.about-avatar-card img {
-  display: block;
-}
-
-/* ============================================
-   RESPONSIVE MOBILE (extra)
-   ============================================ */
 @media (max-width: 640px) {
-  .about-hero { gap: 24px; }
-  .about-avatar-wrap { max-width: 150px; }
-  .about-intro h1 { font-size: 32px; }
-  .about-bio { font-size: 14px; }
-  .about-actions { flex-direction: column; align-items: stretch; }
-  .about-actions .btn-primary,
-  .about-actions .btn-outline { text-align: center; justify-content: center; }
-
-  /* Timeline compact */
   .timeline-entry {
-    grid-template-columns: 70px 16px 1fr;
+    grid-template-columns: 80px 16px 1fr;
     gap: 10px;
     padding: 12px 0;
   }
   .timeline-year-col { font-size: 10px; padding-top: 6px; }
-  .timeline-content strong { font-size: 14px; }
-  .timeline-institution { font-size: 13px; }
-  .timeline-desc { font-size: 12px; }
-
-  /* Skills 1 kolom */
-  .skills-grid { grid-template-columns: 1fr; }
-
-  /* Certificate + Beyond Work 1 kolom */
-  .about-bottom-grid { grid-template-columns: 1fr; gap: 32px; }
   .cert-item { flex-direction: column; align-items: flex-start; gap: 4px; }
-  .cert-year { font-size: 11px; }
 }

@@ -15,18 +15,13 @@ const MONTHS = {
   aug: 8, sep: 9, sept: 9, oct: 10, nov: 11, dec: 12,
 };
 
-// Sort key: year*100 + month. Kalau month kosong, monthNum=0.
 function getProjectSortKey(p) {
   const year = parseInt(p.year || "0") || 0;
   const monthText = String(p.month || "").toLowerCase();
   let monthNum = 0;
   for (const [name, num] of Object.entries(MONTHS)) {
-    if (monthText.includes(name)) {
-      monthNum = num;
-      break;
-    }
+    if (monthText.includes(name)) { monthNum = num; break; }
   }
-  // Cek juga apakah bulan ditulis pake angka (1-12)
   if (monthNum === 0) {
     const asNum = parseInt(monthText);
     if (asNum >= 1 && asNum <= 12) monthNum = asNum;
@@ -40,74 +35,115 @@ function getImageUrl(path) {
   return `${API_BASE}${path}`;
 }
 
+// SVG swoosh background di belakang foto (turquoise brush strokes)
+function HeroSwoosh() {
+  return (
+    <svg
+      className="hero-swoosh-bg"
+      viewBox="0 0 500 500"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <g stroke="var(--primary-scribble)" fill="none" strokeLinecap="round">
+        <path d="M 80 250 Q 130 130, 220 180 Q 320 230, 420 130" strokeWidth="46" opacity="0.75" />
+        <path d="M 60 300 Q 180 210, 280 260 Q 380 310, 440 220" strokeWidth="38" opacity="0.55" />
+        <path d="M 100 200 Q 220 260, 320 200 Q 400 160, 460 250" strokeWidth="30" opacity="0.6" />
+        <path d="M 50 350 Q 150 320, 260 350 Q 350 380, 430 320" strokeWidth="26" opacity="0.4" />
+      </g>
+    </svg>
+  );
+}
+
+// Icon gambar untuk placeholder card
+function ImagePlaceholderIcon() {
+  return (
+    <svg
+      className="placeholder-icon"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+    >
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <circle cx="9" cy="9" r="1.5" />
+      <path d="M21 15l-5-5L5 21" />
+    </svg>
+  );
+}
+
 function MainContent() {
   const [featured, setFeatured] = useState([]);
   const [profile, setProfile] = useState(null);
-  const [projectsCount, setProjectsCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [photoError, setPhotoError] = useState(false);
 
   useEffect(() => {
     Promise.all([
       fetch(`${API_BASE}/api/projects`).then((r) => r.json()).catch(() => []),
       fetch(`${API_BASE}/api/profile`).then((r) => r.json()).catch(() => null),
     ]).then(([projectsData, profileData]) => {
-      // Sort by newest (month+year) descending
       const sorted = [...projectsData].sort((a, b) => getProjectSortKey(b) - getProjectSortKey(a));
-      setProjectsCount(sorted.length);
       setFeatured(sorted.slice(0, 3));
       setProfile(profileData);
       setLoading(false);
     });
   }, []);
 
+  const photoUrl = profile?.avatar_url ? getImageUrl(profile.avatar_url) : null;
+  const showPhoto = photoUrl && !photoError;
+
   return (
     <main className="home-main">
+      {/* HERO — 2 kolom: text kiri + foto+swoosh kanan */}
       <section className="hero-block">
-        <span className="status-pill">
-          <span className="status-dot" /> Available for new projects
-        </span>
+        <div className="hero-left">
+          <h1 className="hero-name">
+            Hello,<br />
+            I'm {profile?.full_name || "Arni Nazira"}
+          </h1>
 
-        <h1 className="hero-name">{profile?.full_name || "Arni Nazira"}</h1>
+          <div className="hero-desc">
+            {profile?.bio ? (
+              <div dangerouslySetInnerHTML={{ __html: profile.bio }} />
+            ) : (
+              <p>
+                Informatics Engineering graduate focused on web & mobile development
+                with Laravel, React, and Flutter — while steadily growing my data &
+                admin skills along the way.
+              </p>
+            )}
+          </div>
 
-        <div className="hero-desc">
-          {profile?.bio ? (
-            <div className="rich-content" dangerouslySetInnerHTML={{ __html: profile.bio }} />
-          ) : (
-            <p>Informatics Engineering graduate focused on web & mobile development.</p>
-          )}
-        </div>
-
-        <div className="hero-buttons">
           {profile?.cv_url && (
             <a href={profile.cv_url} className="btn-primary" target="_blank" rel="noreferrer">
-              Download CV
+              ⬇ Download CV
             </a>
           )}
-          <Link to="/projects" className="btn-outline">View Projects</Link>
         </div>
 
-        <div className="hero-stats">
-          <div className="stat-block">
-            <span className="stat-num">{projectsCount || "0"}+</span>
-            <span className="stat-label">Projects</span>
-          </div>
-          <div className="stat-block">
-            <span className="stat-num">{profile?.focus || "Web·Mobile"}</span>
-            <span className="stat-label">Focus</span>
-          </div>
-          <div className="stat-block">
-            <span className="stat-num">{profile?.graduation_year || "2025"}</span>
-            <span className="stat-label">Graduated</span>
+        <div className="hero-right">
+          <div className="hero-photo-wrap">
+            <HeroSwoosh />
+            {showPhoto ? (
+              <img
+                src={photoUrl}
+                alt={profile?.full_name || "Profile"}
+                className="hero-photo"
+                onError={() => setPhotoError(true)}
+              />
+            ) : (
+              <div className="hero-photo-fallback">
+                <span>AN</span>
+              </div>
+            )}
           </div>
         </div>
       </section>
 
+      {/* FEATURED PROJECTS */}
       <section className="featured-block">
         <div className="section-heading">
-          <div>
-            <span className="section-label">SELECTED WORK</span>
-            <h2>Featured Projects</h2>
-          </div>
+          <h2>PROJECTS</h2>
           <Link to="/projects" className="section-see-all">See all →</Link>
         </div>
 
@@ -115,8 +151,8 @@ function MainContent() {
           <p style={{ color: "var(--text-muted)" }}>Loading...</p>
         ) : (
           <div className="featured-grid">
-            {featured.map((p, idx) => (
-              <FeaturedCard key={p.id} project={p} idx={idx + 1} />
+            {featured.map((p) => (
+              <FeaturedCard key={p.id} project={p} />
             ))}
           </div>
         )}
@@ -125,13 +161,12 @@ function MainContent() {
   );
 }
 
-function FeaturedCard({ project, idx }) {
+function FeaturedCard({ project }) {
   const [imgError, setImgError] = useState(false);
   const techList = project.tech_stack
     ? project.tech_stack.split(",").map((t) => t.trim()).filter(Boolean)
     : [];
   const imgUrl = getImageUrl(project.image_url);
-  const numStr = String(idx).padStart(2, "0");
   const showImage = imgUrl && !imgError;
 
   return (
@@ -140,12 +175,7 @@ function FeaturedCard({ project, idx }) {
         {showImage ? (
           <img src={imgUrl} alt={project.title} onError={() => setImgError(true)} />
         ) : (
-          <span className="number-placeholder-num">{numStr}</span>
-        )}
-        {project.category && (
-          <span className="card-category-label">
-            {project.category.split(",")[0].trim()}
-          </span>
+          <ImagePlaceholderIcon />
         )}
       </div>
 

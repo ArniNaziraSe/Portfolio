@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useContact } from "../context/ContactContext";
+import logoImg from "../assets/logo.png";
 import "./Header.css";
 
 function Header() {
@@ -31,18 +32,15 @@ function Header() {
     <header className="site-header">
       <div className="site-header-inner">
         <NavLink to="/" className="brand-link" onClick={closeMobile}>
-          <div className="brand-avatar">AN</div>
-          <span className="brand-name">Arni Nazira</span>
+          <img src={logoImg} alt="Arni Nazira" className="brand-logo-img" />
         </NavLink>
 
-        {/* Desktop nav */}
         <nav className="main-nav">
           <NavLink to="/" end>Home</NavLink>
           <NavLink to="/projects">Projects</NavLink>
           <NavLink to="/about">About</NavLink>
         </nav>
 
-        {/* Desktop actions */}
         <div className="header-actions">
           <button className="theme-toggle-btn" onClick={toggleTheme} aria-label="Toggle theme">
             {isDark ? "☀" : "☾"}
@@ -50,7 +48,6 @@ function Header() {
           <button className="contact-btn" onClick={openContact}>Contact</button>
         </div>
 
-        {/* Mobile hamburger */}
         <button
           className="hamburger-btn"
           onClick={() => setMobileOpen(!mobileOpen)}
@@ -71,7 +68,6 @@ function Header() {
         </button>
       </div>
 
-      {/* Mobile menu (dropdown dari bawah header) */}
       {mobileOpen && (
         <div className="mobile-nav">
           <NavLink to="/" end onClick={closeMobile}>Home</NavLink>

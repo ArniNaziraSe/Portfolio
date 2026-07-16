@@ -3,17 +3,9 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import TechIcon from "../components/TechIcon";
 import "../components/TechIcon.css";
-import "../components/RichTextEditor.css";
-import { useContact } from "../context/ContactContext";
 import "./About.css";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
-
-function getImageUrl(path) {
-  if (!path) return null;
-  if (path.startsWith("http")) return path;
-  return `${API_BASE}${path}`;
-}
 
 const MONTHS = {
   januari: 1, februari: 2, maret: 3, april: 4, mei: 5, juni: 6,
@@ -29,15 +21,11 @@ function getSortKey(text) {
   const lower = String(text).toLowerCase();
   const years = lower.match(/\d{4}/g);
   const year = years ? parseInt(years[years.length - 1]) : 0;
-
   let lastMonthNum = 0;
   let lastMonthPos = -1;
   for (const [name, num] of Object.entries(MONTHS)) {
     const idx = lower.lastIndexOf(name);
-    if (idx > lastMonthPos) {
-      lastMonthPos = idx;
-      lastMonthNum = num;
-    }
+    if (idx > lastMonthPos) { lastMonthPos = idx; lastMonthNum = num; }
   }
   return year * 100 + lastMonthNum;
 }
@@ -45,25 +33,17 @@ function getSortKey(text) {
 function sortByNewest(items) {
   return [...items].sort((a, b) => getSortKey(b.period) - getSortKey(a.period));
 }
-
 function sortCertsByNewest(items) {
   return [...items].sort((a, b) => getSortKey(b.year) - getSortKey(a.year));
 }
 
-// Parse hobbies dari textarea (satu per baris)
 function parseHobbies(text) {
   if (!text) return [];
-  return text
-    .split(/\r?\n/)
-    .map((h) => h.trim())
-    .filter(Boolean);
+  return text.split(/\r?\n/).map((h) => h.trim()).filter(Boolean);
 }
 
 function About() {
-  const { open: openContact } = useContact();
-
   const [profile, setProfile] = useState(null);
-  const [avatarError, setAvatarError] = useState(false);
   const [education, setEducation] = useState([]);
   const [experiences, setExperiences] = useState([]);
   const [skills, setSkills] = useState([]);
@@ -87,50 +67,10 @@ function About() {
       <Header />
 
       <main className="about-main">
-        <section className="about-hero">
-          <div className="about-avatar-wrap">
-            <div className="about-avatar-card">
-              {profile?.avatar_url && !avatarError ? (
-                <img
-                  src={getImageUrl(profile.avatar_url)}
-                  alt={profile.full_name}
-                  onError={() => setAvatarError(true)}
-                />
-              ) : (
-                <div className="about-avatar-fallback">AN</div>
-              )}
-            </div>
-          </div>
-
-          <div className="about-intro">
-            <span className="section-label">ABOUT ME</span>
-            <h1>{profile?.full_name || "Arni Nazira"}</h1>
-
-            {profile?.bio ? (
-              <div
-                className="rich-content about-bio"
-                dangerouslySetInnerHTML={{ __html: profile.bio }}
-              />
-            ) : (
-              <p className="about-bio">
-                Informatics Engineering graduate focused on web & mobile development.
-              </p>
-            )}
-
-            <div className="about-actions">
-              {profile?.cv_url && (
-                <a href={profile.cv_url} className="btn-primary" target="_blank" rel="noreferrer">
-                  Download CV
-                </a>
-              )}
-              <button className="btn-outline" onClick={openContact}>Get in touch</button>
-            </div>
-          </div>
-        </section>
-
+        {/* Langsung ke Experience — bio dihapus */}
         {experiencesSorted.length > 0 && (
-          <section className="about-timeline-block">
-            <span className="section-label">EXPERIENCE</span>
+          <section className="about-section">
+            <h2 className="about-section-title">EXPERIENCE</h2>
             <div className="timeline-list">
               {experiencesSorted.map((item) => (
                 <TimelineEntry key={`exp-${item.id}`} item={item} />
@@ -140,8 +80,8 @@ function About() {
         )}
 
         {educationSorted.length > 0 && (
-          <section className="about-timeline-block">
-            <span className="section-label">EDUCATION</span>
+          <section className="about-section">
+            <h2 className="about-section-title">EDUCATION</h2>
             <div className="timeline-list">
               {educationSorted.map((item) => (
                 <TimelineEntry key={`edu-${item.id}`} item={item} />
@@ -151,8 +91,8 @@ function About() {
         )}
 
         {skills.length > 0 && (
-          <section className="about-skills-block">
-            <span className="section-label">SKILLS</span>
+          <section className="about-section">
+            <h2 className="about-section-title">SKILLS</h2>
             <div className="skills-grid">
               {skills.map((s) => {
                 const items = s.items ? s.items.split(",").map((i) => i.trim()).filter(Boolean) : [];
@@ -174,12 +114,11 @@ function About() {
           </section>
         )}
 
-        {/* CERTIFICATES + BEYOND WORK (dari database) */}
         <section className="about-bottom-grid">
           <div>
-            <span className="section-label">CERTIFICATES</span>
+            <h2 className="about-section-title">CERTIFICATES</h2>
             <div className="cert-list">
-              {certifications.length > 0 ? (
+              {certsSorted.length > 0 ? (
                 certsSorted.map((c) => (
                   <div key={c.id} className="cert-item">
                     <div>
@@ -198,14 +137,8 @@ function About() {
           </div>
 
           <div>
-            <span className="section-label">BEYOND WORK</span>
-            {profile?.personal_note ? (
-              <p className="beyond-note">{profile.personal_note}</p>
-            ) : (
-              <p className="beyond-note" style={{ color: "var(--text-subtle)" }}>
-                Belum ada catatan personal.
-              </p>
-            )}
+            <h2 className="about-section-title">HOBBY</h2>
+            {profile?.personal_note && <p className="beyond-note">{profile.personal_note}</p>}
             {hobbiesList.length > 0 && (
               <div className="hobby-pills">
                 {hobbiesList.map((h, i) => (

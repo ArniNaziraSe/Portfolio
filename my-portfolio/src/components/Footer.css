@@ -17,7 +17,7 @@
 
 .site-footer-inner strong {
   display: block;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--text);
 }
@@ -26,18 +26,19 @@
   margin: 4px 0 0;
   font-size: 13px;
   color: var(--text-muted);
+  font-weight: 500;
 }
 
 .footer-socials {
   display: flex;
-  gap: 8px;
+  gap: 10px;
 }
 
 .footer-socials a {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1.5px solid var(--primary-soft);
   background: var(--surface);
   color: var(--text-muted);
   display: inline-flex;
@@ -49,7 +50,7 @@
 .footer-socials a:hover {
   background: var(--primary-bg);
   color: var(--primary);
-  border-color: var(--primary-soft);
+  border-color: var(--primary);
 }
 
 .site-footer-copyright {
@@ -59,4 +60,5 @@
   border-top: 1px solid var(--border-soft);
   font-size: 12px;
   color: var(--text-subtle);
+  font-weight: 500;
 }

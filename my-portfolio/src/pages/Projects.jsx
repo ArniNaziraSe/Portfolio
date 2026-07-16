@@ -22,10 +22,7 @@ function getProjectSortKey(p) {
   const monthText = String(p.month || "").toLowerCase();
   let monthNum = 0;
   for (const [name, num] of Object.entries(MONTHS)) {
-    if (monthText.includes(name)) {
-      monthNum = num;
-      break;
-    }
+    if (monthText.includes(name)) { monthNum = num; break; }
   }
   if (monthNum === 0) {
     const asNum = parseInt(monthText);
@@ -38,6 +35,16 @@ function getImageUrl(path) {
   if (!path) return null;
   if (path.startsWith("http")) return path;
   return `${API_BASE}${path}`;
+}
+
+function ImagePlaceholderIcon() {
+  return (
+    <svg className="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <circle cx="9" cy="9" r="1.5" />
+      <path d="M21 15l-5-5L5 21" />
+    </svg>
+  );
 }
 
 function Projects() {
@@ -55,9 +62,8 @@ function Projects() {
       .catch(() => setIsLoading(false));
   }, []);
 
-  // Kategori fixed baseline + tambahin category unik dari data yg gak ada di baseline
   const categories = useMemo(() => {
-    const fixed = ["All", "Web App", "Mobile App", "Dashboard", "Admin/Data", "UI/UX Product Design"];
+    const fixed = ["All", "Web App", "Mobile App", "Dashboard", "Admin/Data"];
     const fromData = new Set();
     projects.forEach((p) => {
       (p.category || "").split(",").forEach((c) => {
@@ -84,12 +90,10 @@ function Projects() {
 
       <main className="projects-page-main">
         <div className="projects-page-header">
-          <span className="section-label">PORTFOLIO</span>
-          <h1>All Projects</h1>
+          <h1>PROJECTS</h1>
           <p className="projects-count">{filtered.length} projects</p>
         </div>
 
-        {/* Filter pills - selalu tampil, minimal "All" */}
         <div className="filter-pills">
           {categories.map((c) => (
             <button
@@ -108,8 +112,8 @@ function Projects() {
           </p>
         ) : (
           <div className="projects-grid">
-            {filtered.map((p, idx) => (
-              <ProjectCard key={p.id} project={p} idx={idx + 1} />
+            {filtered.map((p) => (
+              <ProjectCard key={p.id} project={p} />
             ))}
           </div>
         )}
@@ -120,13 +124,12 @@ function Projects() {
   );
 }
 
-function ProjectCard({ project, idx }) {
+function ProjectCard({ project }) {
   const [imgError, setImgError] = useState(false);
   const techList = project.tech_stack
     ? project.tech_stack.split(",").map((t) => t.trim()).filter(Boolean)
     : [];
   const imgUrl = getImageUrl(project.image_url);
-  const numStr = String(idx).padStart(2, "0");
   const showImage = imgUrl && !imgError;
 
   return (
@@ -135,21 +138,12 @@ function ProjectCard({ project, idx }) {
         {showImage ? (
           <img src={imgUrl} alt={project.title} onError={() => setImgError(true)} />
         ) : (
-          <span className="number-placeholder-num">{numStr}</span>
-        )}
-        {project.category && (
-          <span className="card-category-label">
-            {project.category.split(",")[0].trim()}
-          </span>
+          <ImagePlaceholderIcon />
         )}
       </div>
 
       <div className="project-card-body">
-        <div className="project-card-title-row">
-          <h3>{project.title}</h3>
-          <span className="project-card-year">{project.year || ""}</span>
-        </div>
-
+        <h3>{project.title}</h3>
         <p>{project.short_description || "—"}</p>
 
         <div className="tech-pills">

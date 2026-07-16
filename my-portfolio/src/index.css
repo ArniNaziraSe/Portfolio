@@ -1,28 +1,27 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap');
 
 /* ============================================
-   THEME VARIABLES
+   THEME VARIABLES — TURQUOISE PALETTE (NEW)
    ============================================ */
 :root {
   color-scheme: light;
 
-  /* Emerald teal */
-  --primary: #0d9488;
-  --primary-hover: #0f766e;
-  --primary-soft: #ccfbf1;
-  --primary-bg: #f0fdfa;
-  --primary-container: #ccfbf1;
+  --primary: #14B8A6;
+  --primary-hover: #0EA599;
+  --primary-soft: #99EDE4;
+  --primary-bg: #E6FBF7;
+  --primary-scribble: #7DDDD3;
 
-  --text: #0f172a;
+  --text: #0F172A;
   --text-muted: #475569;
-  --text-subtle: #94a3b8;
+  --text-subtle: #94A3B8;
 
-  --surface: #ffffff;
-  --surface-variant: #f8fafc;
-  --border: #e2e8f0;
-  --border-soft: #f1f5f9;
+  --surface: #FFFFFF;
+  --surface-variant: #F0FAF8;
+  --border: #D6EEE9;
+  --border-soft: #E8F5F2;
 
-  --bg: #f8fafc;
+  --bg: #F1FBFA;
   --page-padding: clamp(20px, 5vw, 80px);
 
   --radius-sm: 8px;
@@ -30,34 +29,31 @@
   --radius-lg: 16px;
   --radius-xl: 24px;
 
-  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-sans: 'Montserrat', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', 'Courier New', monospace;
 }
 
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --primary: #14b8a6;
-  --primary-hover: #2dd4bf;
-  --primary-soft: #134e4a;
-  --primary-bg: #042f2e;
-  --primary-container: #134e4a;
+  --primary: #2DD4BF;
+  --primary-hover: #5EEAD4;
+  --primary-soft: #134E4A;
+  --primary-bg: #042F2E;
+  --primary-scribble: #14B8A6;
 
-  --text: #f1f5f9;
-  --text-muted: #cbd5e1;
-  --text-subtle: #64748b;
+  --text: #F1F5F9;
+  --text-muted: #CBD5E1;
+  --text-subtle: #64748B;
 
-  --surface: #0f172a;
-  --surface-variant: #1e293b;
+  --surface: #0F172A;
+  --surface-variant: #1E293B;
   --border: #334155;
-  --border-soft: #1e293b;
+  --border-soft: #1E293B;
 
   --bg: #020617;
 }
 
-/* ============================================
-   RESET & BASE
-   ============================================ */
 * { box-sizing: border-box; }
 
 html, body, #root {
@@ -74,7 +70,6 @@ html, body, #root {
 a { color: inherit; text-decoration: none; }
 button { font-family: inherit; cursor: pointer; }
 
-/* Layout wrapper */
 .home-page {
   min-height: 100vh;
   display: flex;
@@ -85,30 +80,24 @@ button { font-family: inherit; cursor: pointer; }
 
 .mono { font-family: var(--font-mono); }
 
-/* ============================================
-   NUMBER PLACEHOLDER (fallback gambar)
-   ============================================ */
+/* Number placeholder — SEKARANG BORDER TEAL */
 .number-placeholder {
   position: relative;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 4 / 3;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 2px solid var(--primary-soft);
   border-radius: var(--radius-lg);
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  background-image: radial-gradient(circle, var(--border) 1px, transparent 1px);
-  background-size: 16px 16px;
 }
 
-.number-placeholder-num {
-  font-family: var(--font-mono);
-  font-size: clamp(48px, 8vw, 96px);
-  font-weight: 400;
-  color: var(--border);
-  letter-spacing: -0.02em;
+.placeholder-icon {
+  width: 60px;
+  height: 60px;
+  color: var(--text-subtle);
+  opacity: 0.5;
 }
 
 .number-placeholder img {
