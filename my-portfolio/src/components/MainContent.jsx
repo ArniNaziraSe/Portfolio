@@ -116,7 +116,7 @@ function MainContent() {
 
           {profile?.cv_url && (
             <a href={profile.cv_url} className="btn-primary" target="_blank" rel="noreferrer">
-              ⬇ Download CV
+              Download CV
             </a>
           )}
         </div>

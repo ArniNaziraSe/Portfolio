@@ -159,7 +159,7 @@
 
 .featured-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 400px));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   justify-content: start;
   gap: 24px;
 }
