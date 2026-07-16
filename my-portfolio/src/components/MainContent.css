@@ -232,7 +232,16 @@
     gap: 40px;
   }
 
-  .hero-photo-wrap { max-width: 340px; margin: 0 auto; }
+  .hero-right { order: -1; }
+
+  .hero-photo-wrap { max-width: 260px; margin: 0 auto; }
+
+  .hero-left { text-align: center; }
+  .hero-desc {
+    text-align: center;
+    margin: 0 auto;
+  }
+  .btn-primary { align-self: center; }
 }
 
 @media (max-width: 640px) {
