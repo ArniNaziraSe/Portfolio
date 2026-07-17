@@ -23,7 +23,7 @@ function Footer() {
       </div>
 
       <div className="site-footer-copyright">
-        <span>© 2026 Arni Nazira. All rights reserved.</span>
+        <span>&copy; 2026 Arni Nazira. All rights reserved.</span>
       </div>
     </footer>
   );
