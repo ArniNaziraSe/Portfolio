@@ -185,21 +185,6 @@ function AboutTab({ onSkillsCountChange }) {
         </div>
       </div>
 
-      {/* TECT STACK */}
-      <div className="about-section-card">
-        <h3>Tech Stack</h3>
-        <div className="form-group">
-          <label>Frameworks / Libraries</label>
-          <input type="text" value={profile.frameworks || ""}
-            onChange={(e) => setProfile({ ...profile, frameworks: e.target.value })} />
-        </div>
-        <div className="form-group">
-          <label>Tools</label>
-          <input type="text" value={profile.tools || ""}
-            onChange={(e) => setProfile({ ...profile, tools: e.target.value })} />
-        </div>
-      </div>
-
       {/* BEYOND WORK */}
       <div className="about-section-card">
         <h3>Beyond Work</h3>
