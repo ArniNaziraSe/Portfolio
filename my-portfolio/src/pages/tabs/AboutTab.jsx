@@ -122,11 +122,8 @@ function AboutTab({ onSkillsCountChange }) {
       <div className="about-header-bar">
         <p className="about-subtitle">Edits mirror the public About page.</p>
         <div className="about-header-actions">
-          <a href={PUBLIC_ABOUT_URL} target="_blank" rel="noreferrer" className="btn-outline-teal">
-            👁 Preview
-          </a>
           <button onClick={saveProfile} className="add-project-btn" disabled={isSaving}>
-            {isSaving ? "Saving..." : "💾 Save Profile"}
+            {isSaving ? "Saving..." : "Save Profile"}
           </button>
         </div>
       </div>
@@ -180,20 +177,26 @@ function AboutTab({ onSkillsCountChange }) {
           />
         </div>
 
-        <div className="form-row-two">
-          <div className="form-group">
-            <label>Avatar Photo</label>
-            <input type="file" accept="image/*" onChange={handleAvatarChange} />
-            {avatarPreview && (
-              <img src={avatarPreview} alt="Avatar" className="avatar-preview" />
-            )}
-          </div>
-          <div className="form-group">
-            <label>CV File URL</label>
-            <input type="text" placeholder="https://..."
-              value={profile.cv_url || ""}
-              onChange={(e) => setProfile({ ...profile, cv_url: e.target.value })} />
-          </div>
+        <div className="form-group">
+          <label>CV File URL</label>
+          <input type="text" placeholder="https://..."
+            value={profile.cv_url || ""}
+            onChange={(e) => setProfile({ ...profile, cv_url: e.target.value })} />
+        </div>
+      </div>
+
+      {/* TECT STACK */}
+      <div className="about-section-card">
+        <h3>Tech Stack</h3>
+        <div className="form-group">
+          <label>Frameworks / Libraries</label>
+          <input type="text" value={profile.frameworks || ""}
+            onChange={(e) => setProfile({ ...profile, frameworks: e.target.value })} />
+        </div>
+        <div className="form-group">
+          <label>Tools</label>
+          <input type="text" value={profile.tools || ""}
+            onChange={(e) => setProfile({ ...profile, tools: e.target.value })} />
         </div>
       </div>
 
