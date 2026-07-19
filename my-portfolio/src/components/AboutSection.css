@@ -1,17 +1,12 @@
-.about-main {
+.about-section-inner {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 60px var(--page-padding) 80px;
-  flex: 1;
-  width: 100%;
+  padding: 80px var(--page-padding) 100px;
 }
 
-/* Section headings */
-.about-section {
-  margin-bottom: 60px;
-}
+.about-block { margin-bottom: 60px; }
 
-.about-section-title {
+.about-block-title {
   font-size: clamp(32px, 4vw, 48px);
   font-weight: 900;
   letter-spacing: -0.02em;
@@ -20,7 +15,6 @@
   text-transform: uppercase;
 }
 
-/* Timeline */
 .timeline-list {
   display: flex;
   flex-direction: column;
@@ -52,7 +46,6 @@
   justify-self: center;
   position: relative;
 }
-
 .timeline-dot::after {
   content: "";
   position: absolute;
@@ -63,7 +56,6 @@
   height: calc(100% + 20px);
   background: var(--primary-soft);
 }
-
 .timeline-entry:last-child .timeline-dot::after { display: none; }
 
 .timeline-content strong {
@@ -73,7 +65,6 @@
   color: var(--text);
   margin-bottom: 4px;
 }
-
 .timeline-institution {
   display: block;
   font-size: 14px;
@@ -81,7 +72,6 @@
   font-weight: 700;
   margin-bottom: 8px;
 }
-
 .timeline-desc {
   margin: 0;
   font-size: 13px;
@@ -89,7 +79,6 @@
   color: var(--text-muted);
 }
 
-/* Skills grid */
 .skills-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -102,20 +91,13 @@
   border: 2px solid var(--primary-soft);
   border-radius: var(--radius-lg);
 }
-
 .skill-category-card h4 {
   margin: 0 0 14px;
   font-size: 15px;
   font-weight: 700;
   color: var(--text);
 }
-
-.skill-items {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
+.skill-items { display: flex; flex-wrap: wrap; gap: 6px; }
 .skill-item {
   display: inline-flex;
   align-items: center;
@@ -129,7 +111,6 @@
   color: var(--text-muted);
 }
 
-/* Bottom grid: Certs + Hobby */
 .about-bottom-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -137,12 +118,7 @@
   margin-top: 20px;
 }
 
-.cert-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
+.cert-list { display: flex; flex-direction: column; gap: 10px; }
 .cert-item {
   padding: 16px 20px;
   background: var(--surface);
@@ -153,27 +129,11 @@
   align-items: center;
   gap: 12px;
 }
-
-.cert-item strong {
-  display: block;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text);
-}
-
+.cert-item strong { display: block; font-size: 14px; font-weight: 700; color: var(--text); }
 .cert-item span:not(.cert-year) {
-  display: block;
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-top: 2px;
+  display: block; font-size: 12px; color: var(--text-muted); margin-top: 2px;
 }
-
-.cert-year {
-  font-size: 12px;
-  color: var(--text-subtle);
-  flex-shrink: 0;
-  font-weight: 600;
-}
+.cert-year { font-size: 12px; color: var(--text-subtle); flex-shrink: 0; font-weight: 600; }
 
 .beyond-note {
   font-size: 14px;
@@ -181,13 +141,7 @@
   color: var(--text-muted);
   margin: 0 0 20px;
 }
-
-.hobby-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
+.hobby-pills { display: flex; flex-wrap: wrap; gap: 8px; }
 .hobby-pill {
   padding: 8px 16px;
   border-radius: 999px;
@@ -198,18 +152,13 @@
   color: var(--text-muted);
 }
 
-/* Responsive */
 @media (max-width: 800px) {
   .about-bottom-grid { grid-template-columns: 1fr; gap: 40px; }
   .skills-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 640px) {
-  .timeline-entry {
-    grid-template-columns: 80px 16px 1fr;
-    gap: 10px;
-    padding: 12px 0;
-  }
+  .timeline-entry { grid-template-columns: 80px 16px 1fr; gap: 10px; padding: 12px 0; }
   .timeline-year-col { font-size: 10px; padding-top: 6px; }
   .cert-item { flex-direction: column; align-items: flex-start; gap: 4px; }
 }

@@ -1,0 +1,73 @@
+.typing-code-box {
+  background: #0F172A;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.3);
+  width: 100%;
+  max-width: 480px;
+}
+
+.typing-code-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 18px;
+  background: #1E293B;
+  border-bottom: 1px solid #334155;
+}
+
+.typing-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.typing-dot.red { background: #FF5F56; }
+.typing-dot.yellow { background: #FFBD2E; }
+.typing-dot.green { background: #27C93F; }
+
+.typing-filename {
+  margin-left: 8px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: #94A3B8;
+}
+
+.typing-code-body {
+  margin: 0;
+  padding: 26px 24px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.85;
+  color: #5EEAD4;
+  white-space: pre-wrap;
+  word-break: break-word;
+  min-height: 240px;
+}
+
+.typing-cursor {
+  display: inline-block;
+  color: #5EEAD4;
+  opacity: 1;
+}
+.typing-cursor.blink {
+  animation: blink-cursor 1s step-end infinite;
+}
+@keyframes blink-cursor {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Skeleton loading state (sebelum profile data fetched) */
+.typing-skeleton {
+  min-height: 292px;
+  animation: pulse-skeleton 1.5s ease-in-out infinite;
+}
+@keyframes pulse-skeleton {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@media (max-width: 640px) {
+  .typing-code-body { font-size: 12px; padding: 20px 18px; min-height: 200px; }
+}

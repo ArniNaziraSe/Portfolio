@@ -21,37 +21,47 @@
   gap: 16px;
 }
 
-/* Brand logo */
-.brand-link { display: flex; align-items: center; }
+/* Brand — sekarang button (bukan Link), karena cuma scroll ke #home */
+.brand-link {
+  display: flex;
+  align-items: center;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
 
 .brand-logo-img {
-  height: 70px;
+  height: 44px;
   width: auto;
   object-fit: contain;
   display: block;
 }
 
-/* Nav */
+/* Nav — sekarang semuanya <button>, bukan <a>/NavLink */
 .main-nav {
   display: flex;
   gap: 40px;
 }
 
-.main-nav a {
+.main-nav button {
+  background: transparent;
+  border: none;
+  padding: 4px 2px;
+  font-family: inherit;
   color: var(--text-muted);
   font-size: 15px;
   font-weight: 700;
-  padding: 4px 2px;
   border-bottom: 2px solid transparent;
+  cursor: pointer;
   transition: 0.15s ease;
 }
-.main-nav a:hover { color: var(--text); }
-.main-nav a.active {
+.main-nav button:hover { color: var(--text); }
+.main-nav button.active {
   color: var(--primary);
   border-bottom-color: var(--primary);
 }
 
-/* Header actions */
 .header-actions {
   display: flex;
   align-items: center;
@@ -85,7 +95,6 @@
   box-shadow: 0 6px 16px rgba(20, 184, 166, 0.35);
 }
 
-/* Hamburger */
 .hamburger-btn {
   display: none;
   width: 40px; height: 40px;
@@ -97,7 +106,6 @@
   justify-content: center;
 }
 
-/* Mobile menu */
 .mobile-nav {
   display: none;
   padding: 8px 16px 16px;
@@ -107,7 +115,6 @@
   gap: 2px;
 }
 
-.mobile-nav a,
 .mobile-nav button {
   padding: 12px 14px;
   border-radius: 10px;
@@ -121,16 +128,8 @@
   cursor: pointer;
   transition: 0.15s ease;
 }
-
-.mobile-nav a:hover,
-.mobile-nav button:hover {
-  background: var(--surface-variant);
-}
-
-.mobile-nav a.active {
-  color: var(--primary);
-  background: var(--primary-bg);
-}
+.mobile-nav button:hover { background: var(--surface-variant); }
+.mobile-nav button.active { color: var(--primary); background: var(--primary-bg); }
 
 .mobile-nav-divider {
   height: 1px;
@@ -144,11 +143,8 @@
   text-align: center !important;
   margin-top: 4px;
 }
-.mobile-nav-contact:hover {
-  background: var(--primary-hover) !important;
-}
+.mobile-nav-contact:hover { background: var(--primary-hover) !important; }
 
-/* Responsive */
 @media (max-width: 780px) {
   .main-nav { display: none; }
   .header-actions { display: none; }

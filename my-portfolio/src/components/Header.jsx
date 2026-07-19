@@ -1,14 +1,24 @@
-import { NavLink } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useContact } from "../context/ContactContext";
 import logoImg from "../assets/logo.png";
 import "./Header.css";
 
+const SECTIONS = [
+  { id: "home", label: "Home" },
+  { id: "projects", label: "Projects" },
+  { id: "about", label: "About" },
+];
+
 function Header() {
   const { open: openContact } = useContact();
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [isDark, setIsDark] = useState(() => {
     return document.documentElement.getAttribute("data-theme") === "dark";
   });
+  const [activeSection, setActiveSection] = useState("home");
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const toggleTheme = () => {
@@ -26,19 +36,59 @@ function Header() {
     }
   }, []);
 
+  // Scroll-spy: pantau section mana yang lagi kelihatan, highlight nav-nya.
+  // Cuma jalan kalau kita di halaman utama ("/").
+  useEffect(() => {
+    if (location.pathname !== "/") return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) setActiveSection(entry.target.id);
+        });
+      },
+      { rootMargin: "-45% 0px -45% 0px", threshold: 0 }
+    );
+
+    SECTIONS.forEach(({ id }) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [location.pathname]);
+
   const closeMobile = () => setMobileOpen(false);
+
+  // Kalau lagi di halaman lain (misal /projects/kirana-store), navigate
+  // balik ke "/" dulu bawa hash — Home.jsx bakal scroll otomatis setelah mount.
+  const goToSection = (id) => {
+    closeMobile();
+    if (location.pathname !== "/") {
+      navigate(`/#${id}`);
+      return;
+    }
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: "smooth" });
+  };
 
   return (
     <header className="site-header">
       <div className="site-header-inner">
-        <NavLink to="/" className="brand-link" onClick={closeMobile}>
+        <button className="brand-link" onClick={() => goToSection("home")} aria-label="Ke beranda">
           <img src={logoImg} alt="Arni Nazira" className="brand-logo-img" />
-        </NavLink>
+        </button>
 
         <nav className="main-nav">
-          <NavLink to="/" end>Home</NavLink>
-          <NavLink to="/projects">Projects</NavLink>
-          <NavLink to="/about">About</NavLink>
+          {SECTIONS.map(({ id, label }) => (
+            <button
+              key={id}
+              className={activeSection === id && location.pathname === "/" ? "active" : ""}
+              onClick={() => goToSection(id)}
+            >
+              {label}
+            </button>
+          ))}
         </nav>
 
         <div className="header-actions">
@@ -70,17 +120,20 @@ function Header() {
 
       {mobileOpen && (
         <div className="mobile-nav">
-          <NavLink to="/" end onClick={closeMobile}>Home</NavLink>
-          <NavLink to="/projects" onClick={closeMobile}>Projects</NavLink>
-          <NavLink to="/about" onClick={closeMobile}>About</NavLink>
+          {SECTIONS.map(({ id, label }) => (
+            <button
+              key={id}
+              className={activeSection === id && location.pathname === "/" ? "active" : ""}
+              onClick={() => goToSection(id)}
+            >
+              {label}
+            </button>
+          ))}
           <div className="mobile-nav-divider" />
           <button onClick={() => { toggleTheme(); closeMobile(); }}>
             {isDark ? "☀ Light mode" : "☾ Dark mode"}
           </button>
-          <button
-            className="mobile-nav-contact"
-            onClick={() => { openContact(); closeMobile(); }}
-          >
+          <button className="mobile-nav-contact" onClick={() => { openContact(); closeMobile(); }}>
             Contact
           </button>
         </div>
