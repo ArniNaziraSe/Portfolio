@@ -11,18 +11,15 @@ function stripHtml(html) {
 
 // Susun teks kode dari data profile
 function buildCodeText(profile) {
-  const name = profile?.full_name || "Arni Nazira";
   const role = profile?.current_role || "Software Engineer";
   const focus = profile?.focus || "Web & Mobile Development";
   const bioPlain = stripHtml(profile?.bio);
   const bioShort = bioPlain.length > 200 ? bioPlain.slice(0, 200).trim() + "..." : bioPlain;
 
   return `const developer = {
-  name: "${name}",
   role: "${role}",
   focus: "${focus}",
-  about: "${bioShort || "Building thoughtful digital experiences."}",
-  status: "available for new projects",
+  about: "${bioShort || "Building thoughtful digital experiences."}"
 };`;
 }
 
@@ -58,7 +55,7 @@ function TypingIntro({ profile }) {
         <span className="typing-dot red" />
         <span className="typing-dot yellow" />
         <span className="typing-dot green" />
-        <span className="typing-filename">about.js</span>
+        <span className="typing-filename">AboutMe.js</span>
       </div>
       <pre className="typing-code-body">
         <code>
